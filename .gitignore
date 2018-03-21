@@ -13,7 +13,11 @@
 # Project-local glide cache, RE: https://github.com/Masterminds/glide/issues/736
 .glide/
 
-./bin
-./pkg
+bin/
+pkg/
+
+github.com/
+golang.org/
+sourcegraph.com
 
 .DS_Store
