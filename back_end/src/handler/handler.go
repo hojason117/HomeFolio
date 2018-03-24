@@ -2,18 +2,19 @@ package handler
 
 import (
 	"database/sql"
+	"notification"
+	"user"
 
+	//oracle db driver
 	_ "github.com/mattn/go-oci8"
 )
 
 // Handler : Handler for dealing with requests.
 type Handler struct {
-	Database *sql.DB
-	DBName   string
-	//UserHandler		*user.Handler
-	//TweetHandler	*tweet.Handler
-	//CommentHandler	*comment.Handler
-	//NotifHandler	*notification.Handler
+	Database     *sql.DB
+	DBURL        string
+	UserHandler  *user.Handler
+	NotifHandler *notification.Handler
 }
 
 // Key : Key for signing tokens.
@@ -26,15 +27,11 @@ func NewHandler(dbURL string) (h *Handler) {
 	if err != nil {
 		panic(err)
 	}
-	//defer session.Close()
 
 	// Initialize handler
-	//nh := notification.NewHandler(dbURL)
-	//uh := user.NewHandler(dbURL, Key, nh.Manager.Operator)
-	//th := tweet.NewHandler(dbURL, Key, nh.Manager.Operator)
-	//ch := comment.NewHandler(dbURL, Key)
-	//h = &Handler{DB: session, DBName: strings.Split(dbURL, "/")[3], UserHandler: uh, TweetHandler: th, CommentHandler: ch, NotifHandler: nh}
-	h = &Handler{Database: session, DBName: dbURL}
+	nh := notification.NewHandler(session, dbURL)
+	uh := user.NewHandler(session, dbURL, Key, nh.Manager.Operator)
+	h = &Handler{Database: session, DBURL: dbURL, UserHandler: uh, NotifHandler: nh}
 
 	return h
 }
@@ -42,8 +39,6 @@ func NewHandler(dbURL string) (h *Handler) {
 // Shutdown : Gracefully shutdown handler.
 func (h *Handler) Shutdown() {
 	h.Database.Close()
-	//h.UserHandler.Shutdown()
-	//h.TweetHandler.Shutdown()
-	//h.CommentHandler.Shutdown()
-	//h.NotifHandler.Shutdown()
+	h.UserHandler.Shutdown()
+	h.NotifHandler.Shutdown()
 }
