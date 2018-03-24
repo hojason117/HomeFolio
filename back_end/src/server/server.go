@@ -23,8 +23,6 @@ func NewServer(h *handler.Handler) (e *echo.Echo) {
 			// Skip authentication for and signup login requests
 			if c.Request().Method == "OPTIONS" || c.Path() == "/api/v1/login" || c.Path() == "/api/v1/signup" || c.Path() == "/api/v1/ws/:username" {
 				return true
-			} else if c.Path() == "/api/v1/userInfo/:username" {
-				return true
 			}
 			return false
 		},
@@ -44,7 +42,6 @@ func NewServer(h *handler.Handler) (e *echo.Echo) {
 	e.POST("/api/v1/login", h.UserHandler.Login)
 	e.GET("/api/v1/userInfo/:username", h.UserHandler.FetchUserInfo)
 	e.POST("/api/v1/updateUserInfo", h.UserHandler.UpdateUserInfo)
-	e.POST("/api/v1/updateProfilePic", h.UserHandler.UpdateProfilePicture)
 
 	return e
 }
