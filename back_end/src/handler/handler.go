@@ -18,7 +18,7 @@ type Handler struct {
 }
 
 // Key : Key for signing tokens.
-const Key = "UYrtPaa0Pky7QZyVrkIfnouatG7LjTKystf0FGdOuDiXCZyCSuVz8YdK7OBeSrC"
+const Key = "nN?zv#?4bHswHa45DJJTZ52VftEsJ@CWJgQrrFVmbYreH?YAxy-BQc#tvuQ3DpmH"
 
 // NewHandler : Create a Handler instance
 func NewHandler(dbURL string) (h *Handler) {
