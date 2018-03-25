@@ -16,8 +16,10 @@
 bin/
 pkg/
 
-github.com/
-golang.org/
-sourcegraph.com
+back_end/src/github.com/
+back_end/src/golang.org/
+back_end/src/sourcegraph.com
+
+front_end/homefolio/node_modules
 
 .DS_Store
