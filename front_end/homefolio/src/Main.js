@@ -1,19 +1,41 @@
-import React, { Component } from 'react';
-import { BrowserRouter, Route } from 'react-router-dom';
-import Home from './scenes/Home/Home';
-import LooginSignup from './scenes/LoginSignup/LoginSignup';
+import React from 'react';
+import { BrowserRouter, Route, Switch, Redirect } from 'react-router-dom';
+import Home from './scenes/Home/Home.component';
+import Login from './scenes/Login/Login.component';
+import Signup from './scenes/Signup/Signup.component';
+import Public from './scenes/Public/Public.component';
+import NotFound from './scenes/NotFound/NotFound.component';
+import AuthService from './services/auth.service';
 
-class Main extends Component {
-  render() {
-      return (
-        <BrowserRouter>
-          <div>
-            <Route exact path='/' component={Home} />
-            <Route path='/loginsignup' component={LooginSignup} />
-          </div>
-        </BrowserRouter>
-      )
+export const servAddr = 'http://localhost:1323';
+export const urlPrefix = '/api/v1';
+
+class Main extends React.Component {
+    constructor(props) {
+        super(props);
+        this.service = new AuthService();
     }
-  }
+
+    PrivateRoute = ({ component: Component, ...rest }) => (
+        <Route {...rest} render={props => (
+            this.service.authenticate(localStorage.getItem('auth_token')) ? 
+                (<Component {...props} />) : (<Redirect to={{ pathname: "/login" }} />)
+        )} />
+    );
+
+    render() {
+        return (
+            <BrowserRouter>
+                <Switch>
+                    <Route exact path='/' component={Public} />
+                    <this.PrivateRoute path='/home' component={Home} />
+                    <Route path='/login' component={Login} />
+                    <Route path='/signup' component={Signup} />
+                    <Route component={NotFound} />
+                </Switch>
+            </BrowserRouter>
+        )
+    }
+}
 
 export default Main;

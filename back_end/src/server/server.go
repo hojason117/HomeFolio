@@ -13,6 +13,8 @@ import (
 
 // NewServer : Instantiate a server
 func NewServer(h *handler.Handler) (e *echo.Echo) {
+	const urlPrefix = "/api/v1"
+
 	e = echo.New()
 	e.HideBanner = true
 	e.Logger.SetLevel(log.ERROR)
@@ -21,7 +23,7 @@ func NewServer(h *handler.Handler) (e *echo.Echo) {
 		SigningKey: []byte(handler.Key),
 		Skipper: func(c echo.Context) bool {
 			// Skip authentication for and signup login requests
-			if c.Request().Method == "OPTIONS" || c.Path() == "/api/v1/login" || c.Path() == "/api/v1/signup" || c.Path() == "/api/v1/ws/:username" {
+			if c.Request().Method == "OPTIONS" || c.Path() == urlPrefix+"/login" || c.Path() == urlPrefix+"/signup" || c.Path() == urlPrefix+"/ws/:username" {
 				return true
 			}
 			return false
@@ -61,9 +63,6 @@ func TerminalControl(e *echo.Echo, h *handler.Handler, srvAddr string) {
 		} else if op == "h" {
 			fmt.Println("'q' to shutdown server")
 			//fmt.Println("'i' to reconstruct database to default (w/ some initial collections)")
-		} else if op == "r" {
-			//dbReinsert()
-			fmt.Println("Database reconstructed.")
 		}
 	}
 }
