@@ -23,3 +23,5 @@ back_end/src/sourcegraph.com
 front_end/homefolio/node_modules
 
 .DS_Store
+
+package-lock.json
