@@ -3,8 +3,10 @@
   "version": "0.1.0",
   "private": true,
   "dependencies": {
+    "material-ui": "^1.0.0-beta.41",
     "react": "^16.2.0",
     "react-dom": "^16.2.0",
+    "react-google-maps": "^9.4.5",
     "react-router-dom": "^4.2.2",
     "react-scripts": "1.1.1"
   },
@@ -13,5 +15,21 @@
     "build": "react-scripts build",
     "test": "react-scripts test --env=jsdom",
     "eject": "react-scripts eject"
-  }
+  },
+  "description": "This project was bootstrapped with [Create React App](https://github.com/facebookincubator/create-react-app).",
+  "main": "index.js",
+  "devDependencies": {},
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/hojason117/HomeFolio.git"
+  },
+  "keywords": [
+    "HomeFolio"
+  ],
+  "author": "Jason Chia-Hsien Ho",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/hojason117/HomeFolio/issues"
+  },
+  "homepage": "https://github.com/hojason117/HomeFolio#readme"
 }
