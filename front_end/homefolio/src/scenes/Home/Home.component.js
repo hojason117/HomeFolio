@@ -6,21 +6,10 @@ import AppBar from 'material-ui/AppBar';
 import Toolbar from 'material-ui/Toolbar';
 import Typography from 'material-ui/Typography';
 import { withRouter } from 'react-router-dom';
+import { withScriptjs, withGoogleMap, GoogleMap, Marker } from "react-google-maps";
 
 const styles = theme => ({
-    /*login: {
-        margin: 5,
-        position: 'fixed',
-        top: 10,
-        right: 150
-    },
-    signup: {
-        margin: 5,
-        position: 'fixed',
-        top: 10,
-        right: 50
-    },
-    buy: {
+    /*buy: {
         margin: 20,
         width: '30%',
         position: 'fixed',
@@ -44,6 +33,15 @@ const styles = theme => ({
         flex: 1,
     }
 });
+
+const MapComponent = withScriptjs(withGoogleMap((props) =>
+    <GoogleMap
+        defaultZoom={8}
+        defaultCenter={{ lat: 29.642, lng: -82.347 }}
+    >
+        {props.isMarkerShown && <Marker position={{ lat: 29.642, lng: -82.347 }} />}
+    </GoogleMap>
+))
 
 class Home extends React.Component {
     SignoutButton = withRouter(
@@ -85,6 +83,14 @@ class Home extends React.Component {
                     SELL
                 </Button>
                 <this.SignoutButton />
+
+                <MapComponent
+                    isMarkerShown={false}
+                    googleMapURL="https://maps.googleapis.com/maps/api/js?v=3.exp&libraries=geometry,drawing,places"
+                    loadingElement={<div style={{ height: `100%` }} />}
+                    containerElement={<div style={{ height: `500px` }} />}
+                    mapElement={<div style={{ height: `100%` }} />}
+                />
             </div>
         )
     }
