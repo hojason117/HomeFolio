@@ -14,10 +14,13 @@ class AuthService {
     }
 
     login = (email, password) => {
-        Axios.post(this.baseUrl + '/login', 
+        Axios.post('/login', 
             {
                 email: email,
                 password: password
+            },
+            {
+                baseURL: this.baseUrl
             })
             .then(
                 response => {
@@ -51,7 +54,7 @@ class AuthService {
     }
 
     signup = (email, username, password, age, area, bio) => {
-        Axios.post(this.baseUrl + '/signup',
+        Axios.post('/signup',
             {
                 email: email,
                 username: username,
@@ -59,6 +62,9 @@ class AuthService {
                 age: age,
                 area: area,
                 bio:bio
+            },
+            {
+                baseURL: this.baseUrl
             })
             .then(
                 response => {

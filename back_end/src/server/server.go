@@ -42,8 +42,10 @@ func NewServer(h *handler.Handler) (e *echo.Echo) {
 	e.GET("/api/v1/ws/:username", h.NotifHandler.GetConnection)
 	e.POST("/api/v1/signup", h.UserHandler.Signup)
 	e.POST("/api/v1/login", h.UserHandler.Login)
-	e.GET("/api/v1/userInfo/:username", h.UserHandler.FetchUserInfo)
+	e.GET("/api/v1/userInfo/:uid", h.UserHandler.FetchUserInfo)
 	e.POST("/api/v1/updateUserInfo", h.UserHandler.UpdateUserInfo)
+	e.GET("/api/v1/houseInfo/:hid", h.HouseHandler.FetchSingleHouseInfo)
+	e.GET("/api/v1/houseInfo", h.HouseHandler.FetchRegionHouseInfo)
 
 	return e
 }

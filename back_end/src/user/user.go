@@ -138,7 +138,7 @@ func (h *Handler) Login(c echo.Context) (err error) {
 func (h *Handler) FetchUserInfo(c echo.Context) (err error) {
 	// Retrieve user info from database
 	userD := new(model.User)
-	err = h.db.QueryRow("SELECT * FROM acc_user WHERE u_id = :var1", c.Param("username")).Scan(&userD.UID,
+	err = h.db.QueryRow("SELECT * FROM acc_user WHERE u_id = :var1", c.Param("uid")).Scan(&userD.UID,
 		&userD.Email, &userD.Username, &userD.Password, &userD.Picture, &userD.Age, &userD.Area, &userD.Bio)
 	if err != nil {
 		if err == sql.ErrNoRows {

@@ -2,6 +2,7 @@ package handler
 
 import (
 	"database/sql"
+	"house"
 	"notification"
 	"user"
 
@@ -14,6 +15,7 @@ type Handler struct {
 	Database     *sql.DB
 	DBURL        string
 	UserHandler  *user.Handler
+	HouseHandler *house.Handler
 	NotifHandler *notification.Handler
 }
 
@@ -31,7 +33,8 @@ func NewHandler(dbURL string) (h *Handler) {
 	// Initialize handler
 	nh := notification.NewHandler(session, dbURL)
 	uh := user.NewHandler(session, dbURL, Key, nh.Manager.Operator)
-	h = &Handler{Database: session, DBURL: dbURL, UserHandler: uh, NotifHandler: nh}
+	hh := house.NewHandler(session, dbURL)
+	h = &Handler{Database: session, DBURL: dbURL, UserHandler: uh, HouseHandler: hh, NotifHandler: nh}
 
 	return h
 }

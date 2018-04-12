@@ -7,22 +7,9 @@ import Toolbar from 'material-ui/Toolbar';
 import Typography from 'material-ui/Typography';
 import { withRouter } from 'react-router-dom';
 import { withScriptjs, withGoogleMap, GoogleMap, Marker } from "react-google-maps";
+import DataService from '../../services/data.service';
 
 const styles = theme => ({
-    /*buy: {
-        margin: 20,
-        width: '30%',
-        position: 'fixed',
-        top: '30%',
-        left: '15%'
-    },
-    sell: {
-        margin: 20,
-        width: '30%',
-        position: 'fixed',
-        top: '30%',
-        right: '15%'
-    }*/
     button: {
         margin: theme.spacing.unit,
     },
@@ -34,16 +21,15 @@ const styles = theme => ({
     }
 });
 
-const MapComponent = withScriptjs(withGoogleMap((props) =>
-    <GoogleMap
-        defaultZoom={8}
-        defaultCenter={{ lat: 29.642, lng: -82.347 }}
-    >
-        {props.isMarkerShown && <Marker position={{ lat: 29.642, lng: -82.347 }} />}
-    </GoogleMap>
-))
-
 class Home extends React.Component {
+    constructor(props) {
+        super(props);
+        this.service = new DataService();
+        this.state = {
+            markers: []
+        }
+    }
+
     SignoutButton = withRouter(
         ({ history }) =>
             <Button
@@ -55,6 +41,20 @@ class Home extends React.Component {
                 Sign out
              </Button>
     )
+
+    MapComponent = withScriptjs(withGoogleMap((props) =>
+        <GoogleMap
+            //ref={props.onMapMounted}
+            defaultZoom={10}
+            defaultCenter={{ lat: 34.07382, lng: -118.2618 }}
+            onBoundsChanged={() => {
+                //this.setState({markers: this.service.fetchRegionHouses()});
+                //console.log(this.ref.getBounds());
+            }}
+        >
+            {props.isMarkerShown && this.state.markers}
+        </GoogleMap>
+    ))
 
     render() {
         const { classes } = this.props;
@@ -84,12 +84,12 @@ class Home extends React.Component {
                 </Button>
                 <this.SignoutButton />
 
-                <MapComponent
-                    isMarkerShown={false}
+                <this.MapComponent
+                    isMarkerShown={true}
                     googleMapURL="https://maps.googleapis.com/maps/api/js?v=3.exp&libraries=geometry,drawing,places"
-                    loadingElement={<div style={{ height: `100%` }} />}
-                    containerElement={<div style={{ height: `500px` }} />}
-                    mapElement={<div style={{ height: `100%` }} />}
+                    loadingElement={<div style={{ height: '100%' }} />}
+                    containerElement={<div style={{ height: '500px' }} />}
+                    mapElement={<div style={{ height: '100%' }} />}
                 />
             </div>
         )
