@@ -6,8 +6,10 @@ class DataService {
         this.baseUrl = servAddr + urlPrefix;
     }
   
-    fetchRegionHouses = (ne_lat, ne_lng, sw_lat, sw_lng) => {
-        Axios.get('/houseInfo?ne_lat=' + ne_lat + '&ne_lng=' + ne_lng + '&sw_lat=' + sw_lat + '&sw_lng=' + sw_lng,
+    fetchRegionHouses = (LatLng, map) => {
+        var nextMarkers = [];
+
+        Axios.get('/houseInfo?ne_lat=' + LatLng.f.f + '&ne_lng=' + LatLng.b.f + '&sw_lat=' + LatLng.f.b + '&sw_lng=' + LatLng.b.b,
             {
                 baseURL: this.baseUrl,
                 headers: {'Authorization': 'Bearer ' + localStorage.getItem('auth_token')}
@@ -15,10 +17,10 @@ class DataService {
             .then(
                 response => {
                     if (response.status === 200) {
-                        for (var i = 0; i < response.data.length; i++) {
-                            console.log(i);
-                            //<Marker position={{ lat: 34.206691, lng: -118.518468 }} />
-                        }
+                        for (var index in response.data)
+                            nextMarkers.push({ lat: response.data[index].latitude, lng: response.data[index].longitude });
+                        
+                        map.setState({ markers: nextMarkers });
                     }
                     else {
                         console.log('Unexpected response code: ' + response.status);

@@ -49,8 +49,6 @@ func (h *Handler) FetchSingleHouseInfo(c echo.Context) (err error) {
 //				   Return 404 Not Found if the house is not in the database.
 func (h *Handler) FetchRegionHouseInfo(c echo.Context) (err error) {
 	// Retrieve house info from database
-	houseD := new(model.House)
-	var houses []*model.House
 	rows, err := h.db.Query("SELECT * FROM house WHERE latitude < :var1 and latitude > :var2 and longitude < :var3 and longitude > :var4",
 		c.QueryParam("ne_lat"), c.QueryParam("sw_lat"), c.QueryParam("ne_lng"), c.QueryParam("sw_lng"))
 	if err != nil {
@@ -58,7 +56,16 @@ func (h *Handler) FetchRegionHouseInfo(c echo.Context) (err error) {
 	}
 	defer rows.Close()
 
+	type HouseC struct {
+		HID       string  `json:"h_id"`
+		Latitude  float32 `json:"latitude"`
+		Longitude float32 `json:"longitude"`
+	}
+
+	var houses []*HouseC
+
 	for rows.Next() {
+		houseD := new(model.House)
 		err = rows.Scan(&houseD.HID, &houseD.UID,
 			&houseD.BathroomCnt, &houseD.BedroomCnt, &houseD.BuildingQualityID, &houseD.LivingAreaSize, &houseD.Latitude,
 			&houseD.Longitude, &houseD.LotSize, &houseD.CityID, &houseD.County, &houseD.Zip, &houseD.YearBuilt,
@@ -67,7 +74,12 @@ func (h *Handler) FetchRegionHouseInfo(c echo.Context) (err error) {
 			return err
 		}
 
-		houses = append(houses, houseD)
+		houseC := new(HouseC)
+		houseC.HID = houseD.HID
+		houseC.Latitude = houseD.Latitude
+		houseC.Longitude = houseD.Longitude
+
+		houses = append(houses, houseC)
 	}
 	if err = rows.Err(); err != nil {
 		return err

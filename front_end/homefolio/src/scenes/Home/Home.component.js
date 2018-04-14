@@ -8,6 +8,7 @@ import Typography from 'material-ui/Typography';
 import { withRouter } from 'react-router-dom';
 import { withScriptjs, withGoogleMap, GoogleMap, Marker } from "react-google-maps";
 import DataService from '../../services/data.service';
+import { compose, withProps, lifecycle } from "recompose";
 
 const styles = theme => ({
     button: {
@@ -25,9 +26,6 @@ class Home extends React.Component {
     constructor(props) {
         super(props);
         this.service = new DataService();
-        this.state = {
-            markers: []
-        }
     }
 
     SignoutButton = withRouter(
@@ -42,19 +40,71 @@ class Home extends React.Component {
              </Button>
     )
 
-    MapComponent = withScriptjs(withGoogleMap((props) =>
+    MapComponent = compose(
+        withProps({
+            googleMapURL: "https://maps.googleapis.com/maps/api/js?&key=AIzaSyAHbTvrtAr7iIMx0ZHhwwB3RqgWpRy4fvs&v=3.exp&libraries=geometry,drawing,places",
+            loadingElement: <div style={{ height: `100%` }} />,
+            containerElement: <div style={{ height: `500px` }} />,
+            mapElement: <div style={{ height: `100%` }} />,
+        }),
+        lifecycle({
+            componentWillMount() {
+                const refs = {}
+
+                this.setState({
+                    bounds: null,
+                    center: {
+                        lat: 34.07382, lng: -118.2618
+                    },
+                    markers: [],
+                    onMapMounted: ref => {
+                        refs.map = ref;
+
+                        setTimeout(() => {
+                            var service = new DataService();
+                            service.fetchRegionHouses(refs.map.getBounds(), this);
+
+                            this.setState({
+                                bounds: refs.map.getBounds(),
+                                center: refs.map.getCenter()
+                            });
+                        }, 1000);
+                    },
+                    onDragEnd: () => {
+                        var service = new DataService();
+                        service.fetchRegionHouses(refs.map.getBounds(), this);
+
+                        this.setState({
+                            bounds: refs.map.getBounds(),
+                            center: refs.map.getCenter()
+                        });
+                    },
+                    onZoomChanged: () => {
+                        var service = new DataService();
+                        service.fetchRegionHouses(refs.map.getBounds(), this);
+                        
+                        this.setState({
+                            bounds: refs.map.getBounds(),
+                            center: refs.map.getCenter()
+                        });
+                    }
+                })
+            },
+        }),
+        withScriptjs,
+        withGoogleMap
+    )((props) =>
         <GoogleMap
-            //ref={props.onMapMounted}
-            defaultZoom={10}
+            ref={props.onMapMounted}
+            defaultZoom={16}
             defaultCenter={{ lat: 34.07382, lng: -118.2618 }}
-            onBoundsChanged={() => {
-                //this.setState({markers: this.service.fetchRegionHouses()});
-                //console.log(this.ref.getBounds());
-            }}
+            center={props.center}
+            onDragEnd={props.onDragEnd}
+            onZoomChanged={props.onZoomChanged}
         >
-            {props.isMarkerShown && this.state.markers}
+            {props.markers.map((marker, index) => <Marker key={index} position={marker} />)}
         </GoogleMap>
-    ))
+    ) 
 
     render() {
         const { classes } = this.props;
@@ -84,13 +134,7 @@ class Home extends React.Component {
                 </Button>
                 <this.SignoutButton />
 
-                <this.MapComponent
-                    isMarkerShown={true}
-                    googleMapURL="https://maps.googleapis.com/maps/api/js?v=3.exp&libraries=geometry,drawing,places"
-                    loadingElement={<div style={{ height: '100%' }} />}
-                    containerElement={<div style={{ height: '500px' }} />}
-                    mapElement={<div style={{ height: '100%' }} />}
-                />
+                <this.MapComponent />
             </div>
         )
     }

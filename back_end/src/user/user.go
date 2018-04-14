@@ -26,7 +26,6 @@ type (
 		Email    string `json:"email"`
 		Username string `json:"username"`
 		Password string `json:"password,omitempty"`
-		Picture  string `json:"picture,omitempty"`
 		Age      int64  `json:"age,omitempty"`
 		Area     string `json:"area,omitempty"`
 		Bio      string `json:"bio,omitempty"`
@@ -58,7 +57,7 @@ func (h *Handler) Signup(c echo.Context) (err error) {
 
 	userD := new(model.User)
 	err = h.db.QueryRow("SELECT * FROM acc_user WHERE email = :var1 and password = :var2", userC.Email, userC.Password).Scan(&userD.UID,
-		&userD.Email, &userD.Username, &userD.Password, &userD.Picture, &userD.Age, &userD.Area, &userD.Bio)
+		&userD.Email, &userD.Username, &userD.Password, &userD.Age, &userD.Area, &userD.Bio)
 	if err == nil {
 		return &echo.HTTPError{Code: http.StatusBadRequest, Message: "Username or email already used."}
 	} else if err != sql.ErrNoRows {
@@ -71,7 +70,7 @@ func (h *Handler) Signup(c echo.Context) (err error) {
 	userC.fillD(userD)
 
 	stmt, err := h.db.Prepare("INSERT INTO acc_user VALUES (:var1, :var2, :var3, :var4, :var5, :var6, :var7, :var8)")
-	_, err = stmt.Exec(userD.UID, userD.Email, userD.Username, userD.Password, userD.Picture, userD.Age, userD.Area, userD.Bio)
+	_, err = stmt.Exec(userD.UID, userD.Email, userD.Username, userD.Password, userD.Age, userD.Area, userD.Bio)
 	if err != nil {
 		return err
 	}
@@ -97,7 +96,7 @@ func (h *Handler) Login(c echo.Context) (err error) {
 	// Find user
 	userD := new(model.User)
 	err = h.db.QueryRow("SELECT * FROM acc_user WHERE email = :var1 and password = :var2", userC.Email, userC.Password).Scan(&userD.UID,
-		&userD.Email, &userD.Username, &userD.Password, &userD.Picture, &userD.Age, &userD.Area, &userD.Bio)
+		&userD.Email, &userD.Username, &userD.Password, &userD.Age, &userD.Area, &userD.Bio)
 	if err != nil {
 		if err == sql.ErrNoRows {
 			return &echo.HTTPError{Code: http.StatusUnauthorized, Message: "Invalid email or password."}
@@ -139,7 +138,7 @@ func (h *Handler) FetchUserInfo(c echo.Context) (err error) {
 	// Retrieve user info from database
 	userD := new(model.User)
 	err = h.db.QueryRow("SELECT * FROM acc_user WHERE u_id = :var1", c.Param("uid")).Scan(&userD.UID,
-		&userD.Email, &userD.Username, &userD.Password, &userD.Picture, &userD.Age, &userD.Area, &userD.Bio)
+		&userD.Email, &userD.Username, &userD.Password, &userD.Age, &userD.Area, &userD.Bio)
 	if err != nil {
 		if err == sql.ErrNoRows {
 			return &echo.HTTPError{Code: http.StatusNotFound, Message: "User does not exist."}
@@ -158,12 +157,10 @@ func (h *Handler) FetchUserInfo(c echo.Context) (err error) {
 
 // UpdateUserInfo : Update a user's info, uid and email are not allowed to be modified.
 //					# Username cannot be empty.
-//					# Image is to be encoded into base 64 string, and cannot be larger than 10 MB.
 //					# Request body must contain all fields, even if they are empty or not modified.
 //					URL: "/api/v1/updateUserInfo"
 //					Method: POST
 //					Return 200 OK on success, along with the user data.
-//					Return 400 Bad Request if username is empty or the image is larger than 10 MB.
 //					Return 404 Not Found if the user is not in the database.
 func (h *Handler) UpdateUserInfo(c echo.Context) (err error) {
 	uid := uidFromToken(c)
@@ -177,14 +174,9 @@ func (h *Handler) UpdateUserInfo(c echo.Context) (err error) {
 		return &echo.HTTPError{Code: http.StatusBadRequest, Message: "Username must not be empty."}
 	}
 
-	// Do not accept image larger than 10 MB
-	if len(userC.Picture) > 10485760 {
-		return &echo.HTTPError{Code: http.StatusBadRequest, Message: "Image must be smaller than 10 MB."}
-	}
-
 	userD := new(model.User)
 	err = h.db.QueryRow("SELECT * FROM acc_user WHERE u_id = :var1", uid).Scan(&userD.UID,
-		&userD.Email, &userD.Username, &userD.Password, &userD.Picture, &userD.Age, &userD.Area, &userD.Bio)
+		&userD.Email, &userD.Username, &userD.Password, &userD.Age, &userD.Area, &userD.Bio)
 	if err != nil {
 		if err == sql.ErrNoRows {
 			return &echo.HTTPError{Code: http.StatusNotFound, Message: "User does not exist."}
@@ -195,7 +187,7 @@ func (h *Handler) UpdateUserInfo(c echo.Context) (err error) {
 	userC.fillD(userD)
 
 	stmt, err := h.db.Prepare("UPDATE acc_user SET username = :var1, password = :var2, pic = :var3, age = :var4, area = :var5, biography = :var6 WHERE u_id = :var7")
-	_, err = stmt.Exec(userD.Username, userD.Password, userD.Picture, userD.Age, userD.Area, userD.Bio, userD.UID)
+	_, err = stmt.Exec(userD.Username, userD.Password, userD.Age, userD.Area, userD.Bio, userD.UID)
 	if err != nil {
 		return err
 	}
@@ -219,9 +211,7 @@ func (userC *userContainer) fillC(userD *model.User) {
 	userC.Email = userD.Email
 	userC.Username = userD.Username
 	userC.Password = userD.Password
-	if userD.Picture.Valid {
-		userC.Picture = userD.Picture.String
-	}
+
 	if userD.Age.Valid {
 		userC.Age = userD.Age.Int64
 	}
@@ -238,12 +228,7 @@ func (userC *userContainer) fillD(userD *model.User) {
 	userD.Email = userC.Email
 	userD.Username = userC.Username
 	userD.Password = userC.Password
-	if userC.Picture == "" {
-		userD.Picture.Valid = false
-	} else {
-		userD.Picture.String = userC.Picture
-		userD.Picture.Valid = true
-	}
+
 	if userC.Age == 0 {
 		userD.Age.Valid = false
 	} else {
