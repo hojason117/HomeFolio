@@ -5,7 +5,7 @@ const HouseTable = "house"
 
 // House : Data structure that holds a single house.
 type House struct {
-	HID               int     `json:"h_id"`
+	HID               string  `json:"h_id"`
 	UID               string  `json:"u_id"`
 	BathroomCnt       int     `json:"bathroomCnt"`
 	BedroomCnt        int     `json:"bedroomCnt"`
