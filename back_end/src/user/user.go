@@ -30,6 +30,8 @@ type (
 		Area     string `json:"area,omitempty"`
 		Bio      string `json:"bio,omitempty"`
 		Token    string `json:"token,omitempty"`
+		Seller   bool   `json:"seller"`
+		Buyer    bool   `json:"buyer"`
 	}
 )
 
@@ -69,10 +71,26 @@ func (h *Handler) Signup(c echo.Context) (err error) {
 	userC.UID = newID.String()
 	userC.fillD(userD)
 
-	stmt, err := h.db.Prepare("INSERT INTO acc_user VALUES (:var1, :var2, :var3, :var4, :var5, :var6, :var7, :var8)")
+	stmt, err := h.db.Prepare("INSERT INTO acc_user VALUES (:var1, :var2, :var3, :var4, :var5, :var6, :var7)")
 	_, err = stmt.Exec(userD.UID, userD.Email, userD.Username, userD.Password, userD.Age, userD.Area, userD.Bio)
 	if err != nil {
 		return err
+	}
+
+	if userC.Seller {
+		stmt, err := h.db.Prepare("INSERT INTO seller VALUES (:var1)")
+		_, err = stmt.Exec(userD.UID)
+		if err != nil {
+			return err
+		}
+	}
+
+	if userC.Buyer {
+		stmt, err := h.db.Prepare("INSERT INTO buyer VALUES (:var1)")
+		_, err = stmt.Exec(userD.UID)
+		if err != nil {
+			return err
+		}
 	}
 
 	// Don't send password
@@ -104,8 +122,26 @@ func (h *Handler) Login(c echo.Context) (err error) {
 		return err
 	}
 
+	seller := true
+	err = h.db.QueryRow("SELECT * FROM seller WHERE u_id = :var1", userD.UID).Scan(new(string))
+	if err != nil {
+		if err != sql.ErrNoRows {
+			return err
+		}
+		seller = false
+	}
+
+	buyer := true
+	err = h.db.QueryRow("SELECT * FROM buyer WHERE u_id = :var1", userD.UID).Scan(new(string))
+	if err != nil {
+		if err != sql.ErrNoRows {
+			return err
+		}
+		buyer = false
+	}
+
 	// Pack container
-	userC.fillC(userD)
+	userC.fillC(userD, seller, buyer)
 
 	// JWT
 
@@ -146,8 +182,26 @@ func (h *Handler) FetchUserInfo(c echo.Context) (err error) {
 		return err
 	}
 
+	seller := true
+	err = h.db.QueryRow("SELECT * FROM seller WHERE u_id = :var1", userD.UID).Scan(new(string))
+	if err != nil {
+		if err != sql.ErrNoRows {
+			return err
+		}
+		seller = false
+	}
+
+	buyer := true
+	err = h.db.QueryRow("SELECT * FROM buyer WHERE u_id = :var1", userD.UID).Scan(new(string))
+	if err != nil {
+		if err != sql.ErrNoRows {
+			return err
+		}
+		buyer = false
+	}
+
 	userC := new(userContainer)
-	userC.fillC(userD)
+	userC.fillC(userD, seller, buyer)
 
 	// Don't send password
 	userC.Password = ""
@@ -186,7 +240,7 @@ func (h *Handler) UpdateUserInfo(c echo.Context) (err error) {
 
 	userC.fillD(userD)
 
-	stmt, err := h.db.Prepare("UPDATE acc_user SET username = :var1, password = :var2, pic = :var3, age = :var4, area = :var5, biography = :var6 WHERE u_id = :var7")
+	stmt, err := h.db.Prepare("UPDATE acc_user SET username = :var1, password = :var2, age = :var3, area = :var4, bio = :var5 WHERE u_id = :var6")
 	_, err = stmt.Exec(userD.Username, userD.Password, userD.Age, userD.Area, userD.Bio, userD.UID)
 	if err != nil {
 		return err
@@ -206,11 +260,13 @@ func uidFromToken(c echo.Context) string {
 	return claims["uid"].(string)
 }
 
-func (userC *userContainer) fillC(userD *model.User) {
+func (userC *userContainer) fillC(userD *model.User, seller bool, buyer bool) {
 	userC.UID = userD.UID
 	userC.Email = userD.Email
 	userC.Username = userD.Username
 	userC.Password = userD.Password
+	userC.Seller = seller
+	userC.Buyer = buyer
 
 	if userD.Age.Valid {
 		userC.Age = userD.Age.Int64

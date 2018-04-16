@@ -47,7 +47,7 @@ class Login extends React.Component {
 
     login = () =>  {
         this.service.login(this.state.email, this.state.password);
-        this.setState({ redirectToHome: true });
+        setTimeout(() => this.setState({ redirectToHome: true }), 1000);
     }
 
     render() {

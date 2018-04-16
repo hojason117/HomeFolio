@@ -5,10 +5,12 @@ import jwt_decode from 'jwt-decode';
 class AuthService {
     constructor() {
         this.baseUrl = servAddr + urlPrefix;
-        this.isAuthenticated = false;
     }
 
     authenticate = (token) => {
+        if(token === null)
+            return false;
+
         var decoded = jwt_decode(token);
         return (Date.now()/1000 < decoded.exp) ? true : false;
     }
@@ -29,6 +31,9 @@ class AuthService {
                         localStorage.setItem('u_id', response.data.u_id);
                         localStorage.setItem('username', response.data.username);
                         localStorage.setItem('auth_token', response.data.token);
+                        localStorage.setItem('authenticated', 'yes');
+                        localStorage.setItem('seller', (response.data.seller) ? 'yes' : 'no');
+                        localStorage.setItem('buyer', (response.data.buyer) ? 'yes' : 'no');
                     }
                     else {
                         console.log('Unexpected response code: ' + response.status);
@@ -53,7 +58,7 @@ class AuthService {
         }
     }
 
-    signup = (email, username, password, age, area, bio) => {
+    signup = (email, username, password, age, area, bio, seller, buyer) => {
         Axios.post('/signup',
             {
                 email: email,
@@ -61,7 +66,9 @@ class AuthService {
                 password: password,
                 age: age,
                 area: area,
-                bio:bio
+                bio: bio,
+                seller: seller,
+                buyer: buyer
             },
             {
                 baseURL: this.baseUrl
@@ -83,8 +90,8 @@ class AuthService {
     signupErrorHandler = (error) => {
         if (error.response) {
             if (error.response.status === 400) {
-                console.log('Email, username and password cannot be empty.');
-                alert('Email, username and password cannot be empty.');
+                console.log('Email, username and password cannot be empty, or username, email already used.');
+                alert('Email, username and password cannot be empty, or username, email already used.');
             }
         }
         else if (error.request) {

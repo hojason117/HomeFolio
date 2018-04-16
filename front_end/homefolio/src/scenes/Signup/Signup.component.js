@@ -2,6 +2,8 @@ import React from 'react';
 import PropTypes from 'prop-types';
 import { withStyles } from 'material-ui/styles';
 import TextField from 'material-ui/TextField';
+import Checkbox from 'material-ui/Checkbox';
+import { FormLabel, FormControl, FormGroup, FormControlLabel } from 'material-ui/Form';
 import Button from 'material-ui/Button';
 import AppBar from 'material-ui/AppBar';
 import Typography from 'material-ui/Typography';
@@ -34,7 +36,9 @@ class Signup extends React.Component {
             password: '',
             age: '',
             area: '',
-            bio: ''
+            bio: '',
+            seller: false,
+            buyer: false
         }
     }
 
@@ -49,7 +53,7 @@ class Signup extends React.Component {
         else
             temp = parseInt(this.state.age, 10);
 
-        this.service.signup(this.state.email, this.state.username, this.state.password, temp, this.state.area, this.state.bio);
+        this.service.signup(this.state.email, this.state.username, this.state.password, temp, this.state.area, this.state.bio, this.state.seller, this.state.buyer);
         this.setState({ redirectToPublic: true });
     }
 
@@ -126,6 +130,29 @@ class Signup extends React.Component {
                         margin='normal'
                         onChange={event => this.setState({ bio: event.target.value })}
                     />
+                    <FormControl component="fieldset">
+                        <FormLabel component="legend">Account type</FormLabel>
+                        <FormGroup>
+                            <FormControlLabel
+                                control={
+                                    <Checkbox
+                                        checked={this.state.seller}
+                                        onChange={(event) => this.setState({ seller: !this.state.seller })}
+                                    />
+                                }
+                                label='Seller'
+                            />
+                            <FormControlLabel
+                                control={
+                                    <Checkbox
+                                        checked={this.state.buyer}
+                                        onChange={(event) => this.setState({ buyer: !this.state.buyer })}
+                                    />
+                                }
+                                label='Buyer'
+                            />
+                        </FormGroup>
+                    </FormControl>
                     <Button
                         variant='raised'
                         primary='true'
