@@ -4,6 +4,7 @@ import { withStyles } from 'material-ui/styles';
 import Button from 'material-ui/Button';
 import DataService from '../../services/data.service';
 import Map from '../../scenes/Home/Map.component';
+import TopList from '../../scenes/Home/TopList.component';
 import NavBar from '../../components/NavBar/NavBar.component';
 
 const styles = theme => ({
@@ -42,6 +43,7 @@ class Home extends React.Component {
                 </div>
                 <div style={{ height: '80vh' }}>
                     <Map />
+                    <TopList />
                 </div>
             </div>
         )
