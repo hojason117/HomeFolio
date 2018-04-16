@@ -6,7 +6,7 @@ import DataService from '../../services/data.service';
 import classnames from 'classnames';
 import { compose, withProps } from "recompose";
 import { withScriptjs, withGoogleMap, GoogleMap, StreetViewPanorama } from "react-google-maps";
-import Card, { CardHeader, CardMedia, CardContent, CardActions } from 'material-ui/Card';
+import Card, { CardHeader, CardContent, CardActions } from 'material-ui/Card';
 import Collapse from 'material-ui/transitions/Collapse';
 import Avatar from 'material-ui/Avatar';
 import IconButton from 'material-ui/IconButton';
@@ -14,15 +14,21 @@ import Typography from 'material-ui/Typography';
 import red from 'material-ui/colors/red';
 import FavoriteIcon from '@material-ui/icons/Favorite';
 import VisibilityIcon from '@material-ui/icons/Visibility';
-import AccountIcon from '@material-ui/icons/AccountCircle';
+//import AccountIcon from '@material-ui/icons/AccountCircle';
 import ExpandMoreIcon from '@material-ui/icons/ExpandMore';
-//import 'typeface-roboto';
+import Button from 'material-ui/Button';
+import AddIcon from '@material-ui/icons/Add';
+import HomeIcon from '@material-ui/icons/Home';
+//import EditIcon from '@material-ui/ModeEdit';
+import DeleteIcon from '@material-ui/icons/Delete';
+import Tooltip from 'material-ui/Tooltip';
+//import Link from 'react-router/lib/Link';
 
+/* <Button variant="fab" disabled aria-label="mode_edit" className={classes.button}>
+                    <EditIcon/>
+                </Button>*/
 
 const styles = theme => ({
-    /*container: {
-        textAlign: 'center'
-    },*/
     button: {
         margin: theme.spacing.unit,
     },
@@ -57,6 +63,15 @@ const styles = theme => ({
         backgroundColor: red[500],
     },
 
+    fab: {
+        margin: theme.spacing.unit * 2,
+    },
+    absolute: {
+        position: 'absolute',
+        bottom: theme.spacing.unit * 2,
+        right: theme.spacing.unit * 3,
+    },
+
 });
 
 // h_id,u_id,bathroomCnt,bedroomCnt,buildingQualityID,livingAreaSize,latitude,longitude,lotSize,cityID,county,zip,yearBuilt,storyNum,price,tax
@@ -65,21 +80,12 @@ class HouseInfo extends React.Component {
     constructor(props) {
         super(props);
         this.service = new DataService();
+        this.state = {
+            
+        }
     }
 
-    /*SignoutButton = withRouter(
-        ({ history }) =>
-            <Button
-                variant='raised'
-                secondary='true'
-                className={this.props.button}
-                color='secondary'
-                onClick={() => history.push("/")} >
-                Sign out
-             </Button>
-    )*/
-
-    StreetViewPanorma = compose(
+    StreetViewPanorama = compose(
         withProps({
             googleMapURL: "https://maps.googleapis.com/maps/api/js?key=AIzaSyC4R6AN7SmujjPUIGKdyao2Kqitzr1kiRg&v=3.exp&libraries=geometry,drawing,places",
             loadingElement: <div style={{ height: `100%` }} />,
@@ -102,12 +108,33 @@ class HouseInfo extends React.Component {
         this.setState({ expanded: !this.state.expanded });
     };
 
+   
+   //this.props.match.params['h_id']
+
+
     render() {
         const { classes } = this.props;
 
         return (
             <div>
                 <NavBar />
+                <Tooltip id="tooltip-fab" title="Homepage">
+                <Button  variant="fab" mini color="secondary" aria-label="home" 
+                 className={classes.button} >
+                    <HomeIcon/>
+                </Button>
+                </Tooltip>
+                <Tooltip id="tooltip-fab" title="Add to Compare">
+                <Button variant="fab" mini color="primary" aria-label="add" className={classes.button}>
+                    <AddIcon />
+                </Button>
+                </Tooltip>
+                <Tooltip id="tooltip-fab" title="Delete House">
+                    <Button variant="fab" mini aria-label="delete" className={classes.button}>
+                        <DeleteIcon />
+                    </Button>
+                </Tooltip>
+
                 <Card className={classes.card}>
                     <CardHeader
                         avatar={
@@ -116,14 +143,14 @@ class HouseInfo extends React.Component {
                         </Avatar>
                         }
                         action={
-                        <IconButton>
-                            <AccountIcon />
-                        </IconButton>
+                            <CardActions>
+                            <Button size="small">CONTACT SELLER</Button>
+                            </CardActions>
                         }
                         title="House Owner: Jason Ho"
                         subheader="Some other infos about owners"
                     />
-                    <CardMedia component={this.StreetViewPanorma} />
+                    <this.StreetViewPanorama />
                     <CardContent>
                         <Typography variant="headline">2930 Klamath Ave, Simi Valley, CA 93063</Typography>
                         <Typography variant="display1">4 beds    3 baths     2,542 sqft</Typography>
