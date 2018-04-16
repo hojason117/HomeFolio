@@ -81,7 +81,25 @@ class HouseInfo extends React.Component {
         super(props);
         this.service = new DataService();
         this.state = {
-            
+            info: {
+                h_id: '',
+                u_id: '',
+                bathroomCnt: 0, 
+                bedroomCnt: 0,
+                buildingQualityID: 0,
+                livingAreaSize: 0,
+                latitude: 0.0,
+                longitude: 0.0,
+                lotSize: 0,
+                cityID: 0,
+                county: '',
+                zip: 0,
+                yearBuilt: 0,
+                storyNum: 0,
+                price: 0,
+                tax: 0
+            },
+            addr: ''
         }
     }
 
@@ -108,9 +126,10 @@ class HouseInfo extends React.Component {
         this.setState({ expanded: !this.state.expanded });
     };
 
-   
-   //this.props.match.params['h_id']
-
+   componentWillMount = async () => {
+       await this.service.fetchHouseInfo(this.props.match.params['h_id']).then((result) => {this.setState({ info: result })});
+       await this.service.getHouseAddress(this.state.info.latitude, this.state.info.longitude).then((result) => {this.setState({ addr: result })});
+   }
 
     render() {
         const { classes } = this.props;
@@ -152,9 +171,15 @@ class HouseInfo extends React.Component {
                     />
                     <this.StreetViewPanorama />
                     <CardContent>
-                        <Typography variant="headline">2930 Klamath Ave, Simi Valley, CA 93063</Typography>
-                        <Typography variant="display1">4 beds    3 baths     2,542 sqft</Typography>
-                        <Typography variant="display2">$899,000</Typography>
+                        <Typography variant="headline">
+                            {this.state.addr}
+                        </Typography>
+                        <Typography variant="display1">
+                            4 beds    3 baths     2,542 sqft
+                        </Typography>
+                        <Typography variant="display2">
+                            ${this.state.info.price}
+                        </Typography>
                         
                     </CardContent>
                     <CardActions className={classes.actions} disableActionSpacing>

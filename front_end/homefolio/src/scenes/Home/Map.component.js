@@ -28,7 +28,7 @@ class Map extends React.Component {
                     },
                     onDragEnd: () => {
                         var service = new DataService();
-                        service.fetchRegionHouses(refs.map.getBounds(), this);
+                        service.fetchRegionHouses(refs.map.getBounds()).then((result) => {this.setState({ houses: result })});
 
                         this.setState({
                             bounds: refs.map.getBounds(),

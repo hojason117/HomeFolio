@@ -30,7 +30,7 @@ class MapMarker extends React.Component {
         const { classes } = this.props;
 
         if (this.state.isOpen && this.state.addr === '')
-            this.service.getHouseAddress(this);
+            this.service.getHouseAddress(this.props.info.lat, this.props.info.lng).then((result) => this.setState({ addr: result }));
 
         return (
             <Marker position={this.props.info} onClick={() => { this.setState({isOpen: !this.state.isOpen}) }}>
