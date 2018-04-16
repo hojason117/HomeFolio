@@ -6,27 +6,27 @@ class DataService {
         this.baseUrl = servAddr + urlPrefix;
     }
   
-    fetchRegionHouses = (LatLng, map) => {
+    fetchRegionHouses = async (LatLng) => {
         var nextHouses = [];
-
-        Axios.get('/houseInfo?ne_lat=' + LatLng.f.f + '&ne_lng=' + LatLng.b.f + '&sw_lat=' + LatLng.f.b + '&sw_lng=' + LatLng.b.b,
-            {
-                baseURL: this.baseUrl,
-                headers: {'Authorization': 'Bearer ' + localStorage.getItem('auth_token')}
-            })
-            .then(
-                response => {
-                    if (response.status === 200) {
-                        for (var index in response.data)
-                            nextHouses.push({h_id: response.data[index].h_id , lat: response.data[index].latitude, lng: response.data[index].longitude });
-                        
-                        map.setState({ houses: nextHouses });
-                    }
-                    else {
-                        console.log('Unexpected response code: ' + response.status);
-                    }
+        try {
+            const response = await Axios.get('/houseInfo?ne_lat=' + LatLng.f.f + '&ne_lng=' + LatLng.b.f + '&sw_lat=' + LatLng.f.b + '&sw_lng=' + LatLng.b.b,
+                {
+                    baseURL: this.baseUrl,
+                    headers: { 'Authorization': 'Bearer ' + localStorage.getItem('auth_token') }
                 })
-            .catch(this.fetchRegionHousesErrorHandler)
+            if (response.status === 200) {
+                for (var index in response.data)
+                    nextHouses.push({ h_id: response.data[index].h_id, lat: response.data[index].latitude, lng: response.data[index].longitude });
+            }
+            else {
+                console.log('Unexpected response code: ' + response.status);
+            }
+        }
+        catch(error) {
+            this.fetchRegionHousesErrorHandler(error);
+        }
+
+        return nextHouses;
     }
 
     fetchRegionHousesErrorHandler = (error) => {
@@ -39,22 +39,26 @@ class DataService {
         }
     }
 
-    fetchHouseInfo = (h_id) => {
-        Axios.get('/houseInfo/' + h_id,
-            {
-                baseURL: this.baseUrl,
-                headers: { 'Authorization': 'Bearer ' + localStorage.getItem('auth_token') }
-            })
-            .then(
-                response => {
-                    if (response.status === 200) {
-                        
-                    }
-                    else {
-                        console.log('Unexpected response code: ' + response.status);
-                    }
+    fetchHouseInfo = async (h_id) => {
+        var info;
+        try {
+            const response = await Axios.get('/houseInfo/' + h_id,
+                {
+                    baseURL: this.baseUrl,
+                    headers: { 'Authorization': 'Bearer ' + localStorage.getItem('auth_token') }
                 })
-            .catch(this.fetchHouseInfoErrorHandler)
+            if (response.status === 200) {
+                info = response.data
+            }
+            else {
+                console.log('Unexpected response code: ' + response.status);
+            }
+        }
+        catch(error) {
+            this.fetchHouseInfoErrorHandler(error);
+        }
+
+        return info;
     }
 
     fetchHouseInfoErrorHandler = (error) => {
@@ -72,18 +76,22 @@ class DataService {
         }
     }
 
-    getHouseAddress = (marker) => {
-        Axios.get('https://maps.googleapis.com/maps/api/geocode/json?latlng=' + marker.props.info.lat + ',' + marker.props.info.lng + '&key=AIzaSyAHbTvrtAr7iIMx0ZHhwwB3RqgWpRy4fvs')
-            .then(
-                response => {
-                    if (response.status === 200) {
-                        marker.setState({ addr: response.data.results[0].formatted_address });
-                    }
-                    else {
-                        console.log('Unexpected response code: ' + response.status);
-                    }
-                })
-            .catch((error) => console.log(error))
+    getHouseAddress = async (lat, lng) => {
+        var addr = '';
+        try {
+            const response = await Axios.get('https://maps.googleapis.com/maps/api/geocode/json?latlng=' + lat + ',' + lng + '&key=AIzaSyAHbTvrtAr7iIMx0ZHhwwB3RqgWpRy4fvs')
+            if (response.status === 200) {
+                addr = response.data.results[0].formatted_address;
+            }
+            else {
+                console.log('Unexpected response code: ' + response.status);
+            }
+        }
+        catch(error) {
+            console.log(error);
+        }
+
+        return addr;
     }
 }
 
