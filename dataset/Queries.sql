@@ -42,6 +42,26 @@ where t.H_ID = h.H_ID;
 
 /* need add DATEDIFF(day, '2005-12-30 23:59:59.9999999', '2006-01-01 00:00:00.0000000') < 30 */
 
+/*estimate the price*/
+select AVG(price) from CHHO.HOUSE h, 
+(SElECT livingAreaSize, yearBuilt, zip from CHHO.HOUSE
+where 
+CHHO.HOUSE.u_id = '30d41ea8-135a-436b-bff4-794e8d5ebdc3' and 
+livingAreaSize = 2033 and
+yearBuilt = 1984 and
+zip = 96364) e
+where 
+h.livingAreaSize in (select livingAreaSize from CHHO.HOUSE
+where livingAreaSize
+Between e.livingAreaSize + 50 and e.livingAreaSize - 50 
+)
+and h.yearBuilt in (select yearBuilt from CHHO.HOUSE
+where yearBuilt
+Between e.yearBuilt + 5 and e.yearBuilt - 5
+)
+and 
+h.zip = e.zip;
+
 
 
 
