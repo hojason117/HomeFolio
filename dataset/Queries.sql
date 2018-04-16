@@ -44,24 +44,33 @@ where t.H_ID = h.H_ID;
 
 /*estimate the price*/
 select AVG(price) from CHHO.HOUSE h, 
-(SElECT livingAreaSize, yearBuilt, zip from CHHO.HOUSE
+(SElECT livingAreaSize, yearBuilt, lotSize from CHHO.HOUSE
 where 
 CHHO.HOUSE.u_id = '30d41ea8-135a-436b-bff4-794e8d5ebdc3' and 
-livingAreaSize = 2033 and
-yearBuilt = 1984 and
-zip = 96364) e
+livingAreaSize = 1612 and
+yearBuilt = 1953 and
+lotSize = 8108) e
 where 
 h.livingAreaSize in (select livingAreaSize from CHHO.HOUSE
 where livingAreaSize
-Between e.livingAreaSize + 50 and e.livingAreaSize - 50 
+Between e.livingAreaSize + 100 and e.livingAreaSize - 100 
 )
 and h.yearBuilt in (select yearBuilt from CHHO.HOUSE
 where yearBuilt
 Between e.yearBuilt + 5 and e.yearBuilt - 5
 )
 and 
-h.zip = e.zip;
+h.lotSize in (select lotSize from CHHO.HOUSE
+where lotSize
+Between e.lotSize + 500 and e.lotSize - 500
+)
 
+/*ratio of tax and price (local)*/
+select h.tax/h.price * 100 as tax_price_ratio, h.h_id ,h.zip from (select h_id, price, tax, zip from CHHO.HOUSE) h
+where h.zip = 96336
+order by tax_price_ratio desc;
 
-
-
+/*The oldest houses and their prices(local)*/
+select h.h_id, h.yearBuilt, h.price, h.zip from CHHO.HOUSE h
+where h.zip = 96336
+order by h.yearBuilt asc;
