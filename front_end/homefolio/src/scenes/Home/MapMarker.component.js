@@ -5,6 +5,7 @@ import Typography from 'material-ui/Typography';
 import Button from 'material-ui/Button';
 import { Marker, InfoWindow } from "react-google-maps";
 import DataService from '../../services/data.service';
+import { Link } from 'react-router-dom';
 
 const styles = theme => ({
     button: {
@@ -30,7 +31,7 @@ class MapMarker extends React.Component {
 
         if (this.state.isOpen && this.state.addr === '')
             this.service.getHouseAddress(this);
-        
+
         return (
             <Marker position={this.props.info} onClick={() => { this.setState({isOpen: !this.state.isOpen}) }}>
                 {this.state.isOpen && <InfoWindow onCloseClick={() => { this.setState({ isOpen: !this.state.isOpen }) }}>
@@ -42,7 +43,9 @@ class MapMarker extends React.Component {
                             variant='raised'
                             primary='true'
                             className={classes.button}
-                            color='primary' >
+                            color='primary'
+                            component={Link}
+                            to={'/houseinfo/'+this.props.info.h_id} >
                             Detail
                         </Button>
                         <Button

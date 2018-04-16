@@ -4,7 +4,7 @@ import Toolbar from 'material-ui/Toolbar';
 import Typography from 'material-ui/Typography';
 import Button from 'material-ui/Button';
 import AppBar from 'material-ui/AppBar';
-import { withRouter } from 'react-router-dom';
+import { withRouter, Link } from 'react-router-dom';
 import PropTypes from 'prop-types';
 
 const styles = theme => ({
@@ -13,6 +13,9 @@ const styles = theme => ({
     },
     flex: {
         flex: 1,
+    },
+    button: {
+        margin: theme.spacing.unit,
     }
 });
 
@@ -44,9 +47,13 @@ class NavBar extends React.Component {
             <div className={classes.root}>
                 <AppBar position="static">
                     <Toolbar>
-                        <Typography variant="title" color="inherit" className={classes.flex} >
-                            HomeFolio
-                        </Typography>
+                        <div className={classes.flex}>
+                            <Button component={Link} to="/home" >
+                                <Typography variant="title" color="inherit" className={classes.flex} >
+                                    HomeFolio
+                                </Typography>
+                            </Button>
+                        </div>
                         <this.SignoutButton />
                     </Toolbar>
                 </AppBar>

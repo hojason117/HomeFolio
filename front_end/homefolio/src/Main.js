@@ -32,7 +32,7 @@ class Main extends React.Component {
                     <Route path='/login' component={Login} />
                     <Route path='/signup' component={Signup} />
                     <this.PrivateRoute path='/home' component={Home} />
-                    <this.PrivateRoute path='/houseinfo' component={HouseInfo} />
+                    <this.PrivateRoute path='/houseinfo/:h_id' component={HouseInfo} />
                     <Route component={NotFound} />
                 </Switch>
             </BrowserRouter>
