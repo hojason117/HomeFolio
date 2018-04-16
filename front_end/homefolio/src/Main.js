@@ -1,6 +1,7 @@
 import React from 'react';
 import { BrowserRouter, Route, Switch, Redirect } from 'react-router-dom';
 import Home from './scenes/Home/Home.component';
+import HouseInfo from './scenes/HouseInfo/HouseInfo.component';
 import Login from './scenes/Login/Login.component';
 import Signup from './scenes/Signup/Signup.component';
 import Public from './scenes/Public/Public.component';
@@ -30,6 +31,7 @@ class Main extends React.Component {
                     <Route exact path='/' component={Public} />
                     <this.PrivateRoute path='/home' component={Home} />
                     <Route path='/login' component={Login} />
+                    <Route path='/houseinfo' component={HouseInfo} />
                     <Route path='/signup' component={Signup} />
                     <Route component={NotFound} />
                 </Switch>
