@@ -1,17 +1,11 @@
 import React from 'react';
 import PropTypes from 'prop-types';
 import { withStyles } from 'material-ui/styles';
-import Button from 'material-ui/Button';
-import AppBar from 'material-ui/AppBar';
-import Toolbar from 'material-ui/Toolbar';
-
-import { withRouter } from 'react-router-dom';
-import { withScriptjs, withGoogleMap, GoogleMap, Marker, StreetViewPanorama } from "react-google-maps";
+import NavBar from '../../components/NavBar/NavBar.component';
 import DataService from '../../services/data.service';
-import { compose, withProps, lifecycle } from "recompose";
-
-
 import classnames from 'classnames';
+import { compose, withProps } from "recompose";
+import { withScriptjs, withGoogleMap, GoogleMap, StreetViewPanorama } from "react-google-maps";
 import Card, { CardHeader, CardMedia, CardContent, CardActions } from 'material-ui/Card';
 import Collapse from 'material-ui/transitions/Collapse';
 import Avatar from 'material-ui/Avatar';
@@ -19,12 +13,9 @@ import IconButton from 'material-ui/IconButton';
 import Typography from 'material-ui/Typography';
 import red from 'material-ui/colors/red';
 import FavoriteIcon from '@material-ui/icons/Favorite';
-import ShareIcon from '@material-ui/icons/Share';
 import VisibilityIcon from '@material-ui/icons/Visibility';
-import FaceIcon from '@material-ui/icons/Face';
 import AccountIcon from '@material-ui/icons/AccountCircle';
 import ExpandMoreIcon from '@material-ui/icons/ExpandMore';
-import MoreVertIcon from '@material-ui/icons/MoreVert';
 //import 'typeface-roboto';
 
 
@@ -116,14 +107,7 @@ class HouseInfo extends React.Component {
 
         return (
             <div>
-                <AppBar position='static'>
-                    <Toolbar>
-                        <Typography variant="title" color="inherit" className={classes.flex}>
-                            House Information
-                        </Typography>
-                    </Toolbar>
-                </AppBar>
-            
+                <NavBar />
                 <Card className={classes.card}>
                     <CardHeader
                         avatar={

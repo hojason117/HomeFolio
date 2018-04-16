@@ -29,10 +29,10 @@ class Main extends React.Component {
             <BrowserRouter>
                 <Switch>
                     <Route exact path='/' component={Public} />
-                    <this.PrivateRoute path='/home' component={Home} />
                     <Route path='/login' component={Login} />
-                    <Route path='/houseinfo' component={HouseInfo} />
                     <Route path='/signup' component={Signup} />
+                    <this.PrivateRoute path='/home' component={Home} />
+                    <this.PrivateRoute path='/houseinfo' component={HouseInfo} />
                     <Route component={NotFound} />
                 </Switch>
             </BrowserRouter>

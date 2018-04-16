@@ -25,6 +25,7 @@ func NewHandler(session *sql.DB, dburl string) (h *Handler) {
 //				   URL: "/api/v1/houseInfo/:hid"
 //				   Method: GET
 //				   Return 200 OK on success.
+//				   Return 404 Not Found if house does not exist.
 func (h *Handler) FetchSingleHouseInfo(c echo.Context) (err error) {
 	// Retrieve house info from database
 	houseD := new(model.House)
@@ -43,13 +44,19 @@ func (h *Handler) FetchSingleHouseInfo(c echo.Context) (err error) {
 }
 
 // FetchRegionHouseInfo : Return information about houses located in the queried area.
+//				   # If the total amount of houses is greater than 50, only 50 houses will be randomly selected and returned.
 //				   URL: "/api/v1/houseInfo"
 //				   Method: GET
 //				   Return 200 OK on success.
-//				   Return 404 Not Found if the house is not in the database.
 func (h *Handler) FetchRegionHouseInfo(c echo.Context) (err error) {
 	// Retrieve house info from database
-	rows, err := h.db.Query("SELECT * FROM house WHERE latitude < :var1 and latitude > :var2 and longitude < :var3 and longitude > :var4",
+	rows, err := h.db.Query(`SELECT * 
+							 FROM (
+								 SELECT * 
+								 FROM house 
+								 WHERE latitude < :var1 and latitude > :var2 and longitude < :var3 and longitude > :var4 
+								 ORDER BY DBMS_RANDOM.VALUE) 
+							 WHERE ROWNUM <= 50`,
 		c.QueryParam("ne_lat"), c.QueryParam("sw_lat"), c.QueryParam("ne_lng"), c.QueryParam("sw_lng"))
 	if err != nil {
 		return err
