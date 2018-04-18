@@ -91,6 +91,12 @@ class HouseInfo extends React.Component {
                 price: 0,
                 tax: 0
             },
+            userinfo: {
+                u_id: '',
+                email: '',
+                username: '',
+                area:''
+            },
             addr: ''
         }
     }
@@ -120,6 +126,7 @@ class HouseInfo extends React.Component {
 
     componentDidMount = async () => {
         await this.service.fetchHouseInfo(this.props.match.params['h_id']).then((result) => {this.setState({ info: result })});
+
         this.service.getHouseAddress(this.state.info.latitude, this.state.info.longitude).then((result) => {this.setState({ addr: result })});
     }
 
