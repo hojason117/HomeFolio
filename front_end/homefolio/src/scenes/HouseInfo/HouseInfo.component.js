@@ -3,6 +3,7 @@ import PropTypes from 'prop-types';
 import { withStyles } from 'material-ui/styles';
 import NavBar from '../../components/NavBar/NavBar.component';
 import HouseService from '../../services/house.service';
+import UserService from '../../services/user.service';
 import classnames from 'classnames';
 import { compose, withProps } from "recompose";
 import { withScriptjs, withGoogleMap, GoogleMap, StreetViewPanorama } from "react-google-maps";
@@ -72,6 +73,7 @@ class HouseInfo extends React.Component {
     constructor(props) {
         super(props);
         this.service = new HouseService();
+        this.userService = new UserService();
         this.state = {
             info: {
                 h_id: '',
@@ -90,6 +92,17 @@ class HouseInfo extends React.Component {
                 storyNum: 0,
                 price: 0,
                 tax: 0
+            },
+            userinfo: {
+                u_id: '',
+                email: '',
+                username: '',
+                password: '',
+                age: 0,
+                area: '',
+                bio: '',
+                seller: '',
+                buyer: ''
             },
             addr: ''
         }
@@ -121,6 +134,7 @@ class HouseInfo extends React.Component {
     componentDidMount = async () => {
         await this.service.fetchHouseInfo(this.props.match.params['h_id']).then((result) => {this.setState({ info: result })});
         this.service.getHouseAddress(this.state.info.latitude, this.state.info.longitude).then((result) => {this.setState({ addr: result })});
+        this.userService.fetchUserInfo(this.state.info.u_id).then((result) => {this.setState({ userinfo: result })});
     }
 
     render() {
@@ -148,17 +162,17 @@ class HouseInfo extends React.Component {
                 <Card className={classes.card}>
                     <CardHeader
                         avatar={
-                        <Avatar aria-label="Recipe" className={classes.avatar}>
-                            J
-                        </Avatar>
+                            <Avatar className={classes.avatar}>
+                                {this.state.userinfo.username.charAt(0)}
+                            </Avatar>
                         }
                         action={
                             <CardActions>
                             <Button size="small">CONTACT SELLER</Button>
                             </CardActions>
                         }
-                        title="House Owner: Jason Ho"
-                        subheader="Some other infos about owners"
+                        title = {this.state.userinfo.username}
+                        subheader = {this.state.userinfo.email}
                     />
 
                     <this.StreetViewPanorama center={ {lat: this.state.info.latitude, lng: this.state.info.longitude} } />
@@ -167,7 +181,7 @@ class HouseInfo extends React.Component {
                             {this.state.addr}
                         </Typography>
                         <Typography color = "primary" variant="headline">
-                        <Grid container spacing={10}>
+                        <Grid container spacing={8}>
                             <Grid item xs>
                             {this.state.info.bedroomCnt} BEDROOMS
                             </Grid>
