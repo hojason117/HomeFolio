@@ -4,7 +4,7 @@ import { withStyles } from 'material-ui/styles';
 import Typography from 'material-ui/Typography';
 import Button from 'material-ui/Button';
 import { Marker, InfoWindow } from "react-google-maps";
-import DataService from '../../services/data.service';
+import HouseService from '../../services/house.service';
 import { Link } from 'react-router-dom';
 
 const styles = theme => ({
@@ -19,7 +19,7 @@ const styles = theme => ({
 class MapMarker extends React.Component {
     constructor(props) {
         super(props);
-        this.service = new DataService();
+        this.service = new HouseService();
         this.state = {
             isOpen: false, 
             addr: ''

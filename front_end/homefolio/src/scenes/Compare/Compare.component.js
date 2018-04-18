@@ -1,6 +1,6 @@
 import React from 'react';
 import PropTypes from 'prop-types';
-import DataService from '../../services/data.service';
+import HouseService from '../../services/house.service';
 import NavBar from '../../components/NavBar/NavBar.component';
 import { withRouter, Link } from 'react-router-dom';
 //import Typography from 'material-ui/Typography';

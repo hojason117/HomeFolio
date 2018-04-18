@@ -1,7 +1,7 @@
 import Axios from 'axios';
 import { servAddr, urlPrefix } from '../Main';
 
-class DataService {
+class HouseService {
     constructor() {
         this.baseUrl = servAddr + urlPrefix;
     }
@@ -157,4 +157,4 @@ class DataService {
     }
 }
 
-export default DataService;
+export default HouseService;
