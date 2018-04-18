@@ -4,6 +4,7 @@ import (
 	"database/sql"
 	"model"
 	"net/http"
+	"strconv"
 
 	"github.com/labstack/echo"
 )
@@ -29,7 +30,7 @@ func NewHandler(session *sql.DB, dburl string) (h *Handler) {
 func (h *Handler) FetchSingleHouseInfo(c echo.Context) (err error) {
 	// Retrieve house info from database
 	houseD := new(model.House)
-	err = h.db.QueryRow("SELECT * FROM house WHERE h_id = :var1", c.Param("hid")).Scan(&houseD.HID, &houseD.UID,
+	err = h.db.QueryRow("SELECT * FROM house WHERE h_id = &var1", c.Param("hid")).Scan(&houseD.HID, &houseD.UID,
 		&houseD.BathroomCnt, &houseD.BedroomCnt, &houseD.BuildingQualityID, &houseD.LivingAreaSize, &houseD.Latitude,
 		&houseD.Longitude, &houseD.LotSize, &houseD.CityID, &houseD.County, &houseD.Zip, &houseD.YearBuilt,
 		&houseD.StoryNum, &houseD.Price, &houseD.Tax)
@@ -44,20 +45,27 @@ func (h *Handler) FetchSingleHouseInfo(c echo.Context) (err error) {
 }
 
 // FetchRegionHouseInfo : Return information about houses located in the queried area.
-//				   # If the total amount of houses is greater than 50, only 50 houses will be randomly selected and returned.
 //				   URL: "/api/v1/houseInfo"
 //				   Method: GET
 //				   Return 200 OK on success.
 func (h *Handler) FetchRegionHouseInfo(c echo.Context) (err error) {
 	// Retrieve house info from database
-	rows, err := h.db.Query(`SELECT * 
-							 FROM (
-								 SELECT * 
-								 FROM house 
-								 WHERE latitude < :var1 and latitude > :var2 and longitude < :var3 and longitude > :var4 
-								 ORDER BY DBMS_RANDOM.VALUE) 
-							 WHERE ROWNUM <= 50`,
-		c.QueryParam("ne_lat"), c.QueryParam("sw_lat"), c.QueryParam("ne_lng"), c.QueryParam("sw_lng"))
+	neLat, _ := strconv.ParseFloat(c.QueryParam("ne_lat"), 64)
+	swLat, _ := strconv.ParseFloat(c.QueryParam("sw_lat"), 64)
+	neLng, _ := strconv.ParseFloat(c.QueryParam("ne_lng"), 64)
+	swLng, _ := strconv.ParseFloat(c.QueryParam("sw_lng"), 64)
+	count, _ := strconv.Atoi(c.QueryParam("count"))
+
+	query :=
+		`SELECT *
+		FROM (
+			SELECT h_id, latitude, longitude
+			FROM house 
+			WHERE latitude < &var1 and latitude > &var2 and longitude < &var3 and longitude > &var4 
+			ORDER BY DBMS_RANDOM.VALUE) 
+		WHERE ROWNUM <= &var5`
+
+	rows, err := h.db.Query(query, neLat, swLat, neLng, swLng, count)
 	if err != nil {
 		return err
 	}
@@ -72,19 +80,125 @@ func (h *Handler) FetchRegionHouseInfo(c echo.Context) (err error) {
 	var houses []*HouseC
 
 	for rows.Next() {
-		houseD := new(model.House)
-		err = rows.Scan(&houseD.HID, &houseD.UID,
-			&houseD.BathroomCnt, &houseD.BedroomCnt, &houseD.BuildingQualityID, &houseD.LivingAreaSize, &houseD.Latitude,
-			&houseD.Longitude, &houseD.LotSize, &houseD.CityID, &houseD.County, &houseD.Zip, &houseD.YearBuilt,
-			&houseD.StoryNum, &houseD.Price, &houseD.Tax)
+		houseC := new(HouseC)
+		err = rows.Scan(&houseC.HID, &houseC.Latitude, &houseC.Longitude)
 		if err != nil {
 			return err
 		}
 
+		houses = append(houses, houseC)
+	}
+	if err = rows.Err(); err != nil {
+		return err
+	}
+
+	return c.JSON(http.StatusOK, houses)
+}
+
+// FetchTopLikedHouses : Return information about top liked houses in an area.
+//				   URL: "/api/v1/topliked"
+//				   Method: GET
+//				   Return 200 OK on success.
+func (h *Handler) FetchTopLikedHouses(c echo.Context) (err error) {
+	// Retrieve house info from database
+	neLat, _ := strconv.ParseFloat(c.QueryParam("ne_lat"), 64)
+	swLat, _ := strconv.ParseFloat(c.QueryParam("sw_lat"), 64)
+	neLng, _ := strconv.ParseFloat(c.QueryParam("ne_lng"), 64)
+	swLng, _ := strconv.ParseFloat(c.QueryParam("sw_lng"), 64)
+	count, _ := strconv.Atoi(c.QueryParam("count"))
+
+	query :=
+		`SELECT *
+		FROM
+			(SELECT h_id, latitude, longitude, count(*) as num
+			FROM
+				(SELECT h_id, latitude, longitude
+				FROM house 
+				WHERE latitude < &var1 and latitude > &var2 and longitude < &var3 and longitude > &var4)
+				NATURAL JOIN
+				likes
+			GROUP BY h_id, latitude, longitude
+			ORDER BY num DESC)
+		WHERE ROWNUM <= &var5`
+
+	rows, err := h.db.Query(query, neLat, swLat, neLng, swLng, count)
+	if err != nil {
+		return err
+	}
+	defer rows.Close()
+
+	type HouseC struct {
+		HID       string  `json:"h_id"`
+		Latitude  float32 `json:"latitude"`
+		Longitude float32 `json:"longitude"`
+		Likes     int     `json:"likes"`
+	}
+
+	var houses []*HouseC
+
+	for rows.Next() {
 		houseC := new(HouseC)
-		houseC.HID = houseD.HID
-		houseC.Latitude = houseD.Latitude
-		houseC.Longitude = houseD.Longitude
+		err = rows.Scan(&houseC.HID, &houseC.Latitude, &houseC.Longitude, &houseC.Likes)
+		if err != nil {
+			return err
+		}
+
+		houses = append(houses, houseC)
+	}
+	if err = rows.Err(); err != nil {
+		return err
+	}
+
+	return c.JSON(http.StatusOK, houses)
+}
+
+// FetchTopViewedHouses : Return information about top viewed houses in an area.
+//				   URL: "/api/v1/topviewed"
+//				   Method: GET
+//				   Return 200 OK on success.
+func (h *Handler) FetchTopViewedHouses(c echo.Context) (err error) {
+	// Retrieve house info from database
+	neLat, _ := strconv.ParseFloat(c.QueryParam("ne_lat"), 64)
+	swLat, _ := strconv.ParseFloat(c.QueryParam("sw_lat"), 64)
+	neLng, _ := strconv.ParseFloat(c.QueryParam("ne_lng"), 64)
+	swLng, _ := strconv.ParseFloat(c.QueryParam("sw_lng"), 64)
+	count, _ := strconv.Atoi(c.QueryParam("count"))
+
+	query :=
+		`SELECT *
+		FROM
+			(SELECT h_id, latitude, longitude, count(*) as num
+			FROM
+				(SELECT h_id, latitude, longitude
+				FROM house 
+				WHERE latitude < &var1 and latitude > &var2 and longitude < &var3 and longitude > &var4)
+				NATURAL JOIN
+				viewed
+			GROUP BY h_id, latitude, longitude
+			ORDER BY num DESC)
+		WHERE ROWNUM <= &var5`
+
+	rows, err := h.db.Query(query, neLat, swLat, neLng, swLng, count)
+	if err != nil {
+		return err
+	}
+	defer rows.Close()
+
+	type HouseC struct {
+		HID       string  `json:"h_id"`
+		Latitude  float32 `json:"latitude"`
+		Longitude float32 `json:"longitude"`
+		Views     int     `json:"views"`
+	}
+
+	var houses []*HouseC
+
+	for rows.Next() {
+		houseC := new(HouseC)
+		err = rows.Scan(&houseC.HID, &houseC.Latitude, &houseC.Longitude, &houseC.Views)
+		if err != nil {
+			return err
+		}
 
 		houses = append(houses, houseC)
 	}

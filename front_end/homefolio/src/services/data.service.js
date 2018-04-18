@@ -6,10 +6,10 @@ class DataService {
         this.baseUrl = servAddr + urlPrefix;
     }
   
-    fetchRegionHouses = async (LatLng) => {
+    fetchRegionHouses = async (LatLng, count) => {
         var nextHouses = [];
         try {
-            const response = await Axios.get('/houseInfo?ne_lat=' + LatLng.f.f + '&ne_lng=' + LatLng.b.f + '&sw_lat=' + LatLng.f.b + '&sw_lng=' + LatLng.b.b,
+            const response = await Axios.get('/houseInfo?ne_lat=' + LatLng.f.f + '&ne_lng=' + LatLng.b.f + '&sw_lat=' + LatLng.f.b + '&sw_lng=' + LatLng.b.b + '&count=' + count,
                 {
                     baseURL: this.baseUrl,
                     headers: { 'Authorization': 'Bearer ' + localStorage.getItem('auth_token') }
@@ -48,7 +48,7 @@ class DataService {
                     headers: { 'Authorization': 'Bearer ' + localStorage.getItem('auth_token') }
                 })
             if (response.status === 200) {
-                info = response.data
+                info = response.data;
             }
             else {
                 console.log('Unexpected response code: ' + response.status);
@@ -92,6 +92,68 @@ class DataService {
         }
 
         return addr;
+    }
+
+    getHouseLatLng = async (addr) => {
+        var latlng;
+        try {
+            const response = await Axios.get('https://maps.googleapis.com/maps/api/geocode/json?address=' + addr.replace(new RegExp(' ', 'g'), '+') + '&key=AIzaSyAHbTvrtAr7iIMx0ZHhwwB3RqgWpRy4fvs')
+            if (response.status === 200) {
+                latlng = response.data.results[0].geometry.location;
+            }
+            else {
+                console.log('Unexpected response code: ' + response.status);
+            }
+        }
+        catch (error) {
+            console.log(error);
+        }
+
+        return latlng;
+    }
+
+    fetchTopLikedHouses = async (LatLng, count) => {
+        var houses;
+        try {
+            const response = await Axios.get('/topliked?ne_lat=' + LatLng.f.f + '&ne_lng=' + LatLng.b.f + '&sw_lat=' + LatLng.f.b + '&sw_lng=' + LatLng.b.b + '&count=' + count,
+                {
+                    baseURL: this.baseUrl,
+                    headers: { 'Authorization': 'Bearer ' + localStorage.getItem('auth_token') }
+                })
+            if (response.status === 200) {
+                houses = response.data;
+            }
+            else {
+                console.log('Unexpected response code: ' + response.status);
+            }
+        }
+        catch (error) {
+            console.log(error);
+        }
+
+        return houses;
+    }
+
+    fetchTopViewedHouses = async (LatLng, count) => {
+        var houses;
+        try {
+            const response = await Axios.get('/topviewed?ne_lat=' + LatLng.f.f + '&ne_lng=' + LatLng.b.f + '&sw_lat=' + LatLng.f.b + '&sw_lng=' + LatLng.b.b + '&count=' + count,
+                {
+                    baseURL: this.baseUrl,
+                    headers: { 'Authorization': 'Bearer ' + localStorage.getItem('auth_token') }
+                })
+            if (response.status === 200) {
+                houses = response.data;
+            }
+            else {
+                console.log('Unexpected response code: ' + response.status);
+            }
+        }
+        catch (error) {
+            console.log(error);
+        }
+
+        return houses;
     }
 }
 

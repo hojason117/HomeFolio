@@ -26,17 +26,31 @@ class MapMarker extends React.Component {
         }
     }
 
+    componentWillReceiveProps(nextProps) {
+        this.setState({ isOpen: (nextProps.focus === this.props.listId) ? true : false });
+        this.service.getHouseAddress(nextProps.info.lat, nextProps.info.lng).then((result) => this.setState({ addr: result }));
+    }
+
+    componentDidMount() {
+        this.service.getHouseAddress(this.props.info.lat, this.props.info.lng).then((result) => this.setState({ addr: result }));
+    }
+
+    onClick = () => {
+        this.props.onFocusChanged(this.state.isOpen ? -1 : this.props.listId);
+    }
+
+    onCloseClick = () => {
+        this.props.onFocusChanged(-1);
+    }
+
     render() {
         const { classes } = this.props;
 
-        if (this.state.isOpen && this.state.addr === '')
-            this.service.getHouseAddress(this.props.info.lat, this.props.info.lng).then((result) => this.setState({ addr: result }));
-
         return (
-            <Marker position={this.props.info} onClick={() => { this.setState({isOpen: !this.state.isOpen}) }}>
-                {this.state.isOpen && <InfoWindow onCloseClick={() => { this.setState({ isOpen: !this.state.isOpen }) }}>
+            <Marker position={this.props.info} onClick={() => this.onClick()} >
+                {this.state.isOpen && <InfoWindow onCloseClick={() => this.onCloseClick()}>
                     <div>
-                        <Typography variant='headline' color='inherit' className={classes.flex} >
+                        <Typography variant='title' color='inherit' className={classes.flex} >
                             {this.state.addr}
                         </Typography>
                         <Button
@@ -53,7 +67,7 @@ class MapMarker extends React.Component {
                             primary='true'
                             className={classes.button}
                             color='secondary' >
-                            Compare
+                            Add to compare
                         </Button>
                     </div>
                 </InfoWindow>}
