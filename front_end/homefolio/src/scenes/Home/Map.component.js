@@ -23,7 +23,7 @@ class Map extends React.Component {
         const lngDiff = origBounds.b.f - origBounds.b.b;
         const latDiff = origBounds.f.f - origBounds.f.b;
 
-        return { b: { b: origBounds.b.b + lngDiff*0.1, f: origBounds.b.f - lngDiff*0.1 }, f: { b: origBounds.f.b + latDiff*0.1, f: origBounds.f.f - latDiff*0.1 } };
+        return { b: { b: origBounds.b.b + lngDiff*0.1, f: origBounds.b.f - lngDiff*0.1 }, f: { b: origBounds.f.b + latDiff*0.05, f: origBounds.f.f - latDiff*0.15 } };
     }
 
     onDragEnd = () => {
