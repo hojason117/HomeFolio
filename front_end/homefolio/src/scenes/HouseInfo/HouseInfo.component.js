@@ -14,19 +14,14 @@ import Typography from 'material-ui/Typography';
 import red from 'material-ui/colors/red';
 import FavoriteIcon from '@material-ui/icons/Favorite';
 import VisibilityIcon from '@material-ui/icons/Visibility';
-//import AccountIcon from '@material-ui/icons/AccountCircle';
 import ExpandMoreIcon from '@material-ui/icons/ExpandMore';
 import Button from 'material-ui/Button';
 import AddIcon from '@material-ui/icons/Add';
-import HomeIcon from '@material-ui/icons/Home';
-//import EditIcon from '@material-ui/ModeEdit';
+import EditIcon from '@material-ui/icons/Edit'
 import DeleteIcon from '@material-ui/icons/Delete';
 import Tooltip from 'material-ui/Tooltip';
-//import Link from 'react-router/lib/Link';
+import Grid from 'material-ui/Grid';
 
-/* <Button variant="fab" disabled aria-label="mode_edit" className={classes.button}>
-                    <EditIcon/>
-                </Button>*/
 
 const styles = theme => ({
     button: {
@@ -42,24 +37,24 @@ const styles = theme => ({
         width: '50%',
         margin: '0 auto',
         //maxWidth: 800,
-      },
-      media: {
+    },
+    media: {
         height: 294,
-      },
-      actions: {
+    },
+    actions: {
         display: 'flex',
-      },
-      expand: {
+    },
+    expand: {
         transform: 'rotate(0deg)',
         transition: theme.transitions.create('transform', {
-          duration: theme.transitions.duration.shortest,
+            duration: theme.transitions.duration.shortest,
         }),
         marginLeft: 'auto',
-      },
-      expandOpen: {
+    },
+    expandOpen: {
         transform: 'rotate(180deg)',
-      },
-      avatar: {
+    },
+    avatar: {
         backgroundColor: red[500],
     },
 
@@ -71,10 +66,7 @@ const styles = theme => ({
         bottom: theme.spacing.unit * 2,
         right: theme.spacing.unit * 3,
     },
-
 });
-
-// h_id,u_id,bathroomCnt,bedroomCnt,buildingQualityID,livingAreaSize,latitude,longitude,lotSize,cityID,county,zip,yearBuilt,storyNum,price,tax
 
 class HouseInfo extends React.Component {
     constructor(props) {
@@ -109,14 +101,14 @@ class HouseInfo extends React.Component {
             loadingElement: <div style={{ height: `100%` }} />,
             containerElement: <div style={{ height: `400px` }} />,
             mapElement: <div style={{ height: `100%` }} />,
-            center: { lat: 49.2853171, lng: -123.1119202 },
-          }),
-          withScriptjs,
-          withGoogleMap
+            //center: { lat: 49.28590291211115, lng: -123.11248166065218 },
+        }),
+            withScriptjs,
+            withGoogleMap
         )(props =>
             <GoogleMap defaultZoom={8} defaultCenter={props.center}>
-              <StreetViewPanorama defaultPosition={props.center} visible>
-              </StreetViewPanorama>
+                <StreetViewPanorama defaultPosition={props.center} visible>
+                </StreetViewPanorama>
             </GoogleMap>
     )
 
@@ -126,10 +118,10 @@ class HouseInfo extends React.Component {
         this.setState({ expanded: !this.state.expanded });
     };
 
-   componentWillMount = async () => {
-       await this.service.fetchHouseInfo(this.props.match.params['h_id']).then((result) => {this.setState({ info: result })});
-       await this.service.getHouseAddress(this.state.info.latitude, this.state.info.longitude).then((result) => {this.setState({ addr: result })});
-   }
+    componentDidMount = async () => {
+        await this.service.fetchHouseInfo(this.props.match.params['h_id']).then((result) => {this.setState({ info: result })});
+        this.service.getHouseAddress(this.state.info.latitude, this.state.info.longitude).then((result) => {this.setState({ addr: result })});
+    }
 
     render() {
         const { classes } = this.props;
@@ -137,15 +129,14 @@ class HouseInfo extends React.Component {
         return (
             <div>
                 <NavBar />
-                <Tooltip id="tooltip-fab" title="Homepage">
-                <Button  variant="fab" mini color="secondary" aria-label="home" 
-                 className={classes.button} >
-                    <HomeIcon/>
+                <Tooltip id="tooltip-fab" title="Add to Compare">
+                <Button variant="fab" mini color="secondary" aria-label="add" className={classes.button}>
+                    <AddIcon />
                 </Button>
                 </Tooltip>
-                <Tooltip id="tooltip-fab" title="Add to Compare">
-                <Button variant="fab" mini color="primary" aria-label="add" className={classes.button}>
-                    <AddIcon />
+                <Tooltip id="tooltip-fab" title="Edit House">
+                <Button variant="fab" mini aria-label="edit" className={classes.button}>
+                    <EditIcon/>
                 </Button>
                 </Tooltip>
                 <Tooltip id="tooltip-fab" title="Delete House">
@@ -169,19 +160,30 @@ class HouseInfo extends React.Component {
                         title="House Owner: Jason Ho"
                         subheader="Some other infos about owners"
                     />
-                    <this.StreetViewPanorama />
+
+                    <this.StreetViewPanorama center={ {lat: this.state.info.latitude, lng: this.state.info.longitude} } />
                     <CardContent>
                         <Typography variant="headline">
                             {this.state.addr}
                         </Typography>
-                        <Typography variant="display1">
-                            4 beds    3 baths     2,542 sqft
+                        <Typography color = "primary" variant="headline">
+                        <Grid container spacing={10}>
+                            <Grid item xs>
+                            {this.state.info.bedroomCnt} BEDROOMS
+                            </Grid>
+                            <Grid item xs>
+                            {this.state.info.bathroomCnt} BATHROOMS
+                            </Grid>
+                            <Grid item xs>
+                            {this.state.info.livingAreaSize} SQFT
+                            </Grid>
+                        </Grid>
                         </Typography>
-                        <Typography variant="display2">
+                        <Typography color = "secondary" variant="display1">
                             ${this.state.info.price}
-                        </Typography>
-                        
+                        </Typography>  
                     </CardContent>
+
                     <CardActions className={classes.actions} disableActionSpacing>
                         <IconButton aria-label="Add to favorites">
                         <FavoriteIcon />
@@ -202,15 +204,16 @@ class HouseInfo extends React.Component {
                     </CardActions>
                     <Collapse in={this.state.expanded} timeout="auto" unmountOnExit>
                         <CardContent>
-                        <Typography paragraph variant="subheading">
+                        <Typography paragraph variant="title">
                             Detailed Information:
                         </Typography>
-                        <Typography paragraph>Year Built:</Typography>
-                        <Typography paragraph>Building Quality:</Typography>
-                        <Typography paragraph>Number of Stories:</Typography>
-                        <Typography paragraph>Lot Size:</Typography>
-                        <Typography paragraph>Total Price:</Typography>
-                        <Typography paragraph>Tax:</Typography>
+                        <Typography paragraph>Year Built: {this.state.info.yearBuilt}</Typography>
+                        <Typography>Building Quality: {this.state.info.buildingQualityID}</Typography>
+                        <Typography paragraph variant="caption">(from 1 to 10 with 10 the best)</Typography>
+                        <Typography paragraph>Number of Stories: {this.state.info.storyNum}</Typography>
+                        <Typography paragraph>Lot Size: {this.state.info.lotSize} Sqft</Typography>
+                        <Typography paragraph>Total Price: ${this.state.info.price}</Typography>
+                        <Typography paragraph>Tax: ${this.state.info.tax} per year</Typography>
                         </CardContent>
                     </Collapse>
                 </Card>
