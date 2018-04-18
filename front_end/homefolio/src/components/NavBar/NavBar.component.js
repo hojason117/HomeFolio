@@ -27,6 +27,7 @@ class NavBar extends React.Component {
                 secondary='true'
                 className={this.props.button}
                 color='default'
+                size='large'
                 onClick={() => {
                     history.push("/");
                     localStorage.removeItem('u_id');
@@ -48,7 +49,7 @@ class NavBar extends React.Component {
                 <AppBar position="static">
                     <Toolbar>
                         <div className={classes.flex}>
-                            <Button component={Link} to="/home" >
+                            <Button size='large' component={Link} to="/home" >
                                 <Typography variant="title" color="inherit" className={classes.flex} >
                                     HomeFolio
                                 </Typography>

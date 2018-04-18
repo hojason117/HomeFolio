@@ -83,7 +83,7 @@ class Map extends React.Component {
             onIdle={this.onLoaded}
         >
             {props.houses.map((house, index) => 
-                <MapMarker key={index} listId={index} info={house} focus={props.focus} onFocusChanged={(target) => this.onFocusChanged(target)} />)}
+                <MapMarker key={index} listId={index} info={house} focus={props.focus} onFocusChanged={(target) => this.onFocusChanged(target)} onAddToCompare={this.props.onAddToCompare} />)}
         </GoogleMap>
     )
 

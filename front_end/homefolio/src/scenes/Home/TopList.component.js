@@ -4,8 +4,8 @@ import { withStyles } from 'material-ui/styles';
 import AppBar from 'material-ui/AppBar';
 import Tabs, { Tab } from 'material-ui/Tabs';
 import Button from 'material-ui/Button';
+import Paper from 'material-ui/Paper';
 import List, { ListItem, ListItemText, ListItemSecondaryAction } from 'material-ui/List';
-import Typography from 'material-ui/Typography';
 import Checkbox from 'material-ui/Checkbox';
 import HouseService from '../../services/house.service';
 
@@ -15,18 +15,6 @@ const styles = theme => ({
         backgroundColor: theme.palette.background.paper
     }
 });
-
-const TabContainer = (props) => {
-    return (
-        <Typography component="div" style={{ padding: 8 * 3 }}>
-            {props.children}
-        </Typography>
-    );
-}
-
-TabContainer.propTypes = {
-    children: PropTypes.node.isRequired,
-}
 
 class HouseListItem extends React.Component {
     constructor(props) {
@@ -52,7 +40,39 @@ class HouseListItem extends React.Component {
     }
 }
 
-class TopList extends React.Component {
+class HouseCheckbox extends React.Component {
+    render() {
+        return (
+            <Checkbox onChange={(event, checked) => {
+                if(checked)
+                    this.props.onAddHouse(this.props.h_id);
+                else
+                    this.props.onRemoveHouse(this.props.h_id);
+            }} />
+        )
+    }
+}
+
+class AddCompareButton extends React.Component {
+    addHouses = () => {
+        for(var index in this.props.selected)
+            this.props.onAddToCompare(this.props.selected[index]);
+    }
+
+    render() {
+        return (
+            <Button
+                variant='raised'
+                primary='true'
+                color='secondary'
+                onClick={this.addHouses} >
+                Add to compare
+            </Button>
+        )
+    }
+}
+
+class Container extends React.Component {
     constructor(props) {
         super(props);
         this.service = new HouseService();
@@ -73,49 +93,76 @@ class TopList extends React.Component {
     };
 
     render() {
-        const { classes } = this.props;
         const { value } = this.state;
 
         return (
-            <div className={classes.root}>
+            <div>
                 <AppBar position='static'>
                     <Tabs value={value} onChange={this.handleChange}>
                         <Tab label='Most liked' />
                         <Tab label='Most viewed' />
                     </Tabs>
-                    <Button
-                        variant='raised'
-                        primary='true'
-                        className={classes.button}
-                        color='secondary' >
-                        Add to compare
-                    </Button>
+                    <AddCompareButton selected={this.props.selected} onAddToCompare={this.props.onAddToCompare} />    
                 </AppBar>
-                {value === 0 && <TabContainer>
+                {value === 0 && <Paper style={{ maxHeight: '60vh', overflow: 'auto' }}>
                     <List component='nav'>
                         {this.state.topLikes.map((house, index) =>
                             <ListItem key={index}>
                                 <HouseListItem latlng={{ lat: house.latitude, lng: house.longitude }} />
                                 <ListItemText primary={house.likes} />
                                 <ListItemSecondaryAction>
-                                    <Checkbox/>
+                                    <HouseCheckbox h_id={house.h_id} onAddHouse={this.props.onAddHouse} onRemoveHouse={this.props.onRemoveHouse} />
                                 </ListItemSecondaryAction>
                             </ListItem>)}
                     </List>
-                </TabContainer>}
-                {value === 1 && <TabContainer>
+                </Paper>}
+                {value === 1 && <Paper style={{ maxHeight: '60vh', overflow: 'auto' }}>
                     <List component='nav'>
                         {this.state.topViewed.map((house, index) =>
                             <ListItem key={index}>
                                 <HouseListItem latlng={{ lat: house.latitude, lng: house.longitude }} />
                                 <ListItemText primary={house.views} />
                                 <ListItemSecondaryAction>
-                                    <Checkbox />
+                                    <HouseCheckbox h_id={house.h_id} onAddHouse={this.props.onAddHouse} onRemoveHouse={this.props.onRemoveHouse} />
                                 </ListItemSecondaryAction>
                             </ListItem>)}
                     </List>
-                </TabContainer>}
+                </Paper>}
             </div>
+        )
+    }
+}
+
+class TopList extends React.Component {
+    constructor(props) {
+        super(props);
+        this.state = {
+            selected: []
+        }
+    }
+
+    onAddHouse = (target) => {
+        var temp = this.state.selected;
+        temp.push(target);
+        this.setState({ selected: temp })
+    }
+
+    onRemoveHouse = (target) => {
+        var temp = this.state.selected;
+        var index = temp.indexOf(target);
+        temp.splice(index, 1);
+        this.setState({ selected: temp })
+    }
+
+    render() {
+        return (
+            <Container
+                bounds={this.props.bounds}
+                selected={this.state.selected}
+                onAddToCompare={this.props.onAddToCompare}
+                onAddHouse={this.onAddHouse}
+                onRemoveHouse={this.onRemoveHouse}
+            />
         )
     }
 }

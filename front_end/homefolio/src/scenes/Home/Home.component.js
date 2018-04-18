@@ -7,6 +7,7 @@ import Map from '../../scenes/Home/Map.component';
 import TopList from '../../scenes/Home/TopList.component';
 import NavBar from '../../components/NavBar/NavBar.component';
 import { Link } from 'react-router-dom';
+import { Typography } from 'material-ui';
 
 const styles = theme => ({
     root: {
@@ -21,12 +22,32 @@ class Home extends React.Component {
     constructor(props) {
         super(props)
         this.state = {
-            bounds: null
+            bounds: null,
+            selected: [],
+            selectedCount: 0
         }
     }
 
     onBoundChanged = (newBound) => {
         this.setState({ bounds: newBound });
+    }
+
+    onAddToCompare = (h_id) => {
+        var oldSelected = this.state.selected;
+        oldSelected.push(h_id);
+        this.setState({ selected: oldSelected });
+        this.setState({ selectedCount: this.state.selected.length });
+    }
+
+    prepareCompareURL = () => {
+        var url = '/compare?houses='
+        for(var index in this.state.selected) {
+            if(parseInt(index, 10) === 0)
+                url += this.state.selected[index];
+            else
+                url += (',' + this.state.selected[index]);
+        }
+        return url;
     }
 
     render() {
@@ -38,12 +59,13 @@ class Home extends React.Component {
                     <Grid item xs={12}>
                         <NavBar />
                     </Grid>
-                    <Grid item xs={12}>
+                    <Grid item xs={8}>
                         <Button
                             variant='raised'
                             primary='true'
                             className={classes.button}
                             color='primary'
+                            size='large'
                             component={Link}
                             to='/search' >
                             Search
@@ -52,20 +74,38 @@ class Home extends React.Component {
                             variant='raised'
                             primary='true'
                             className={classes.button}
-                            color='primary' >
+                            color='primary'
+                            size='large' >
                             SELL
+                        </Button>
+                    </Grid>
+                    <Grid item xs={2}>
+                        <Typography variant='headline' color='inherit' >
+                            {this.state.selectedCount} selected
+                        </Typography>
+                    </Grid>
+                    <Grid item xs={1}>
+                        <Button
+                            variant='raised'
+                            primary='true'
+                            className={classes.button}
+                            color='secondary'
+                            size='large'
+                            component={Link}
+                            to={this.prepareCompareURL()} >
+                            Compare
                         </Button>
                     </Grid>
                 </Grid>
                 <Grid container spacing={8} alignItems='flex-start'>
                     <Grid item xs={8}>
-                        <div style={{ height: '80vh' }}>
-                            <Map onBoundChanged={(newBounds) => this.onBoundChanged(newBounds)}/>
+                        <div style={{ height: '75vh' }}>
+                            <Map onBoundChanged={(newBounds) => this.onBoundChanged(newBounds)} onAddToCompare={(h_id) => this.onAddToCompare(h_id)} />
                         </div>
                     </Grid>
                     <Grid item xs={4}>
-                        <div style={{ height: '80vh' }}>
-                            <TopList bounds={this.state.bounds} />
+                        <div style={{ height: '75vh' }}>
+                            <TopList bounds={this.state.bounds} onAddToCompare={(h_id) => this.onAddToCompare(h_id)} />
                         </div>
                     </Grid>
                 </Grid>
