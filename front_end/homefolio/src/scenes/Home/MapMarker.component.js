@@ -66,7 +66,8 @@ class MapMarker extends React.Component {
                             variant='raised'
                             primary='true'
                             className={classes.button}
-                            color='secondary' >
+                            color='secondary'
+                            onClick={() => this.props.onAddToCompare(this.props.info.h_id)} >
                             Add to compare
                         </Button>
                     </div>
