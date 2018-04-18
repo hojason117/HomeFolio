@@ -58,7 +58,7 @@ func (h *Handler) Signup(c echo.Context) (err error) {
 	}
 
 	userD := new(model.User)
-	err = h.db.QueryRow("SELECT * FROM acc_user WHERE email = :var1 and password = :var2", userC.Email, userC.Password).Scan(&userD.UID,
+	err = h.db.QueryRow("SELECT * FROM acc_user WHERE email = &var1 and password = &var2", userC.Email, userC.Password).Scan(&userD.UID,
 		&userD.Email, &userD.Username, &userD.Password, &userD.Age, &userD.Area, &userD.Bio)
 	if err == nil {
 		return &echo.HTTPError{Code: http.StatusBadRequest, Message: "Username or email already used."}
@@ -71,14 +71,14 @@ func (h *Handler) Signup(c echo.Context) (err error) {
 	userC.UID = newID.String()
 	userC.fillD(userD)
 
-	stmt, err := h.db.Prepare("INSERT INTO acc_user VALUES (:var1, :var2, :var3, :var4, :var5, :var6, :var7)")
+	stmt, err := h.db.Prepare("INSERT INTO acc_user VALUES (&var1, &var2, &var3, &var4, &var5, &var6, &var7)")
 	_, err = stmt.Exec(userD.UID, userD.Email, userD.Username, userD.Password, userD.Age, userD.Area, userD.Bio)
 	if err != nil {
 		return err
 	}
 
 	if userC.Seller {
-		stmt, err := h.db.Prepare("INSERT INTO seller VALUES (:var1)")
+		stmt, err := h.db.Prepare("INSERT INTO seller VALUES (&var1)")
 		_, err = stmt.Exec(userD.UID)
 		if err != nil {
 			return err
@@ -86,7 +86,7 @@ func (h *Handler) Signup(c echo.Context) (err error) {
 	}
 
 	if userC.Buyer {
-		stmt, err := h.db.Prepare("INSERT INTO buyer VALUES (:var1)")
+		stmt, err := h.db.Prepare("INSERT INTO buyer VALUES (&var1)")
 		_, err = stmt.Exec(userD.UID)
 		if err != nil {
 			return err
@@ -113,7 +113,7 @@ func (h *Handler) Login(c echo.Context) (err error) {
 
 	// Find user
 	userD := new(model.User)
-	err = h.db.QueryRow("SELECT * FROM acc_user WHERE email = :var1 and password = :var2", userC.Email, userC.Password).Scan(&userD.UID,
+	err = h.db.QueryRow("SELECT * FROM acc_user WHERE email = &var1 and password = &var2", userC.Email, userC.Password).Scan(&userD.UID,
 		&userD.Email, &userD.Username, &userD.Password, &userD.Age, &userD.Area, &userD.Bio)
 	if err != nil {
 		if err == sql.ErrNoRows {
@@ -123,7 +123,7 @@ func (h *Handler) Login(c echo.Context) (err error) {
 	}
 
 	seller := true
-	err = h.db.QueryRow("SELECT * FROM seller WHERE u_id = :var1", userD.UID).Scan(new(string))
+	err = h.db.QueryRow("SELECT * FROM seller WHERE u_id = &var1", userD.UID).Scan(new(string))
 	if err != nil {
 		if err != sql.ErrNoRows {
 			return err
@@ -132,7 +132,7 @@ func (h *Handler) Login(c echo.Context) (err error) {
 	}
 
 	buyer := true
-	err = h.db.QueryRow("SELECT * FROM buyer WHERE u_id = :var1", userD.UID).Scan(new(string))
+	err = h.db.QueryRow("SELECT * FROM buyer WHERE u_id = &var1", userD.UID).Scan(new(string))
 	if err != nil {
 		if err != sql.ErrNoRows {
 			return err
@@ -173,7 +173,7 @@ func (h *Handler) Login(c echo.Context) (err error) {
 func (h *Handler) FetchUserInfo(c echo.Context) (err error) {
 	// Retrieve user info from database
 	userD := new(model.User)
-	err = h.db.QueryRow("SELECT * FROM acc_user WHERE u_id = :var1", c.Param("uid")).Scan(&userD.UID,
+	err = h.db.QueryRow("SELECT * FROM acc_user WHERE u_id = &var1", c.Param("uid")).Scan(&userD.UID,
 		&userD.Email, &userD.Username, &userD.Password, &userD.Age, &userD.Area, &userD.Bio)
 	if err != nil {
 		if err == sql.ErrNoRows {
@@ -183,7 +183,7 @@ func (h *Handler) FetchUserInfo(c echo.Context) (err error) {
 	}
 
 	seller := true
-	err = h.db.QueryRow("SELECT * FROM seller WHERE u_id = :var1", userD.UID).Scan(new(string))
+	err = h.db.QueryRow("SELECT * FROM seller WHERE u_id = &var1", userD.UID).Scan(new(string))
 	if err != nil {
 		if err != sql.ErrNoRows {
 			return err
@@ -192,7 +192,7 @@ func (h *Handler) FetchUserInfo(c echo.Context) (err error) {
 	}
 
 	buyer := true
-	err = h.db.QueryRow("SELECT * FROM buyer WHERE u_id = :var1", userD.UID).Scan(new(string))
+	err = h.db.QueryRow("SELECT * FROM buyer WHERE u_id = &var1", userD.UID).Scan(new(string))
 	if err != nil {
 		if err != sql.ErrNoRows {
 			return err
@@ -229,7 +229,7 @@ func (h *Handler) UpdateUserInfo(c echo.Context) (err error) {
 	}
 
 	userD := new(model.User)
-	err = h.db.QueryRow("SELECT * FROM acc_user WHERE u_id = :var1", uid).Scan(&userD.UID,
+	err = h.db.QueryRow("SELECT * FROM acc_user WHERE u_id = &var1", uid).Scan(&userD.UID,
 		&userD.Email, &userD.Username, &userD.Password, &userD.Age, &userD.Area, &userD.Bio)
 	if err != nil {
 		if err == sql.ErrNoRows {
@@ -240,7 +240,7 @@ func (h *Handler) UpdateUserInfo(c echo.Context) (err error) {
 
 	userC.fillD(userD)
 
-	stmt, err := h.db.Prepare("UPDATE acc_user SET username = :var1, password = :var2, age = :var3, area = :var4, bio = :var5 WHERE u_id = :var6")
+	stmt, err := h.db.Prepare("UPDATE acc_user SET username = &var1, password = &var2, age = &var3, area = &var4, bio = &var5 WHERE u_id = &var6")
 	_, err = stmt.Exec(userD.Username, userD.Password, userD.Age, userD.Area, userD.Bio, userD.UID)
 	if err != nil {
 		return err

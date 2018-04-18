@@ -1,3 +1,67 @@
+/* Signup */
+SELECT * FROM acc_user WHERE email = &var1 and password = &var2
+INSERT INTO acc_user VALUES (&var1, &var2, &var3, &var4, &var5, &var6, &var7)
+INSERT INTO seller VALUES (&var1)
+INSERT INTO buyer VALUES (&var1)
+
+/* Login */
+SELECT * FROM acc_user WHERE email = &var1 and password = &var2
+SELECT * FROM seller WHERE u_id = &var1
+SELECT * FROM buyer WHERE u_id = &var1
+
+/* FetchUserInfo */
+SELECT * FROM acc_user WHERE u_id = &var1
+SELECT * FROM seller WHERE u_id = &var1
+SELECT * FROM buyer WHERE u_id = &var1
+
+/* UpdateUserInfo */
+SELECT * FROM acc_user WHERE u_id = &var1
+UPDATE acc_user SET username = &var1, password = &var2, age = &var3, area = &var4, bio = &var5 WHERE u_id = &var6
+
+/* FetchSingleHouseInfo */
+SELECT * FROM house WHERE h_id = &var1
+
+/* FetchRegionHouseInfo */
+SELECT *
+FROM (
+	SELECT h_id, latitude, longitude
+	FROM house
+	WHERE latitude < &var1 and latitude > &var2 and longitude < &var3 and longitude > &var4
+	ORDER BY DBMS_RANDOM.VALUE)
+WHERE ROWNUM <= &var5
+
+/* FetchTopLikedHouses */
+SELECT *
+FROM
+	(SELECT h_id, latitude, longitude, count(*) as num
+	FROM
+		(SELECT h_id, latitude, longitude
+		FROM house 
+		WHERE latitude < &var1 and latitude > &var2 and longitude < &var3 and longitude > &var4)
+		NATURAL JOIN
+		likes
+	GROUP BY h_id, latitude, longitude
+	ORDER BY num DESC)
+WHERE ROWNUM <= &var5
+
+/* FetchTopViewedHouses */
+SELECT *
+FROM
+	(SELECT h_id, latitude, longitude, count(*) as num
+	FROM
+		(SELECT h_id, latitude, longitude
+		FROM house 
+		WHERE latitude < &var1 and latitude > &var2 and longitude < &var3 and longitude > &var4)
+		NATURAL JOIN
+		viewed
+	GROUP BY h_id, latitude, longitude
+	ORDER BY num DESC)
+WHERE ROWNUM <= &var5
+
+
+
+/*************************************************************************************************************************/
+
 /* INSERT */
 /* 1. New user sign up */
 /* INSERT INTO CHHO.ACC_USER VALUES ('u_id','email','username','password','age','area','bio');*/
