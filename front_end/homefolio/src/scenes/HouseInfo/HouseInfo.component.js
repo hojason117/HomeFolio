@@ -2,7 +2,7 @@ import React from 'react';
 import PropTypes from 'prop-types';
 import { withStyles } from 'material-ui/styles';
 import NavBar from '../../components/NavBar/NavBar.component';
-import DataService from '../../services/data.service';
+import HouseService from '../../services/house.service';
 import classnames from 'classnames';
 import { compose, withProps } from "recompose";
 import { withScriptjs, withGoogleMap, GoogleMap, StreetViewPanorama } from "react-google-maps";
@@ -71,7 +71,7 @@ const styles = theme => ({
 class HouseInfo extends React.Component {
     constructor(props) {
         super(props);
-        this.service = new DataService();
+        this.service = new HouseService();
         this.state = {
             info: {
                 h_id: '',

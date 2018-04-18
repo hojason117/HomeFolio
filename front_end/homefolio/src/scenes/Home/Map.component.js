@@ -1,13 +1,13 @@
 import React from 'react';
 import { withScriptjs, withGoogleMap, GoogleMap } from "react-google-maps";
 import MapMarker from '../../scenes/Home/MapMarker.component';
-import DataService from '../../services/data.service';
+import HouseService from '../../services/house.service';
 import { compose, withProps } from "recompose";
 
 class Map extends React.Component {
     constructor(props) {
         super(props);
-        this.service = new DataService();
+        this.service = new HouseService();
         this.map = null;
         this.state = {
             mapLoaded: false,
