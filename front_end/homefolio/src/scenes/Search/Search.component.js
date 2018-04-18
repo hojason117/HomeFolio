@@ -5,7 +5,7 @@ import TextField from 'material-ui/TextField';
 import Select from 'material-ui/Select';
 import { MenuItem } from 'material-ui/Menu';
 import Button from 'material-ui/Button';
-import DataService from '../../services/data.service';
+import HouseService from '../../services/house.service';
 import NavBar from '../../components/NavBar/NavBar.component';
 
 const styles = theme => ({
@@ -41,7 +41,7 @@ const styles = theme => ({
 class Search extends React.Component {
     constructor(props) {
         super(props);
-        this.service = new DataService();
+        this.service = new HouseService();
         this.state = {
             address: '',
             zip: '',

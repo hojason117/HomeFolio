@@ -7,7 +7,7 @@ import Button from 'material-ui/Button';
 import List, { ListItem, ListItemText, ListItemSecondaryAction } from 'material-ui/List';
 import Typography from 'material-ui/Typography';
 import Checkbox from 'material-ui/Checkbox';
-import DataService from '../../services/data.service';
+import HouseService from '../../services/house.service';
 
 const styles = theme => ({
     root: {
@@ -31,7 +31,7 @@ TabContainer.propTypes = {
 class HouseListItem extends React.Component {
     constructor(props) {
         super(props);
-        this.service = new DataService();
+        this.service = new HouseService();
         this.state = {
             addr: ''
         }
@@ -55,7 +55,7 @@ class HouseListItem extends React.Component {
 class TopList extends React.Component {
     constructor(props) {
         super(props);
-        this.service = new DataService();
+        this.service = new HouseService();
         this.state = ({
             value: 0,
             topLikes: [],
