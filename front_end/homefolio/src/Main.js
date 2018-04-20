@@ -31,19 +31,21 @@ class Main extends React.Component {
 
     render() {
         return (
-            <BrowserRouter>
-                <Switch>
-                    <Route exact path='/' component={Public} />
-                    <Route path='/login' component={Login} />
-                    <Route path='/signup' component={Signup} />
-                    <this.PrivateRoute path='/home' component={Home} />
-                    <this.PrivateRoute path='/houseinfo/:h_id' component={HouseInfo} />
-                    <this.PrivateRoute path='/userinfo' component={UserInfo} />
-                    <this.PrivateRoute path='/compare' component={Compare} />
-                    <this.PrivateRoute path='/search' component={Search} />
-                    <Route component={NotFound} />
-                </Switch>
-            </BrowserRouter>
+            <Provider store={store}>
+                <BrowserRouter>
+                    <Switch>
+                        <Route exact path='/' component={Public} />
+                        <Route path='/login' component={Login} />
+                        <Route path='/signup' component={Signup} />
+                        <this.PrivateRoute path='/home' component={Home} />
+                        <this.PrivateRoute path='/houseinfo/:h_id' component={HouseInfo} />
+                        <this.PrivateRoute path='/userinfo' component={UserInfo} />
+                        <this.PrivateRoute path='/compare' component={Compare} />
+                        <this.PrivateRoute path='/search' component={Search} />
+                        <Route component={NotFound} />
+                    </Switch>
+                </BrowserRouter>
+            </Provider>
         )
     }
 }
