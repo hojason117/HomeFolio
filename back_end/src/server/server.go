@@ -23,7 +23,7 @@ func NewServer(h *handler.Handler) (e *echo.Echo) {
 		SigningKey: []byte(handler.Key),
 		Skipper: func(c echo.Context) bool {
 			// Skip authentication for and signup login requests
-			if c.Request().Method == "OPTIONS" || c.Path() == urlPrefix+"/login" || c.Path() == urlPrefix+"/signup" || c.Path() == urlPrefix+"/ws/:username" {
+			if c.Request().Method == "OPTIONS" || c.Path() == urlPrefix+"/login" || c.Path() == urlPrefix+"/signup" || c.Path() == urlPrefix+"/tuplecount" || c.Path() == urlPrefix+"/ws/:username" {
 				return true
 			}
 			return false
@@ -48,6 +48,8 @@ func NewServer(h *handler.Handler) (e *echo.Echo) {
 	e.GET("/api/v1/houseInfo", h.HouseHandler.FetchRegionHouseInfo)
 	e.GET("/api/v1/topliked", h.HouseHandler.FetchTopLikedHouses)
 	e.GET("/api/v1/topviewed", h.HouseHandler.FetchTopViewedHouses)
+	e.GET("/api/v1/tuplecount", h.HouseHandler.GetTupleCount)
+	e.DELETE("/api/v1/buyhouse/:hid", h.HouseHandler.BuyHouse)
 
 	return e
 }

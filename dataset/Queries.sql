@@ -58,6 +58,35 @@ FROM
 	ORDER BY num DESC)
 WHERE ROWNUM <= &var5
 
+/* GetTupleCount */
+SELECT COUNT(*)
+FROM acc_user;
+
+SELECT COUNT(*)
+FROM buyer;
+
+SELECT COUNT(*)
+FROM seller;
+
+SELECT COUNT(*)
+FROM chat;
+
+SELECT COUNT(*)
+FROM comments;
+
+SELECT COUNT(*)
+FROM house;
+
+SELECT COUNT(*)
+FROM viewed;
+
+SELECT COUNT(*)
+FROM likes;
+
+/* BuyHouse */
+DELETE FROM viewed WHERE h_id = &var1
+DELETE FROM likes WHERE h_id = &var1
+DELETE FROM house WHERE h_id = &var1
 
 
 /*************************************************************************************************************************/

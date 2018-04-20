@@ -43,7 +43,6 @@ class Search extends React.Component {
         super(props);
         this.service = new HouseService();
         this.state = {
-            address: '',
             zip: '',
             lowwerPrice: '',
             higherPrice: '',
@@ -51,14 +50,15 @@ class Search extends React.Component {
             bathroomCnt: '',
             buildingQuality: '',
             livingAreaSize: '',
+            story: '',
             lotSize: '',
-            yearBuild: '',
+            yearBuilt: '',
         }
     }
 
     search = () =>  {
-        this.service.serarch(this.state.email, this.state.password, this.state.lowwerPrice, this.state.lowwerPrice, this.state.higherPrice, 
-            this.state.bedroomCnt, this.state.bathroomCnt, this.state.buildingQuality, this.state.livingAreaSize, this.state.lotSize, this.state.yearBuild);
+        this.service.serarch(this.state.zip, this.state.lowwerPrice, this.state.lowwerPrice, this.state.higherPrice, this.state.bedroomCnt, this.state.bathroomCnt, 
+            this.state.buildingQuality, this.state.livingAreaSize, this.state.story, this.state.lotSize, this.state.yearBuilt);
     }
 
     render() {
@@ -68,15 +68,6 @@ class Search extends React.Component {
             <div className={classes.root} onKeyDown={e => {if(e.keyCode === 13) this.search();}}>
                 <NavBar />
                 <form className={classes.container}>
-                    <TextField
-                        required
-                        autoFocus
-                        id='searchAddressField'
-                        className={classes.address}
-                        label='Address'
-                        placeholder='Address'
-                        onChange={event => this.setState({address: event.target.value})}
-                    />
                     <TextField
                         required
                         id='searchZipField'
@@ -244,12 +235,12 @@ class Search extends React.Component {
                     </Select>
                     <Select
                         required
-                        id='yearBuild'
-                        label='yearBuild'
-                        value={this.state.yearBuild}
+                        id='yearBuilt'
+                        label='yearBuilt'
+                        value={this.state.yearBuilt}
                         displayEmpty
                         className={classes.SelectPrice}
-                        name="yearBuild"
+                        name="yearBuilt"
                         onChange={event => {this.setState({ [event.target.name]: event.target.value })}}
                     >
                     <MenuItem value="">
@@ -271,7 +262,7 @@ class Search extends React.Component {
                         className={classes.button}
                         color='primary'
                         onClick={this.search} >
-                        search
+                        apply
                     </Button>
                 </form>
             </div>

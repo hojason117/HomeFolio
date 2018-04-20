@@ -1,6 +1,7 @@
 import React from 'react';
 import { withStyles } from 'material-ui/styles';
 import Button from 'material-ui/Button';
+import HouseService from '../../services/house.service';
 
 const styles = theme => ({
     button: {
@@ -9,6 +10,15 @@ const styles = theme => ({
 });
 
 class Public extends React.Component {
+    constructor(props) {
+        super(props);
+        this.service = new HouseService();
+    }
+
+    showTupleCount = () => {
+        this.service.getTotalTupleCount().then((result) => { alert('Total tuples: ' + result) });
+    }
+
     render() {
         const { classes } = this.props;
 
@@ -16,19 +26,30 @@ class Public extends React.Component {
             <div>
                 <Button
                     variant='raised'
-                    secondary='true'
+                    primary='true'
                     className={classes.button}
-                    color='secondary'
+                    color='primary'
+                    size='large'
                     href='login' >
                     LOGIN
+                </Button>
+                <Button
+                    variant='raised'
+                    primary='true'
+                    className={classes.button}
+                    color='primary'
+                    size='large'
+                    href='signup' >
+                    SIGNUP
                 </Button>
                 <Button
                     variant='raised'
                     secondary='true'
                     className={classes.button}
                     color='secondary'
-                    href='signup' >
-                    SIGNUP
+                    size='small'
+                    onClick={this.showTupleCount} >
+                    Total Tuples
                 </Button>
             </div>
         )
