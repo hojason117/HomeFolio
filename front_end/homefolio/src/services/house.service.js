@@ -155,6 +155,43 @@ class HouseService {
 
         return houses;
     }
+
+    getTotalTupleCount = async () => {
+        var count = 0;
+        try {
+            const response = await Axios.get('/tuplecount',
+                {
+                    baseURL: this.baseUrl
+                })
+            if (response.status === 200) {
+                count = response.data.count;
+            }
+            else {
+                console.log('Unexpected response code: ' + response.status);
+            }
+        }
+        catch (error) {
+            console.log(error);
+        }
+
+        return count;
+    }
+
+    buyHouse = async (id) => {
+        try {
+            const response = await Axios.delete('/buyhouse/' + id,
+                {
+                    baseURL: this.baseUrl,
+                    headers: { 'Authorization': 'Bearer ' + localStorage.getItem('auth_token') }
+                })
+            if (response.status !== 204) {
+                console.log('Unexpected response code: ' + response.status);
+            }
+        }
+        catch (error) {
+            console.log(error);
+        }
+    }
 }
 
 export default HouseService;

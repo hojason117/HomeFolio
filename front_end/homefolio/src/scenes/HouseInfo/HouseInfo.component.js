@@ -22,7 +22,7 @@ import EditIcon from '@material-ui/icons/Edit'
 import DeleteIcon from '@material-ui/icons/Delete';
 import Tooltip from 'material-ui/Tooltip';
 import Grid from 'material-ui/Grid';
-
+import { Link } from 'react-router-dom';
 
 const styles = theme => ({
     button: {
@@ -168,7 +168,11 @@ class HouseInfo extends React.Component {
                         }
                         action={
                             <CardActions>
-                            <Button size="small">CONTACT SELLER</Button>
+                                <Button size="small">CONTACT SELLER</Button>
+                                <Button variant='raised' color='primary' size="small" component={Link} to={'/home'} onClick={() => 
+                                    this.service.buyHouse(this.state.info.h_id).then(alert('Congratulations!! The house is yours!!'))}>
+                                    BUY
+                                </Button>
                             </CardActions>
                         }
                         title = {this.state.userinfo.username}
