@@ -9,6 +9,7 @@ import Signup from './scenes/Signup/Signup.component';
 import Public from './scenes/Public/Public.component';
 import Compare from './scenes/Compare/Compare.component';
 import Search from './scenes/Search/Search.component';
+import UserInfo from './scenes/UserInfo/UserInfo.component';
 import NotFound from './scenes/NotFound/NotFound.component';
 import AuthService from './services/auth.service';
 
@@ -38,6 +39,7 @@ class Main extends React.Component {
                         <Route path='/signup' component={Signup} />
                         <this.PrivateRoute path='/home' component={Home} />
                         <this.PrivateRoute path='/houseinfo/:h_id' component={HouseInfo} />
+                        <this.PrivateRoute path='/userinfo' component={UserInfo} />
                         <this.PrivateRoute path='/compare' component={Compare} />
                         <this.PrivateRoute path='/search' component={Search} />
                         <Route component={NotFound} />
