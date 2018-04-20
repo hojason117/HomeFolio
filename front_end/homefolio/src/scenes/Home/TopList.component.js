@@ -1,4 +1,6 @@
 import React from 'react';
+import { connect } from "react-redux";
+import { addCompareHouses } from '../../redux/actions/main';
 import PropTypes from 'prop-types';
 import { withStyles } from 'material-ui/styles';
 import AppBar from 'material-ui/AppBar';
@@ -40,47 +42,54 @@ class HouseListItem extends React.Component {
     }
 }
 
-class HouseCheckbox extends React.Component {
-    render() {
-        return (
-            <Checkbox onChange={(event, checked) => {
-                if(checked)
-                    this.props.onAddHouse(this.props.h_id);
-                else
-                    this.props.onRemoveHouse(this.props.h_id);
-            }} />
-        )
-    }
-}
+HouseListItem.propTypes = {
+    latlng: PropTypes.object.isRequired
+};
 
-class AddCompareButton extends React.Component {
-    addHouses = () => {
-        for(var index in this.props.selected)
-            this.props.onAddToCompare(this.props.selected[index]);
-    }
+const mapStateToProps = state => {
+    return { bounds: state.homeMapBound };
+};
 
-    render() {
-        return (
-            <Button
-                variant='raised'
-                primary='true'
-                color='secondary'
-                onClick={this.addHouses} >
-                Add to compare
-            </Button>
-        )
-    }
-}
+const mapDispatchToProps = dispatch => {
+    return { addCompareHouses: house => dispatch(addCompareHouses(house)) };
+};
 
-class Container extends React.Component {
+class TopList extends React.Component {
     constructor(props) {
         super(props);
         this.service = new HouseService();
         this.state = ({
-            value: 0,
+            tab: 0,
             topLikes: [],
-            topViewed: []
+            topViewed: [],
+            selected: []
         })
+    }
+
+    HouseCheckbox = (props) => {
+        const handleChange = (checked) => {
+            if (checked)
+                addHouse(props.h_id);
+            else
+                removeHouse(props.h_id);
+        }
+
+        const addHouse = (target) => {
+            var temp = this.state.selected;
+            temp.push(target);
+            this.setState({ selected: temp })
+        }
+
+        const removeHouse = (target) => {
+            var temp = this.state.selected;
+            var index = temp.indexOf(target);
+            temp.splice(index, 1);
+            this.setState({ selected: temp })
+        }
+
+        return (
+            <Checkbox onChange={(event, checked) => handleChange(checked)} />
+        )
     }
 
     componentWillReceiveProps(nextProps) {
@@ -88,42 +97,57 @@ class Container extends React.Component {
         this.service.fetchTopViewedHouses(nextProps.bounds, 10).then((result) => { this.setState({ topViewed: result }) });
     }
 
-    handleChange = (event, value) => {
-        this.setState({ value });
+    componentDidMount() {
+        this.service.fetchTopLikedHouses(this.props.bounds, 10).then((result) => { this.setState({ topLikes: result }) });
+        this.service.fetchTopViewedHouses(this.props.bounds, 10).then((result) => { this.setState({ topViewed: result }) });
+    }
+
+    handleChange = (event, tab) => {
+        this.setState({ tab });
     };
 
     render() {
-        const { value } = this.state;
+        const { tab } = this.state;
+
+        const addAllHouses = () => {
+            for(var index in this.state.selected)
+                this.props.addCompareHouses(this.state.selected[index]);
+        }
 
         return (
             <div>
                 <AppBar position='static'>
-                    <Tabs value={value} onChange={this.handleChange}>
+                    <Tabs value={tab} onChange={this.handleChange}>
                         <Tab label='Most liked' />
                         <Tab label='Most viewed' />
                     </Tabs>
-                    <AddCompareButton selected={this.props.selected} onAddToCompare={this.props.onAddToCompare} />    
+                    <Button variant='raised'
+                        primary='true'
+                        color='secondary'
+                        onClick={() => addAllHouses()} >
+                        Add to compare
+                    </Button>
                 </AppBar>
-                {value === 0 && <Paper style={{ maxHeight: '60vh', overflow: 'auto' }}>
+                {tab === 0 && <Paper style={{ maxHeight: '60vh', overflow: 'auto' }}>
                     <List component='nav'>
                         {this.state.topLikes.map((house, index) =>
                             <ListItem key={index}>
                                 <HouseListItem latlng={{ lat: house.latitude, lng: house.longitude }} />
                                 <ListItemText primary={house.likes} />
                                 <ListItemSecondaryAction>
-                                    <HouseCheckbox h_id={house.h_id} onAddHouse={this.props.onAddHouse} onRemoveHouse={this.props.onRemoveHouse} />
+                                    <this.HouseCheckbox h_id={house.h_id} />
                                 </ListItemSecondaryAction>
                             </ListItem>)}
                     </List>
                 </Paper>}
-                {value === 1 && <Paper style={{ maxHeight: '60vh', overflow: 'auto' }}>
+                {tab === 1 && <Paper style={{ maxHeight: '60vh', overflow: 'auto' }}>
                     <List component='nav'>
                         {this.state.topViewed.map((house, index) =>
                             <ListItem key={index}>
                                 <HouseListItem latlng={{ lat: house.latitude, lng: house.longitude }} />
                                 <ListItemText primary={house.views} />
                                 <ListItemSecondaryAction>
-                                    <HouseCheckbox h_id={house.h_id} onAddHouse={this.props.onAddHouse} onRemoveHouse={this.props.onRemoveHouse} />
+                                    <this.HouseCheckbox h_id={house.h_id} />
                                 </ListItemSecondaryAction>
                             </ListItem>)}
                     </List>
@@ -133,42 +157,9 @@ class Container extends React.Component {
     }
 }
 
-class TopList extends React.Component {
-    constructor(props) {
-        super(props);
-        this.state = {
-            selected: []
-        }
-    }
-
-    onAddHouse = (target) => {
-        var temp = this.state.selected;
-        temp.push(target);
-        this.setState({ selected: temp })
-    }
-
-    onRemoveHouse = (target) => {
-        var temp = this.state.selected;
-        var index = temp.indexOf(target);
-        temp.splice(index, 1);
-        this.setState({ selected: temp })
-    }
-
-    render() {
-        return (
-            <Container
-                bounds={this.props.bounds}
-                selected={this.state.selected}
-                onAddToCompare={this.props.onAddToCompare}
-                onAddHouse={this.onAddHouse}
-                onRemoveHouse={this.onRemoveHouse}
-            />
-        )
-    }
-}
-
 TopList.propTypes = {
     classes: PropTypes.object.isRequired,
+    bounds: PropTypes.object.isRequired
 };
 
-export default withStyles(styles)(TopList);
+export default connect(mapStateToProps, mapDispatchToProps)(withStyles(styles)(TopList));

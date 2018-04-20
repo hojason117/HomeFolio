@@ -1,4 +1,6 @@
 import React from 'react';
+import { connect } from "react-redux";
+import { emptyCompareHouses } from '../../redux/actions/main';
 import PropTypes from 'prop-types';
 import HouseService from '../../services/house.service';
 import NavBar from '../../components/NavBar/NavBar.component';
@@ -20,12 +22,6 @@ const styles = theme => ({
         width: '100%',
     },
 });
-
-const BackButton = () => (
-    <Button component={Link} to="/home" color="secondary" >
-        Redo
-    </Button>
-);
   
 const DeleteButton = ({ onExecute }) => (
     <IconButton onClick={onExecute} title="Delete row">
@@ -50,6 +46,14 @@ const Cell = (props) => {
   
 const getRowId = row => row.id;
 
+const mapStateToProps = state => {
+    return { compareHouses: state.compareHouses };
+};
+
+const mapDispatchToProps = dispatch => {
+    return { emptyCompareHouses: () => dispatch(emptyCompareHouses()) };
+};
+
 class Compare extends React.Component {
     constructor(props) {
         super(props);
@@ -67,18 +71,7 @@ class Compare extends React.Component {
                 { name: 'price', title: 'Sale Price' },
                 { name: 'tax', title: 'Tax' }
             ],
-            rows:[{
-                address: '',
-                bedroom: 3,
-                bathroom: 2,
-                story: 2,
-                area: 125,
-                lot: 50,
-                quality: 7,
-                year: 1993,
-                price: 5000,
-                tax: 300
-            }],
+            rows:[],
             sorting: [],
             rowChanges: {},
             currentPage: 0,
@@ -112,38 +105,19 @@ class Compare extends React.Component {
     }
 
     componentDidMount() {
-        this.toRows(this.parseUrlToHouses()).then((result) => this.setState({ rows: result }));
+        this.toRows().then((result) => this.setState({ rows: result }));
     }
 
-    parseUrlToHouses = () => {
-        var queryParam = this.props.location.search.substring(8);
-        var houses = []
-
-        if (queryParam.length === 0)
-            return houses;
-
-        var index = queryParam.search(',');
-        var temp;
-        while(index !== -1) {
-            temp = queryParam.substring(0, index);
-            houses.push(temp);
-            queryParam = queryParam.substring(index + 1);
-            index = queryParam.search(',');
-        }
-        houses.push(queryParam);
-
-        return houses;
-    }
-
-    toRows = async (houses) => {
+    toRows = async () => {
         var rows = [];
 
-        for(var index in houses) {
+        for(var index in this.props.compareHouses) {
             var row;
             var info;
-            await this.service.fetchHouseInfo(houses[index]).then((data) => {
+            await this.service.fetchHouseInfo(this.props.compareHouses[index]).then((data) => {
                 info = data;
                 row = {
+                    id: index,
                     address: '',
                     bedroom: data.bedroomCnt,
                     bathroom: data.bathroomCnt,
@@ -162,6 +136,12 @@ class Compare extends React.Component {
 
         return rows;
     }
+
+    BackButton = () => (
+        <Button component={Link} to="/home" color="secondary" onClick={() => this.props.emptyCompareHouses()} >
+            Redo
+        </Button>
+    );
 
     render() {
         const { classes } = this.props;
@@ -198,7 +178,7 @@ class Compare extends React.Component {
                             onCommitChanges={this.commitChanges}
                         />
                         <DragDropProvider />
-                        <BackButton />
+                        <this.BackButton />
                         <Table columnExtensions={tableColumnExtensions} cellComponent={Cell} />
                         <TableColumnReordering order={columnOrder} onOrderChange={this.changeColumnOrder} />
                         <TableHeaderRow showSortingControls />
@@ -214,12 +194,6 @@ class Compare extends React.Component {
                         <DialogTitle>Delete Row</DialogTitle>
                         <DialogContent>
                             <DialogContentText>Are you sure you want to delete the record?</DialogContentText>
-                            <Paper>
-                                <Grid rows={rows.filter(row => deletingRows.indexOf(row.id) > -1)} columns={columns} >
-                                    <Table columnExtensions={tableColumnExtensions} cellComponent={Cell} />
-                                    <TableHeaderRow />
-                                </Grid>
-                            </Paper>
                         </DialogContent>
                         <DialogActions>
                             <Button onClick={this.cancelDelete} color="primary">Cancel</Button>
@@ -236,4 +210,4 @@ Compare.propTypes = {
     classes: PropTypes.object.isRequired,
 };
 
-export default withStyles(styles)(Compare);
+export default connect(mapStateToProps, mapDispatchToProps)(withStyles(styles)(Compare));

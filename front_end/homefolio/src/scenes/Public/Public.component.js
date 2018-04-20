@@ -9,51 +9,46 @@ const styles = theme => ({
     }
 });
 
-class Public extends React.Component {
-    constructor(props) {
-        super(props);
-        this.service = new HouseService();
+const Public = (props) => {
+    const { classes } = props;
+    const service = new HouseService();
+    const showTupleCount = () => {
+        service.getTotalTupleCount()
+            .then(result => alert('Total tuples: ' + result))
+            .catch(err => alert('Something went wrong, please try again.'));
     }
 
-    showTupleCount = () => {
-        this.service.getTotalTupleCount().then((result) => { alert('Total tuples: ' + result) });
-    }
-
-    render() {
-        const { classes } = this.props;
-
-        return (
-            <div>
-                <Button
-                    variant='raised'
-                    primary='true'
-                    className={classes.button}
-                    color='primary'
-                    size='large'
-                    href='login' >
-                    LOGIN
+    return (
+        <div>
+            <Button
+                variant='raised'
+                primary='true'
+                className={classes.button}
+                color='primary'
+                size='large'
+                href='login' >
+                LOGIN
                 </Button>
-                <Button
-                    variant='raised'
-                    primary='true'
-                    className={classes.button}
-                    color='primary'
-                    size='large'
-                    href='signup' >
-                    SIGNUP
+            <Button
+                variant='raised'
+                primary='true'
+                className={classes.button}
+                color='primary'
+                size='large'
+                href='signup' >
+                SIGNUP
                 </Button>
-                <Button
-                    variant='raised'
-                    secondary='true'
-                    className={classes.button}
-                    color='secondary'
-                    size='small'
-                    onClick={this.showTupleCount} >
-                    Total Tuples
+            <Button
+                variant='raised'
+                secondary='true'
+                className={classes.button}
+                color='secondary'
+                size='small'
+                onClick={showTupleCount} >
+                Total Tuples
                 </Button>
-            </div>
-        )
-    }
+        </div>
+    )
 }
 
 export default withStyles(styles)(Public);

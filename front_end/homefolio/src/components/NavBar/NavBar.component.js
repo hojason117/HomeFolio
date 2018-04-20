@@ -19,48 +19,46 @@ const styles = theme => ({
     }
 });
 
-class NavBar extends React.Component {
-    SignoutButton = withRouter(
-        ({ history }) =>
-            <Button
-                variant='raised'
-                secondary='true'
-                className={this.props.button}
-                color='default'
-                size='large'
-                onClick={() => {
-                    history.push("/");
-                    localStorage.removeItem('u_id');
-                    localStorage.removeItem('auth_token');
-                    localStorage.removeItem('username');
-                    localStorage.removeItem('authenticated');
-                    localStorage.removeItem('seller');
-                    localStorage.removeItem('buyer');
-                }} >
-                Sign out
-             </Button>
+const SignoutButton = withStyles(styles)(withRouter(
+    (props) =>
+        <Button
+            variant='raised'
+            secondary='true'
+            className={props.button}
+            color='default'
+            size='large'
+            onClick={() => {
+                props.history.push("/");
+                localStorage.removeItem('u_id');
+                localStorage.removeItem('auth_token');
+                localStorage.removeItem('username');
+                localStorage.removeItem('authenticated');
+                localStorage.removeItem('seller');
+                localStorage.removeItem('buyer');
+            }} >
+            Sign out
+        </Button>
+))
+
+const NavBar = (props) => {
+    const { classes } = props;
+
+    return (
+        <div className={classes.root}>
+            <AppBar position="static">
+                <Toolbar>
+                    <div className={classes.flex}>
+                        <Button size='large' component={Link} to="/home" >
+                            <Typography variant="title" color="inherit" className={classes.flex} >
+                                HomeFolio
+                            </Typography>
+                        </Button>
+                    </div>
+                    <SignoutButton />
+                </Toolbar>
+            </AppBar>
+        </div>
     )
-
-    render() {
-        const { classes } = this.props;
-
-        return (
-            <div className={classes.root}>
-                <AppBar position="static">
-                    <Toolbar>
-                        <div className={classes.flex}>
-                            <Button size='large' component={Link} to="/home" >
-                                <Typography variant="title" color="inherit" className={classes.flex} >
-                                    HomeFolio
-                                </Typography>
-                            </Button>
-                        </div>
-                        <this.SignoutButton />
-                    </Toolbar>
-                </AppBar>
-            </div>
-        )
-    }
 }
 
 NavBar.propTypes = {

@@ -18,25 +18,19 @@ class HouseService {
                 for (var index in response.data)
                     nextHouses.push({ h_id: response.data[index].h_id, lat: response.data[index].latitude, lng: response.data[index].longitude });
             }
-            else {
+            else
                 console.log('Unexpected response code: ' + response.status);
-            }
         }
         catch(error) {
-            this.fetchRegionHousesErrorHandler(error);
+            if (error.request) {
+                console.log('No response from server.');
+                console.log(error.request);
+            }
+            else
+                console.log(error.message);
         }
 
         return nextHouses;
-    }
-
-    fetchRegionHousesErrorHandler = (error) => {
-        if (error.request) {
-            console.log('No response from server.');
-            console.log(error.request);
-        }
-        else {
-            console.log(error.message);
-        }
     }
 
     fetchHouseInfo = async (h_id) => {
@@ -50,30 +44,26 @@ class HouseService {
             if (response.status === 200) {
                 info = response.data;
             }
-            else {
+            else
                 console.log('Unexpected response code: ' + response.status);
-            }
         }
         catch(error) {
-            this.fetchHouseInfoErrorHandler(error);
+            if (error.response) {
+                if (error.response.status === 404) {
+                    console.log('House not found.');
+                }
+                else
+                    console.log(error.response);
+            }
+            else if (error.request) {
+                console.log('No response from server.');
+                console.log(error.request);
+            }
+            else
+                console.log(error.message);
         }
 
         return info;
-    }
-
-    fetchHouseInfoErrorHandler = (error) => {
-        if (error.response) {
-            if (error.response.status === 404) {
-                console.log('House not found.');
-            }
-        }
-        else if (error.request) {
-            console.log('No response from server.');
-            console.log(error.request);
-        }
-        else {
-            console.log(error.message);
-        }
     }
 
     getHouseAddress = async (lat, lng) => {
@@ -83,9 +73,8 @@ class HouseService {
             if (response.status === 200) {
                 addr = response.data.results[0].formatted_address;
             }
-            else {
+            else
                 console.log('Unexpected response code: ' + response.status);
-            }
         }
         catch(error) {
             console.log(error);
@@ -101,9 +90,8 @@ class HouseService {
             if (response.status === 200) {
                 latlng = response.data.results[0].geometry.location;
             }
-            else {
+            else
                 console.log('Unexpected response code: ' + response.status);
-            }
         }
         catch (error) {
             console.log(error);
@@ -123,12 +111,16 @@ class HouseService {
             if (response.status === 200) {
                 houses = response.data;
             }
-            else {
+            else
                 console.log('Unexpected response code: ' + response.status);
-            }
         }
         catch (error) {
-            console.log(error);
+            if (error.request) {
+                console.log('No response from server.');
+                console.log(error.request);
+            }
+            else
+                console.log(error.message);
         }
 
         return houses;
@@ -145,12 +137,16 @@ class HouseService {
             if (response.status === 200) {
                 houses = response.data;
             }
-            else {
+            else
                 console.log('Unexpected response code: ' + response.status);
-            }
         }
         catch (error) {
-            console.log(error);
+            if (error.request) {
+                console.log('No response from server.');
+                console.log(error.request);
+            }
+            else
+                console.log(error.message);
         }
 
         return houses;
@@ -166,12 +162,17 @@ class HouseService {
             if (response.status === 200) {
                 count = response.data.count;
             }
-            else {
+            else
                 console.log('Unexpected response code: ' + response.status);
-            }
         }
         catch (error) {
-            console.log(error);
+            if (error.request) {
+                console.log('No response from server.');
+                console.log(error.request);
+            }
+            else
+                console.log(error.message);
+            throw error;
         }
 
         return count;
@@ -184,12 +185,17 @@ class HouseService {
                     baseURL: this.baseUrl,
                     headers: { 'Authorization': 'Bearer ' + localStorage.getItem('auth_token') }
                 })
-            if (response.status !== 204) {
+            if (response.status !== 204)
                 console.log('Unexpected response code: ' + response.status);
-            }
         }
         catch (error) {
-            console.log(error);
+            if (error.request) {
+                console.log('No response from server.');
+                console.log(error.request);
+            }
+            else
+                console.log(error.message);
+            throw error;
         }
     }
 }
