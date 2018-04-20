@@ -17,32 +17,28 @@ class UserService {
             if (response.status === 200) {
                 info = response.data;
             }
-            else {
+            else
                 console.log('Unexpected response code: ' + response.status);
-            }
         }
         catch(error) {
-            this.fetchUserInfoErrorHandler(error);
+            if (error.response) {
+                if (error.response.status === 404) {
+                    console.log('User not found.');
+                }
+                else
+                    console.log(error.response);
+            }
+            else if (error.request) {
+                console.log('No response from server.');
+                console.log(error.request);
+            }
+            else {
+                console.log(error.message);
+            }
         }
 
         return info;
     }
-
-    fetchUserInfoErrorHandler = (error) => {
-        if (error.response) {
-            if (error.response.status === 404) {
-                console.log('User not found.');
-            }
-        }
-        else if (error.request) {
-            console.log('No response from server.');
-            console.log(error.request);
-        }
-        else {
-            console.log(error.message);
-        }
-    }
-
 }
 
 export default UserService;

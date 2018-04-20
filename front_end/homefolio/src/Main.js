@@ -1,4 +1,6 @@
 import React from 'react';
+import { Provider } from "react-redux";
+import store from "./redux/store/main";
 import { BrowserRouter, Route, Switch, Redirect } from 'react-router-dom';
 import Home from './scenes/Home/Home.component';
 import HouseInfo from './scenes/HouseInfo/HouseInfo.component';
@@ -28,18 +30,20 @@ class Main extends React.Component {
 
     render() {
         return (
-            <BrowserRouter>
-                <Switch>
-                    <Route exact path='/' component={Public} />
-                    <Route path='/login' component={Login} />
-                    <Route path='/signup' component={Signup} />
-                    <this.PrivateRoute path='/home' component={Home} />
-                    <this.PrivateRoute path='/houseinfo/:h_id' component={HouseInfo} />
-                    <this.PrivateRoute path='/compare' component={Compare} />
-                    <this.PrivateRoute path='/search' component={Search} />
-                    <Route component={NotFound} />
-                </Switch>
-            </BrowserRouter>
+            <Provider store={store}>
+                <BrowserRouter>
+                    <Switch>
+                        <Route exact path='/' component={Public} />
+                        <Route path='/login' component={Login} />
+                        <Route path='/signup' component={Signup} />
+                        <this.PrivateRoute path='/home' component={Home} />
+                        <this.PrivateRoute path='/houseinfo/:h_id' component={HouseInfo} />
+                        <this.PrivateRoute path='/compare' component={Compare} />
+                        <this.PrivateRoute path='/search' component={Search} />
+                        <Route component={NotFound} />
+                    </Switch>
+                </BrowserRouter>
+            </Provider>
         )
     }
 }

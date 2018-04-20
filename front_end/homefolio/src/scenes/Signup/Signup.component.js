@@ -31,6 +31,7 @@ class Signup extends React.Component {
         super(props);
         this.service = new AuthService();
         this.state = {
+            redirectToPublic: false,
             email: '',
             username: '',
             password: '',
@@ -42,19 +43,16 @@ class Signup extends React.Component {
         }
     }
 
-    getInitialState = () => {
-        return { redirectToPublic: false };
-    }
-
-    signup = () =>  {
+    signup = () => {
         var temp;
         if(this.state.age === '')
             temp = 0;
         else
             temp = parseInt(this.state.age, 10);
 
-        this.service.signup(this.state.email, this.state.username, this.state.password, temp, this.state.area, this.state.bio, this.state.seller, this.state.buyer);
-        this.setState({ redirectToPublic: true });
+        this.service.signup(this.state.email, this.state.username, this.state.password, temp, this.state.area, this.state.bio, this.state.seller, this.state.buyer)
+            .then(() => this.setState({ redirectToPublic: true }))
+            .catch(err => alert(err.message));
     }
 
     render() {

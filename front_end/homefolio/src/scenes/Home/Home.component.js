@@ -1,4 +1,5 @@
 import React from 'react';
+import { connect } from "react-redux";
 import PropTypes from 'prop-types';
 import { withStyles } from 'material-ui/styles';
 import Button from 'material-ui/Button';
@@ -18,104 +19,83 @@ const styles = theme => ({
     }
 });
 
-class Home extends React.Component {
-    constructor(props) {
-        super(props)
-        this.state = {
-            bounds: null,
-            selected: [],
-            selectedCount: 0
-        }
+const mapStateToProps = state => {
+    return { selectedCount: state.compareHousesCount };
+}
+
+const Home = (props) => {
+    const { classes } = props;
+
+    const verifyCompare = () => {
+        if (props.selectedCount < 2 )
+            alert('Please select at least two houses.');
+        else
+            props.history.push('compare');
     }
 
-    onBoundChanged = (newBound) => {
-        this.setState({ bounds: newBound });
-    }
-
-    onAddToCompare = (h_id) => {
-        var oldSelected = this.state.selected;
-        oldSelected.push(h_id);
-        this.setState({ selected: oldSelected });
-        this.setState({ selectedCount: this.state.selected.length });
-    }
-
-    prepareCompareURL = () => {
-        var url = '/compare?houses='
-        for(var index in this.state.selected) {
-            if(parseInt(index, 10) === 0)
-                url += this.state.selected[index];
-            else
-                url += (',' + this.state.selected[index]);
-        }
-        return url;
-    }
-
-    render() {
-        const { classes } = this.props;
-
-        return (
-            <div className={classes.root}>
-                <Grid container spacing={24}>
-                    <Grid item xs={12}>
-                        <NavBar />
-                    </Grid>
-                    <Grid item xs={8}>
-                        <Button
-                            variant='raised'
-                            primary='true'
-                            className={classes.button}
-                            color='primary'
-                            size='large'
-                            component={Link}
-                            to='/search' >
-                            Search
-                        </Button>
-                        <Button
-                            variant='raised'
-                            primary='true'
-                            className={classes.button}
-                            color='primary'
-                            size='large' >
-                            SELL
-                        </Button>
-                    </Grid>
-                    <Grid item xs={2}>
-                        <Typography variant='headline' color='inherit' >
-                            {this.state.selectedCount} selected
-                        </Typography>
-                    </Grid>
-                    <Grid item xs={1}>
-                        <Button
-                            variant='raised'
-                            primary='true'
-                            className={classes.button}
-                            color='secondary'
-                            size='large'
-                            component={Link}
-                            to={this.prepareCompareURL()} >
-                            Compare
-                        </Button>
-                    </Grid>
+    return (
+        <div className={classes.root}>
+            <Grid container spacing={24}>
+                <Grid item xs={12}>
+                    <NavBar />
                 </Grid>
-                <Grid container spacing={8} alignItems='flex-start'>
-                    <Grid item xs={8}>
-                        <div style={{ height: '75vh' }}>
-                            <Map onBoundChanged={(newBounds) => this.onBoundChanged(newBounds)} onAddToCompare={(h_id) => this.onAddToCompare(h_id)} />
-                        </div>
-                    </Grid>
-                    <Grid item xs={4}>
-                        <div style={{ height: '75vh' }}>
-                            <TopList bounds={this.state.bounds} onAddToCompare={(h_id) => this.onAddToCompare(h_id)} />
-                        </div>
-                    </Grid>
+                <Grid item xs={8}>
+                    <Button
+                        variant='raised'
+                        primary='true'
+                        className={classes.button}
+                        color='primary'
+                        size='large'
+                        component={Link}
+                        to='/search' >
+                        Search
+                    </Button>
+                    <Button
+                        variant='raised'
+                        primary='true'
+                        className={classes.button}
+                        color='primary'
+                        size='large'
+                        component={Link}
+                        to='/sell' >
+                        SELL
+                    </Button>
                 </Grid>
-            </div>
-        )
-    }
+                <Grid item xs={2}>
+                    <Typography variant='headline' color='inherit' >
+                        {props.selectedCount} selected
+                    </Typography>
+                </Grid>
+                <Grid item xs={1}>
+                    <Button
+                        variant='raised'
+                        primary='true'
+                        className={classes.button}
+                        color='secondary'
+                        size='large'
+                        onClick={verifyCompare} >
+                        Compare
+                    </Button>
+                </Grid>
+            </Grid>
+            <Grid container spacing={8} alignItems='flex-start'>
+                <Grid item xs={8}>
+                    <div style={{ height: '75vh' }}>
+                        <Map />
+                    </div>
+                </Grid>
+                <Grid item xs={4}>
+                    <div style={{ height: '75vh' }}>
+                        <TopList />
+                    </div>
+                </Grid>
+            </Grid>
+        </div>
+    )
 }
 
 Home.propTypes = {
     classes: PropTypes.object.isRequired,
 };
 
-export default withStyles(styles)(Home);
+export default connect(mapStateToProps)(withStyles(styles)(Home));
