@@ -36,18 +36,16 @@ class Login extends React.Component {
         super(props);
         this.service = new AuthService();
         this.state = {
+            redirectToHome: false,
             email: '',
             password: ''
         }
     }
 
-    getInitialState = () => {
-        return { redirectToHome: false };
-    }
-
-    login = () =>  {
-        this.service.login(this.state.email, this.state.password);
-        setTimeout(() => this.setState({ redirectToHome: true }), 1000);
+    login = () => {
+        this.service.login(this.state.email, this.state.password)
+            .then(() => this.setState({ redirectToHome: true }))
+            .catch((err) => alert(err.message))
     }
 
     render() {

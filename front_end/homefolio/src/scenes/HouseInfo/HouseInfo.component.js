@@ -6,7 +6,7 @@ import HouseService from '../../services/house.service';
 import UserService from '../../services/user.service';
 import classnames from 'classnames';
 import { compose, withProps } from "recompose";
-import { withScriptjs, withGoogleMap, GoogleMap, StreetViewPanorama } from "react-google-maps";
+import { withScriptjs, withGoogleMap, GoogleMap, Marker, StreetViewPanorama } from "react-google-maps";
 import Card, { CardHeader, CardContent, CardActions } from 'material-ui/Card';
 import Collapse from 'material-ui/transitions/Collapse';
 import Avatar from 'material-ui/Avatar';
@@ -22,7 +22,6 @@ import EditIcon from '@material-ui/icons/Edit'
 import DeleteIcon from '@material-ui/icons/Delete';
 import Tooltip from 'material-ui/Tooltip';
 import Grid from 'material-ui/Grid';
-import { Link } from 'react-router-dom';
 
 const styles = theme => ({
     button: {
@@ -37,7 +36,6 @@ const styles = theme => ({
     card: {
         width: '50%',
         margin: '0 auto',
-        //maxWidth: 800,
     },
     media: {
         height: 294,
@@ -110,22 +108,19 @@ class HouseInfo extends React.Component {
 
     StreetViewPanorama = compose(
         withProps({
-            googleMapURL: "https://maps.googleapis.com/maps/api/js?key=AIzaSyC4R6AN7SmujjPUIGKdyao2Kqitzr1kiRg&v=3.exp&libraries=geometry,drawing,places",
+            googleMapURL: "https://maps.googleapis.com/maps/api/js?&key=AIzaSyAHbTvrtAr7iIMx0ZHhwwB3RqgWpRy4fvs",
             loadingElement: <div style={{ height: `100%` }} />,
             containerElement: <div style={{ height: `400px` }} />,
             mapElement: <div style={{ height: `100%` }} />,
-            //center: { lat: 49.28590291211115, lng: -123.11248166065218 },
         }),
             withScriptjs,
             withGoogleMap
         )(props =>
-            <GoogleMap defaultZoom={8} defaultCenter={props.center}>
-                <StreetViewPanorama defaultPosition={props.center} visible>
-                </StreetViewPanorama>
+            <GoogleMap defaultZoom={16} center={props.center}>
+                <Marker position={props.center} />
+                <StreetViewPanorama position={props.center} visible />
             </GoogleMap>
     )
-
-    state = { expanded: false };
 
     handleExpandClick = () => {
         this.setState({ expanded: !this.state.expanded });
@@ -169,8 +164,13 @@ class HouseInfo extends React.Component {
                         action={
                             <CardActions>
                                 <Button size="small">CONTACT SELLER</Button>
-                                <Button variant='raised' color='primary' size="small" component={Link} to={'/home'} onClick={() => 
-                                    this.service.buyHouse(this.state.info.h_id).then(alert('Congratulations!! The house is yours!!'))}>
+                                <Button variant='raised' color='primary' size="small" onClick={() => 
+                                    this.service.buyHouse(this.state.info.h_id)
+                                        .then(() => {
+                                            alert('Congratulations!! The house is yours!!');
+                                            this.props.history.replace('/home');
+                                        })
+                                        .catch((err) => alert('Something went wrong, please try again.'))}>
                                     BUY
                                 </Button>
                             </CardActions>

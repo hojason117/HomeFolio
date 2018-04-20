@@ -1,10 +1,13 @@
-package temp;
-
+import java.io.BufferedReader;
 import java.io.BufferedWriter;
 import java.io.FileNotFoundException;
 import java.io.FileReader;
 import java.io.IOException;
+import java.io.InputStreamReader;
 import java.io.Reader;
+import java.net.HttpURLConnection;
+import java.net.MalformedURLException;
+import java.net.URL;
 import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.time.DateTimeException;
@@ -20,6 +23,9 @@ import org.apache.commons.csv.CSVFormat;
 import org.apache.commons.csv.CSVParser;
 import org.apache.commons.csv.CSVPrinter;
 import org.apache.commons.csv.CSVRecord;
+
+import com.google.gson.JsonObject;
+import com.google.gson.JsonParser;
 
 import javafx.util.Pair;
 
@@ -41,6 +47,7 @@ public class DataCleaner {
 	static int likesTotal = 0;
 	
 	public static void main(String arg[]) throws FileNotFoundException, IOException {
+		/*
 		cleanUser();
 		cleanHouse();
 		cleanSeller();
@@ -54,6 +61,9 @@ public class DataCleaner {
 		System.out.println("Total house: " + houseTotal);
 		System.out.println("Total viewed: " + viewedTotal);
 		System.out.println("Total likes: " + likesTotal);
+		*/
+		
+		geocodeAddr();
 	}
 	
 	static void cleanHouse() throws FileNotFoundException, IOException {
@@ -179,9 +189,9 @@ public class DataCleaner {
 			
 			username = firstnames.get(random.nextInt(firstnames.size())) + lastnames.get(random.nextInt(lastnames.size()));
 			
-			email = username.toLowerCase() + "gmail.com";
+			email = username.toLowerCase() + "@gmail.com";
 			while(emails.contains(email))
-				email = username.toLowerCase() + random.nextInt(1000) + "gmail.com";
+				email = username.toLowerCase() + random.nextInt(1000) + "@gmail.com";
 			emails.add(email);
 			
 			password = "";
@@ -345,6 +355,73 @@ public class DataCleaner {
 		progressBar.shutdown();
 		System.out.println();
 		likesTotal = total;
+	}
+	
+	static void geocodeAddr() throws MalformedURLException, IOException {
+		Reader in = new FileReader("addrHouse.csv");
+		BufferedWriter writer = Files.newBufferedWriter(Paths.get("new/newAddrHouse.csv"));
+		CSVParser csvParser = new CSVParser(in, CSVFormat.DEFAULT);
+		
+		CSVPrinter csvPrinter = new CSVPrinter(writer, CSVFormat.DEFAULT.withHeader("h_id", "u_id", "address", "bathroomCnt", "bedroomCnt", "buildingQualityID", 
+				"livingAreaSize", "latitude", "longitude", "lotSize", "cityID", "county", "zip", "yearBuilt", "storyNum", "price", "tax"));
+		
+		currentFinished = 0;
+		currentTotal = (int)(131000);
+		progressBar = Executors.newSingleThreadScheduledExecutor();
+		progressBar.scheduleAtFixedRate(new ProgressBar("House"), 0, 300, TimeUnit.MILLISECONDS);
+		
+		boolean reachLimit = false;
+		
+		for (CSVRecord record : csvParser) {
+			if(record.getRecordNumber() == 1)
+				continue;
+			
+			if(!reachLimit) {
+				if(record.get(2).equals("")) {
+					URL url = new URL("https://maps.googleapis.com/maps/api/geocode/json?latlng=" + record.get(7) + ',' + record.get(8) 
+						+ "&key=AIzaSyAHbTvrtAr7iIMx0ZHhwwB3RqgWpRy4fvs");
+					HttpURLConnection con = (HttpURLConnection)url.openConnection();
+					con.setRequestMethod("GET");
+					
+					BufferedReader res = new BufferedReader(new InputStreamReader(con.getInputStream()));
+					
+					String addr = "";
+					JsonObject jsonObject = new JsonParser().parse(res).getAsJsonObject();
+					
+					if(!jsonObject.get("status").getAsString().equals("OK")) {
+						reachLimit = true;
+						csvPrinter.printRecord(record.get(0), record.get(1), record.get(2), record.get(3), record.get(4), record.get(5), record.get(6), record.get(7), 
+								record.get(8), record.get(9), record.get(10), record.get(11), record.get(12), record.get(13), record.get(14), record.get(15), record.get(16));
+						res.close();
+						con.disconnect();
+						continue;
+					}
+					
+					addr = jsonObject.get("results").getAsJsonArray().get(0).getAsJsonObject().get("formatted_address").getAsString();
+					
+					res.close();
+					con.disconnect();
+					
+					csvPrinter.printRecord(record.get(0), record.get(1), addr, record.get(3), record.get(4), record.get(5), record.get(6), record.get(7), 
+						record.get(8), record.get(9), record.get(10), record.get(11), record.get(12), record.get(13), record.get(14), record.get(15), record.get(16));
+				}
+				else
+					csvPrinter.printRecord(record.get(0), record.get(1), record.get(2), record.get(3), record.get(4), record.get(5), record.get(6), record.get(7), 
+							record.get(8), record.get(9), record.get(10), record.get(11), record.get(12), record.get(13), record.get(14), record.get(15), record.get(16));
+			}
+			else
+				csvPrinter.printRecord(record.get(0), record.get(1), record.get(2), record.get(3), record.get(4), record.get(5), record.get(6), record.get(7), 
+						record.get(8), record.get(9), record.get(10), record.get(11), record.get(12), record.get(13), record.get(14), record.get(15), record.get(16));
+			
+			currentFinished++;
+		}
+		
+		csvPrinter.flush();
+		csvParser.close();
+		csvPrinter.close();
+		
+		progressBar.shutdown();
+		System.out.println();
 	}
 	
 	private static class ProgressBar implements Runnable {
