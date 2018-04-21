@@ -178,9 +178,9 @@ class HouseService {
         return count;
     }
 
-    buyHouse = async (id) => {
+    deleteHouse = async (id) => {
         try {
-            const response = await Axios.delete('/buyhouse/' + id,
+            const response = await Axios.delete('/deletehouse/' + id,
                 {
                     baseURL: this.baseUrl,
                     headers: { 'Authorization': 'Bearer ' + localStorage.getItem('auth_token') }
@@ -197,6 +197,74 @@ class HouseService {
                 console.log(error.message);
             throw error;
         }
+    }
+
+    searchHouse = async (zip, minPrice, maxPrice, bedroomCnt, bathroomCnt, buildingQuality, story, livingArea, lotSize, yearBuilt, max) => {
+        var queryParam = '';
+        
+        if (zip !== '')
+            queryParam += ('&zip=' + zip);
+        if (minPrice !== '')
+            queryParam += ('&minPrice=' + minPrice);
+        if (maxPrice !== '')
+            queryParam += ('&maxPrice=' + maxPrice);
+        if (bedroomCnt !== '')
+            queryParam += ('&bedroomCnt=' + bedroomCnt);
+        if (bathroomCnt !== '')
+            queryParam += ('&bathroomCnt=' + bathroomCnt);
+        if (buildingQuality !== '')
+            queryParam += ('&buildingQuality=' + buildingQuality);
+        if (story !== '')
+            queryParam += ('&story=' + story);
+        if (livingArea !== '')
+            queryParam += ('&livingArea=' + livingArea);
+        if (lotSize !== '')
+            queryParam += ('&lotSize=' + lotSize);
+        if (yearBuilt !== '')
+            queryParam += ('&yearBuilt=' + yearBuilt);
+
+        queryParam += ('&max=' + max);
+
+        console.log(queryParam);
+        var results = [];
+
+        try {
+            const response = await Axios.get('/searchhouse?' + queryParam.slice(1),
+                {
+                    baseURL: this.baseUrl,
+                    headers: { 'Authorization': 'Bearer ' + localStorage.getItem('auth_token') }
+                })
+            if (response.status === 200) {
+                for (var index in response.data)
+                    results.push({ 
+                        h_id: response.data[index].h_id, 
+                        lat: response.data[index].latitude, 
+                        lng: response.data[index].longitude,
+                        bathroomCnt: response.data[index].bathroomCnt,
+                        bedroomCnt: response.data[index].bedroomCnt,
+                        buildingQualityID: response.data[index].buildingQualityID,
+                        livingAreaSize: response.data[index].livingAreaSize,
+                        lotSize: response.data[index].lotSize,
+                        zip: response.data[index].zip,
+                        storyNum: response.data[index].storyNum,
+                        price: response.data[index].price,
+                        yearBuilt: response.data[index].yearBuilt
+                     });
+            }
+            else
+                console.log('Unexpected response code: ' + response.status);
+        }
+        catch (error) {
+            if (error.request) {
+                console.log('No response from server.');
+                console.log(error.request);
+            }
+            else
+                console.log(error.message);
+            throw error;
+        }
+
+        return results;
     }
 }
 

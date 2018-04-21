@@ -170,6 +170,15 @@ DELETE FROM viewed WHERE h_id = &var1
 DELETE FROM likes WHERE h_id = &var1
 DELETE FROM house WHERE h_id = &var1
 
+/* SearchHouse */
+SELECT *
+FROM (
+	SELECT h_id, latitude, longitude, bedroomCnt, bathroomCnt, buildingQualityID, livingAreaSize, lotSize, zip, storyNum, price, yearBuilt
+	FROM house
+	WHERE zip = &var1 and price >= &var2 and price <= &var3 and bedroomCnt >= &var4 and bathroomCnt >= &var5 and buildingQualityID >= &var6
+		and livingAreaSize >= &var7 and story >= &var8 and lotSize >= &var9 and yearBuilt >= &var10)
+WHERE ROWNUM <= &var11
+
 
 /*************************************************************************************************************************/
 

@@ -3,7 +3,10 @@ import {
     EMPTY_COMPARE_HOUSES,
     HOME_MAP_BOUND_CHANGED,
     HOME_DISPLAY_HOUSES_CHANGED,
-    HOME_MAP_FOCUSED_MARKER_CHANGED
+    HOME_MAP_FOCUSED_MARKER_CHANGED,
+    SEARCH_HOUSES_RESULT_CHANGED,
+    SEARCH_MAP_FOCUSED_MARKER_CHANGED,
+    SEARCH_CONDITION_CHANGED
 } from "../constants/action-types";
 
 export const initialState = {
@@ -14,7 +17,21 @@ export const initialState = {
         f: { b: 34.00660862012279, f: 34.14097809398008 }
     },
     homeDisplayHouses: [],
-    homeMapFocusedMarker: -1
+    homeMapFocusedMarker: -1,
+    searchHousesResults: [],
+    searchMapFocusedMarker: -1,
+    searchConditions: {
+        zip: '',
+        minPrice: '',
+        maxPrice: '',
+        bedroomCnt: '',
+        bathroomCnt: '',
+        buildingQuality: '',
+        story: '',
+        livingArea: '',
+        lotSize: '',
+        yearBuilt: '',
+    }
 };
 
 const rootReducer = (state = initialState, action) => {
@@ -36,6 +53,15 @@ const rootReducer = (state = initialState, action) => {
 
         case HOME_MAP_FOCUSED_MARKER_CHANGED:
             return { ...state, homeMapFocusedMarker: action.payload };
+
+        case SEARCH_HOUSES_RESULT_CHANGED:
+            return { ...state, searchHousesResults: action.payload };
+
+        case SEARCH_MAP_FOCUSED_MARKER_CHANGED:
+            return { ...state, searchMapFocusedMarker: action.payload };
+
+        case SEARCH_CONDITION_CHANGED:
+            return { ...state, searchConditions: action.payload };
 
         default:
             return state;

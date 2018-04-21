@@ -2,6 +2,7 @@ package house
 
 import (
 	"database/sql"
+	"fmt"
 	"model"
 	"net/http"
 	"strconv"
@@ -261,11 +262,11 @@ func (h *Handler) GetTupleCount(c echo.Context) (err error) {
 	return c.JSON(http.StatusOK, result)
 }
 
-// BuyHouse : Delete a house.
-//				   URL: "/api/v1/buyhouse/:hid"
+// DeleteHouse : Delete a house.
+//				   URL: "/api/v1/deletehouse/:hid"
 //				   Method: DELETE
 //				   Return 204 No Content on success.
-func (h *Handler) BuyHouse(c echo.Context) (err error) {
+func (h *Handler) DeleteHouse(c echo.Context) (err error) {
 	stmt, err := h.db.Prepare("DELETE FROM viewed WHERE h_id = &var1")
 	_, err = stmt.Exec(c.Param("hid"))
 	if err != nil {
@@ -287,44 +288,98 @@ func (h *Handler) BuyHouse(c echo.Context) (err error) {
 	return c.NoContent(http.StatusNoContent)
 }
 
-// SearchHouses : Return information about house search results.
-//				   URL: "/api/v1/search"
+// SearchHouse : Search houses based on the provided conditions.
+//				   URL: "/api/v1/searchhouse"
 //				   Method: GET
 //				   Return 200 OK on success.
-func (h *Handler) SearchHouses(c echo.Context) (err error) {
-	// Retrieve house info from database
-	neLat, _ := strconv.ParseFloat(c.QueryParam("ne_lat"), 64)
-	swLat, _ := strconv.ParseFloat(c.QueryParam("sw_lat"), 64)
-	neLng, _ := strconv.ParseFloat(c.QueryParam("ne_lng"), 64)
-	swLng, _ := strconv.ParseFloat(c.QueryParam("sw_lng"), 64)
-	count, _ := strconv.Atoi(c.QueryParam("count"))
+func (h *Handler) SearchHouse(c echo.Context) (err error) {
+	conditions := ""
+
+	zip := c.QueryParam("zip")
+	minPrice := c.QueryParam("minPrice")
+	maxPrice := c.QueryParam("maxPrice")
+	bedroom := c.QueryParam("bedroomCnt")
+	bathroom := c.QueryParam("bathroomCnt")
+	quality := c.QueryParam("buildingQuality")
+	livingArea := c.QueryParam("livingArea")
+	story := c.QueryParam("story")
+	lotSize := c.QueryParam("lotSize")
+	yearBuilt := c.QueryParam("yearBuilt")
+
+	if zip != "" {
+		conditions += (" and zip = " + zip)
+	}
+	if minPrice != "" {
+		conditions += (" and price >= " + minPrice)
+	}
+	if maxPrice != "" {
+		conditions += (" and price <= " + maxPrice)
+	}
+	if bedroom != "" {
+		conditions += (" and bedroomCnt >= " + bedroom)
+	}
+	if bathroom != "" {
+		conditions += (" and bathroomCnt >= " + bathroom)
+	}
+	if quality != "" {
+		conditions += (" and buildingQualityID >= " + quality)
+	}
+	if livingArea != "" {
+		conditions += (" and livingAreaSize >= " + livingArea)
+	}
+	if story != "" {
+		conditions += (" and storyNum >= " + story)
+	}
+	if lotSize != "" {
+		conditions += (" and lotSize >= " + lotSize)
+	}
+	if yearBuilt != "" {
+		conditions += (" and yearBuilt >= " + yearBuilt)
+	}
+
+	max, _ := strconv.Atoi(c.QueryParam("max"))
 
 	query :=
 		`SELECT *
 		FROM (
-			SELECT h_id, latitude, longitude
-			FROM house 
-			WHERE latitude < &var1 and latitude > &var2 and longitude < &var3 and longitude > &var4 
-			ORDER BY DBMS_RANDOM.VALUE) 
-		WHERE ROWNUM <= &var5`
+			SELECT h_id, latitude, longitude, bedroomCnt, bathroomCnt, buildingQualityID, livingAreaSize, lotSize, zip, storyNum, price, yearBuilt
+			FROM house`
 
-	rows, err := h.db.Query(query, neLat, swLat, neLng, swLng, count)
+	if len(conditions) != 0 {
+		query += (" WHERE" + conditions[4:])
+	}
+
+	query += " ORDER BY DBMS_RANDOM.VALUE) WHERE ROWNUM <= &var1"
+
+	fmt.Println(query)
+
+	rows, err := h.db.Query(query, max)
 	if err != nil {
 		return err
 	}
 	defer rows.Close()
 
 	type HouseC struct {
-		HID       string  `json:"h_id"`
-		Latitude  float32 `json:"latitude"`
-		Longitude float32 `json:"longitude"`
+		HID               string  `json:"h_id"`
+		Latitude          float32 `json:"latitude"`
+		Longitude         float32 `json:"longitude"`
+		BathroomCnt       int     `json:"bathroomCnt"`
+		BedroomCnt        int     `json:"bedroomCnt"`
+		BuildingQualityID int     `json:"buildingQualityID"`
+		LivingAreaSize    int     `json:"livingAreaSize"`
+		LotSize           int     `json:"lotSize"`
+		Zip               int     `json:"zip"`
+		StoryNum          int     `json:"storyNum"`
+		Price             int     `json:"price"`
+		YearBuilt         int     `json:"yearBuilt"`
 	}
 
 	var houses []*HouseC
 
 	for rows.Next() {
 		houseC := new(HouseC)
-		err = rows.Scan(&houseC.HID, &houseC.Latitude, &houseC.Longitude)
+		err = rows.Scan(&houseC.HID, &houseC.Latitude, &houseC.Longitude, &houseC.BathroomCnt, &houseC.BedroomCnt, &houseC.BuildingQualityID,
+			&houseC.LivingAreaSize, &houseC.LotSize, &houseC.Zip, &houseC.StoryNum, &houseC.Price, &houseC.YearBuilt)
 		if err != nil {
 			return err
 		}

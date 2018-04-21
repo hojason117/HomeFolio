@@ -50,9 +50,12 @@ class Signup extends React.Component {
         else
             temp = parseInt(this.state.age, 10);
 
-        this.service.signup(this.state.email, this.state.username, this.state.password, temp, this.state.area, this.state.bio, this.state.seller, this.state.buyer)
-            .then(() => this.setState({ redirectToPublic: true }))
-            .catch(err => alert(err.message));
+        if(this.state.seller === false && this.state.buyer === false)
+            alert('Please select at least one account type.');
+        else
+            this.service.signup(this.state.email, this.state.username, this.state.password, temp, this.state.area, this.state.bio, this.state.seller, this.state.buyer)
+                .then(() => this.setState({ redirectToPublic: true }))
+                .catch(err => alert(err.message));
     }
 
     render() {
