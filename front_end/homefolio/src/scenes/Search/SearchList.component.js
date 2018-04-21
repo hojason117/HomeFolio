@@ -4,19 +4,15 @@ import PropTypes from 'prop-types';
 import Typography from 'material-ui/Typography';
 import { withStyles } from 'material-ui/styles';
 import AppBar from 'material-ui/AppBar';
-import Button from 'material-ui/Button';
 import Toolbar from 'material-ui/Toolbar';
 import Paper from 'material-ui/Paper';
-import List, { ListItem, ListItemText, ListItemSecondaryAction } from 'material-ui/List';
+import List, { ListItem, ListItemText } from 'material-ui/List';
 import HouseService from '../../services/house.service';
 import { Link } from 'react-router-dom';
 
 const styles = theme => ({
     flex: {
         flex: 1,
-    },
-    button: {
-        margin: theme.spacing.unit,
     }
 });
 
@@ -63,19 +59,8 @@ const SearchList = (props) => {
             <Paper style={{ maxHeight: '60vh', overflow: 'auto' }}>
                 <List component='nav'>
                     {props.houses.map((house, index) =>
-                        <ListItem key={index}>
+                        <ListItem button key={index} component={Link} to={'/houseinfo/' + house.h_id} >
                             <HouseAddrListItem latlng={{ lat: house.lat, lng: house.lng }} />
-                            <ListItemSecondaryAction>
-                                <Button
-                                    variant='raised'
-                                    primary='true'
-                                    className={classes.button}
-                                    color='primary'
-                                    component={Link}
-                                    to={'/houseinfo/' + house.h_id} >
-                                    Detail
-                                </Button>
-                            </ListItemSecondaryAction>
                         </ListItem>)}
                 </List>
             </Paper>
