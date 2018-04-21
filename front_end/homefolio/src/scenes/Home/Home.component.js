@@ -50,7 +50,7 @@ const Home = (props) => {
                         to='/search' >
                         Search
                     </Button>
-                    <Button
+                    {localStorage.getItem('seller') === 'yes' && <Button
                         variant='raised'
                         primary='true'
                         className={classes.button}
@@ -59,7 +59,7 @@ const Home = (props) => {
                         component={Link}
                         to='/sell' >
                         SELL
-                    </Button>
+                    </Button>}
                 </Grid>
                 <Grid item xs={2}>
                     <Typography variant='headline' color='inherit' >

@@ -103,7 +103,7 @@ class TopList extends React.Component {
     }
 
     handleChange = (event, tab) => {
-        this.setState({ tab });
+        this.setState({ tab: tab, selected: [] });
     };
 
     render() {

@@ -49,7 +49,8 @@ func NewServer(h *handler.Handler) (e *echo.Echo) {
 	e.GET("/api/v1/topliked", h.HouseHandler.FetchTopLikedHouses)
 	e.GET("/api/v1/topviewed", h.HouseHandler.FetchTopViewedHouses)
 	e.GET("/api/v1/tuplecount", h.HouseHandler.GetTupleCount)
-	e.DELETE("/api/v1/buyhouse/:hid", h.HouseHandler.BuyHouse)
+	e.DELETE("/api/v1/buyhouse/:hid", h.HouseHandler.DeleteHouse)
+	e.GET("/api/v1/searchhouse", h.HouseHandler.SearchHouse)
 
 	return e
 }
