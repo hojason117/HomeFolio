@@ -56,7 +56,6 @@ const styles = theme => ({
     avatar: {
         backgroundColor: red[500],
     },
-
     fab: {
         margin: theme.spacing.unit * 2,
     },
@@ -139,14 +138,14 @@ class HouseInfo extends React.Component {
             <div>
                 <NavBar />
                 <Tooltip id="tooltip-fab" title="Add to Compare">
-                <Button variant="fab" mini color="secondary" aria-label="add" className={classes.button}>
-                    <AddIcon />
-                </Button>
+                    <Button variant="fab" mini color="secondary" aria-label="add" className={classes.button}>
+                        <AddIcon />
+                    </Button>
                 </Tooltip>
                 <Tooltip id="tooltip-fab" title="Edit House">
-                <Button variant="fab" mini aria-label="edit" className={classes.button}>
-                    <EditIcon/>
-                </Button>
+                    <Button variant="fab" mini aria-label="edit" className={classes.button}>
+                        <EditIcon/>
+                    </Button>
                 </Tooltip>
                 <Tooltip id="tooltip-fab" title="Delete House">
                     <Button variant="fab" mini aria-label="delete" className={classes.button}>
@@ -163,15 +162,8 @@ class HouseInfo extends React.Component {
                         }
                         action={
                             <CardActions>
-                                <Button size="small">CONTACT SELLER</Button>
-                                <Button variant='raised' color='primary' size="small" onClick={() => 
-                                    this.service.buyHouse(this.state.info.h_id)
-                                        .then(() => {
-                                            alert('Congratulations!! The house is yours!!');
-                                            this.props.history.replace('/home');
-                                        })
-                                        .catch((err) => alert('Something went wrong, please try again.'))}>
-                                    BUY
+                                <Button size="small" onClick = {() =>this.props.history.push('/userinfo/' + this.state.userinfo.u_id)}>
+                                    CONTACT SELLER
                                 </Button>
                             </CardActions>
                         }
@@ -185,17 +177,17 @@ class HouseInfo extends React.Component {
                             {this.state.addr}
                         </Typography>
                         <Typography color = "primary" variant="headline">
-                        <Grid container spacing={8}>
-                            <Grid item xs>
-                            {this.state.info.bedroomCnt} BEDROOMS
+                            <Grid container spacing={8}>
+                                <Grid item xs>
+                                {this.state.info.bedroomCnt} BEDROOMS
+                                </Grid>
+                                <Grid item xs>
+                                {this.state.info.bathroomCnt} BATHROOMS
+                                </Grid>
+                                <Grid item xs>
+                                {this.state.info.livingAreaSize} SQFT
+                                </Grid>
                             </Grid>
-                            <Grid item xs>
-                            {this.state.info.bathroomCnt} BATHROOMS
-                            </Grid>
-                            <Grid item xs>
-                            {this.state.info.livingAreaSize} SQFT
-                            </Grid>
-                        </Grid>
                         </Typography>
                         <Typography color = "secondary" variant="display1">
                             ${this.state.info.price}
@@ -204,36 +196,45 @@ class HouseInfo extends React.Component {
 
                     <CardActions className={classes.actions} disableActionSpacing>
                         <IconButton aria-label="Add to favorites">
-                        <FavoriteIcon />
+                            <FavoriteIcon />
                         </IconButton>
                         <IconButton aria-label="Viewed">
-                        <VisibilityIcon />
+                            <VisibilityIcon />
                         </IconButton>
                         <IconButton
-                        className={classnames(classes.expand, {
-                            [classes.expandOpen]: this.state.expanded,
-                        })}
-                        onClick={this.handleExpandClick}
-                        aria-expanded={this.state.expanded}
-                        aria-label="Show more"
+                            className={classnames(classes.expand, {
+                                [classes.expandOpen]: this.state.expanded,
+                            })}
+                            onClick={this.handleExpandClick}
+                            aria-expanded={this.state.expanded}
+                            aria-label="Show more"
                         >
                         <ExpandMoreIcon />
                         </IconButton>
                     </CardActions>
-                    <Collapse in={this.state.expanded} timeout="auto" unmountOnExit>
-                        <CardContent>
-                        <Typography paragraph variant="title">
-                            Detailed Information:
-                        </Typography>
-                        <Typography paragraph>Year Built: {this.state.info.yearBuilt}</Typography>
-                        <Typography>Building Quality: {this.state.info.buildingQualityID}</Typography>
-                        <Typography paragraph variant="caption">(from 1 to 10 with 10 the best)</Typography>
-                        <Typography paragraph>Number of Stories: {this.state.info.storyNum}</Typography>
-                        <Typography paragraph>Lot Size: {this.state.info.lotSize} Sqft</Typography>
-                        <Typography paragraph>Total Price: ${this.state.info.price}</Typography>
-                        <Typography paragraph>Tax: ${this.state.info.tax} per year</Typography>
-                        </CardContent>
-                    </Collapse>
+                        <Collapse in={this.state.expanded} timeout="auto" unmountOnExit>
+                            <CardContent>
+                                <Typography paragraph variant="title">
+                                    Detailed Information:
+                                </Typography>
+                                <Typography paragraph>Year Built: {this.state.info.yearBuilt}</Typography>
+                                <Typography>Building Quality: {this.state.info.buildingQualityID}</Typography>
+                                <Typography paragraph variant="caption">(from 1 to 10 with 10 the best)</Typography>
+                                <Typography paragraph>Number of Stories: {this.state.info.storyNum}</Typography>
+                                <Typography paragraph>Lot Size: {this.state.info.lotSize} Sqft</Typography>
+                                <Typography paragraph>Total Price: ${this.state.info.price}</Typography>
+                                <Typography paragraph>Tax: ${this.state.info.tax} per year</Typography>
+                            </CardContent>
+                            <Button className={classes.button} variant='raised' color='secondary' size="small" onClick={() => 
+                                this.service.buyHouse(this.state.info.h_id)
+                                    .then(() => {
+                                        alert('Congratulations!! The house is yours!!');
+                                        this.props.history.replace('/home');
+                                    })
+                                    .catch((err) => alert('Something went wrong, please try again.'))}>
+                                BUY
+                            </Button>
+                        </Collapse>
                 </Card>
 
             </div>
