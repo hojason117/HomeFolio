@@ -39,7 +39,7 @@ class Main extends React.Component {
                         <Route path='/signup' component={Signup} />
                         <this.PrivateRoute path='/home' component={Home} />
                         <this.PrivateRoute path='/houseinfo/:h_id' component={HouseInfo} />
-                        <this.PrivateRoute path='/userinfo' component={UserInfo} />
+                        <this.PrivateRoute path='/userinfo/:u_id' component={UserInfo} />
                         <this.PrivateRoute path='/compare' component={Compare} />
                         <this.PrivateRoute path='/search' component={Search} />
                         <Route component={NotFound} />
