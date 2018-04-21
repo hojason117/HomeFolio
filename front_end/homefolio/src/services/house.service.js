@@ -225,7 +225,6 @@ class HouseService {
 
         queryParam += ('&max=' + max);
 
-        console.log(queryParam);
         var results = [];
 
         try {

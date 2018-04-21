@@ -2,7 +2,6 @@ package house
 
 import (
 	"database/sql"
-	"fmt"
 	"model"
 	"net/http"
 	"strconv"
@@ -350,8 +349,6 @@ func (h *Handler) SearchHouse(c echo.Context) (err error) {
 	}
 
 	query += " ORDER BY DBMS_RANDOM.VALUE) WHERE ROWNUM <= &var1"
-
-	fmt.Println(query)
 
 	rows, err := h.db.Query(query, max)
 	if err != nil {

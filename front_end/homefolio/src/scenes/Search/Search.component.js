@@ -9,6 +9,7 @@ import { MenuItem } from 'material-ui/Menu';
 import Button from 'material-ui/Button';
 import Input, { InputLabel } from 'material-ui/Input';
 import { FormControl } from 'material-ui/Form';
+import Chip from 'material-ui/Chip';
 import Dialog, { DialogActions, DialogContent, DialogTitle } from 'material-ui/Dialog';
 import HouseService from '../../services/house.service';
 import NavBar from '../../components/NavBar/NavBar.component';
@@ -44,6 +45,9 @@ const styles = theme => ({
     flex: {
         flex: 1,
     },
+    chip: {
+        margin: theme.spacing.unit / 2,
+    }
 });
 
 const mapStateToProps = state => {
@@ -72,7 +76,8 @@ class Search extends React.Component {
             livingArea: '',
             lotSize: '',
             yearBuilt: '',
-            dialogOpen: false
+            dialogOpen: true,
+            chipData: []
         }
     }
     
@@ -81,7 +86,30 @@ class Search extends React.Component {
     }
 
     handleApply = () => {
-        this.setState({ dialogOpen: false });
+        var chips = [];
+        if (this.state.zip !== '')
+            chips.push({ type: 'zip', label: 'Zip: ' + this.state.zip });
+        if (this.state.minPrice !== '')
+            chips.push({ type: 'minPrice', label: 'Min Price: ' + this.state.minPrice });
+        if (this.state.maxPrice !== '')
+            chips.push({ type: 'maxPrice', label: 'Max Price: ' + this.state.maxPrice });
+        if (this.state.bedroomCnt !== '')
+            chips.push({ type: 'bedroomCnt', label: 'Bedrooms: ' + this.state.bedroomCnt });
+        if (this.state.bathroomCnt !== '')
+            chips.push({ type: 'bathroomCnt', label: 'Bathrooms: ' + this.state.bathroomCnt });
+        if (this.state.story !== '')
+            chips.push({ type: 'story', label: 'Story: ' + this.state.story });
+        if (this.state.buildingQuality !== '')
+            chips.push({ type: 'quality', label: 'Quality: ' + this.state.buildingQuality });
+        if (this.state.livingArea !== '')
+            chips.push({ type: 'area', label: 'Living area: ' + this.state.livingArea });
+        if (this.state.lotSize !== '')
+            chips.push({ type: 'lot', label: 'Lot size: ' + this.state.lotSize });
+        if (this.state.yearBuilt !== '')
+            chips.push({ type: 'year', label: 'Year built: ' + this.state.yearBuilt });
+
+        this.setState({ dialogOpen: false, chipData: chips });
+
         this.props.searchConditionChanged({
             zip: this.state.zip,
             minPrice: this.state.minPrice,
@@ -94,6 +122,7 @@ class Search extends React.Component {
             lotSize: this.state.lotSize,
             yearBuilt: this.state.yearBuilt,
         });
+
         this.service.searchHouse(this.state.zip, this.state.minPrice, this.state.maxPrice, this.state.bedroomCnt, this.state.bathroomCnt,
             this.state.buildingQuality, this.state.story, this.state.livingArea, this.state.lotSize, this.state.yearBuilt, 30)
             .then((result) => this.props.searchHousesResultChanged(result));
@@ -111,6 +140,7 @@ class Search extends React.Component {
             livingArea: '',
             lotSize: '',
             yearBuilt: '',
+            chipData: []
         });
         this.props.searchConditionChanged({
             zip: '',
@@ -127,6 +157,64 @@ class Search extends React.Component {
         this.props.searchHousesResultChanged([]);
     }
 
+    handleDeleteChip = data => async () => {
+        var newConditions = this.props.searchConditions;
+
+        if (data.type === 'zip') {
+            newConditions.zip = '';
+            await this.setState({ zip: '' });
+        }
+        else if (data.type === 'minPrice') {
+            newConditions.minPrice = '';
+            await this.setState({ minPrice: '' });
+        }
+        else if (data.type === 'maxPrice') {
+            newConditions.maxPrice = '';
+            await this.setState({ maxPrice: '' });
+        }
+        else if (data.type === 'bedroomCnt') {
+            newConditions.bedroomCnt = '';
+            await this.setState({ bedroomCnt: '' });
+        }
+        else if (data.type === 'bathroomCnt') {
+            newConditions.bathroomCnt = '';
+            await this.setState({ bathroomCnt: '' });
+        }
+        else if (data.type === 'story') {
+            newConditions.story = '';
+            await this.setState({ story: '' });
+        }
+        else if (data.type === 'quality') {
+            newConditions.buildingQuality = '';
+            await this.setState({ buildingQuality: '' });
+        }
+        else if (data.type === 'area') {
+            newConditions.livingArea = '';
+            await this.setState({ livingArea: '' });
+        }
+        else if (data.type === 'lot') {
+            newConditions.lotSize = '';
+            await this.setState({ lotSize: '' });
+        }
+        else if (data.type === 'year') {
+            newConditions.yearBuilt = '';
+            await this.setState({ yearBuilt: '' });
+        }
+        else
+            throw new Error('Unexpected chip type.');
+
+        this.props.searchConditionChanged(newConditions);
+
+        const chipData = [...this.state.chipData];
+        const chipToDelete = chipData.indexOf(data);
+        chipData.splice(chipToDelete, 1);
+        this.setState({ chipData });
+
+        this.service.searchHouse(this.state.zip, this.state.minPrice, this.state.maxPrice, this.state.bedroomCnt, this.state.bathroomCnt,
+            this.state.buildingQuality, this.state.story, this.state.livingArea, this.state.lotSize, this.state.yearBuilt, 30)
+            .then((result) => this.props.searchHousesResultChanged(result));
+    };
+
     render() {
         const { classes } = this.props;
 
@@ -142,7 +230,6 @@ class Search extends React.Component {
                     <DialogContent>
                         <form className={classes.container}>
                             <TextField
-                                required
                                 id='zip'
                                 className={classes.textField}
                                 label='Zip'
@@ -153,7 +240,6 @@ class Search extends React.Component {
                             <FormControl className={classes.formControl}>
                                 <InputLabel>Min Price</InputLabel>
                                 <Select
-                                    required
                                     id='minPrice'
                                     label='Min Price'
                                     value={this.state.minPrice}
@@ -179,7 +265,6 @@ class Search extends React.Component {
                             <FormControl className={classes.formControl}>
                                 <InputLabel>Max Price</InputLabel>
                                 <Select
-                                    required
                                     id='maxPrice'
                                     label='Max Price'
                                     value={this.state.maxPrice}
@@ -204,7 +289,6 @@ class Search extends React.Component {
                             <FormControl className={classes.formControl}>
                                 <InputLabel>Bedrooms</InputLabel>
                                 <Select
-                                    required
                                     id='bedroomCnt'
                                     label='bedroomCnt'
                                     value={this.state.bedroomCnt}
@@ -225,7 +309,6 @@ class Search extends React.Component {
                             <FormControl className={classes.formControl}>
                                 <InputLabel>Bathrooms</InputLabel>
                                 <Select
-                                    required
                                     id='bathroomCnt'
                                     label='bathroomCnt'
                                     value={this.state.bathroomCnt}
@@ -246,7 +329,6 @@ class Search extends React.Component {
                             <FormControl className={classes.formControl}>
                                 <InputLabel>Story</InputLabel>
                                 <Select
-                                    required
                                     id='story'
                                     label='story'
                                     value={this.state.story}
@@ -267,7 +349,6 @@ class Search extends React.Component {
                             <FormControl className={classes.formControl}>
                                 <InputLabel>Building Quality</InputLabel>
                                 <Select
-                                    required
                                     id='buildingQuality'
                                     label='buildingQuality'
                                     value={this.state.buildingQuality}
@@ -293,7 +374,6 @@ class Search extends React.Component {
                             <FormControl className={classes.formControl}>
                                 <InputLabel>Living Area</InputLabel>
                                 <Select
-                                    required
                                     id='livingArea'
                                     label='livingArea'
                                     value={this.state.livingArea}
@@ -315,7 +395,6 @@ class Search extends React.Component {
                             <FormControl className={classes.formControl}>
                                 <InputLabel>Lot Size</InputLabel>
                                 <Select
-                                    required
                                     id='lotSize'
                                     label='lotSize'
                                     value={this.state.lotSize}
@@ -337,7 +416,6 @@ class Search extends React.Component {
                             <FormControl className={classes.formControl}>
                                 <InputLabel>Year Built</InputLabel>
                                 <Select
-                                    required
                                     id='yearBuilt'
                                     label='yearBuilt'
                                     value={this.state.yearBuilt}
@@ -398,6 +476,14 @@ class Search extends React.Component {
                             onClick={this.handleReset} >
                             Reset
                         </Button>
+                        {this.state.chipData.map((data, index) => 
+                            <Chip
+                                key={index}
+                                label={data.label}
+                                onDelete={this.handleDeleteChip(data)}
+                                className={classes.chip}
+                            />
+                        )}
                     </Grid>
                 </Grid>
                 <Grid container spacing={8} alignItems='flex-start'>
