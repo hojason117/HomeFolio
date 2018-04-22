@@ -257,6 +257,7 @@ class Search extends React.Component {
                                 className={classes.textField}
                                 label='Zip'
                                 placeholder='Zip'
+                                margin="dense"
                                 value={this.state.zip}
                                 onChange={event => this.setState({ zip: event.target.value })}
                             />
