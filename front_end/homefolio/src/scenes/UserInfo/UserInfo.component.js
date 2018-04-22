@@ -16,6 +16,7 @@ import Icon from 'material-ui/Icon';
 import bluegrey from 'material-ui/colors/blueGrey';
 import HomeIcon from '@material-ui/icons/Home';
 import List, { ListItem, ListItemText } from 'material-ui/List';
+import { Link } from 'react-router-dom';
 
 /*select h.* from CHHO.ACC_USER a, CHHO.HOUSE h
 where a.U_ID = h.U_ID and a.U_ID = '93cd56c2-d02c-4d3d-9a7a-abdbc510bb2c';
@@ -145,7 +146,7 @@ class UserInfo extends React.Component {
                         <ExpansionPanelDetails>
                             <List component='nav'>
                                 {this.state.ownList.map((house, index) =>
-                                    <ListItem button key={index}>
+                                    <ListItem button key={index} component={Link} to={'/houseinfo/' + house.h_id} >
                                         <HouseListItem latlng={{ lat: house.latitude, lng: house.longitude }} />
                                     </ListItem>)}
                             </List>
@@ -161,7 +162,7 @@ class UserInfo extends React.Component {
                         <ExpansionPanelDetails>
                             <List component='nav'>
                                 {this.state.likedList.map((house, index) =>
-                                    <ListItem button key={index}>
+                                    <ListItem button key={index} component={Link} to={'/houseinfo/' + house.h_id} >
                                         <HouseListItem latlng={{ lat: house.latitude, lng: house.longitude }} />
                                     </ListItem>)}
                             </List>
@@ -177,7 +178,7 @@ class UserInfo extends React.Component {
                         <ExpansionPanelDetails>
                             <List component='nav'>
                                 {this.state.viewedList.map((house, index) =>
-                                    <ListItem button key={index}>
+                                    <ListItem button key={index} component={Link} to={'/houseinfo/' + house.h_id} >
                                         <HouseListItem latlng={{ lat: house.latitude, lng: house.longitude }} />
                                     </ListItem>)}
                             </List>

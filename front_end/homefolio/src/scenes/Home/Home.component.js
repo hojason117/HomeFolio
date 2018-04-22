@@ -1,12 +1,14 @@
 import React from 'react';
 import { connect } from "react-redux";
+import { sellDialogToggled } from '../../redux/actions/main';
 import PropTypes from 'prop-types';
 import { withStyles } from 'material-ui/styles';
 import Button from 'material-ui/Button';
 import Grid from 'material-ui/Grid';
-import Map from '../../scenes/Home/Map.component';
-import TopList from '../../scenes/Home/TopList.component';
+import Map from './Map.component';
+import TopList from './TopList.component';
 import NavBar from '../../components/NavBar/NavBar.component';
+import Sell from './Sell.component';
 import { Link } from 'react-router-dom';
 import { Typography } from 'material-ui';
 
@@ -20,8 +22,15 @@ const styles = theme => ({
 });
 
 const mapStateToProps = state => {
-    return { selectedCount: state.compareHousesCount };
+    return { 
+        selectedCount: state.compareHousesCount,
+        sellDialogOpen: state.sellDialogOpen
+    };
 }
+
+const mapDispatchToProps = dispatch => {
+    return { sellDialogToggled: newBound => dispatch(sellDialogToggled()) };
+};
 
 const Home = (props) => {
     const { classes } = props;
@@ -35,6 +44,7 @@ const Home = (props) => {
 
     return (
         <div className={classes.root}>
+            <Sell />
             <Grid container spacing={24}>
                 <Grid item xs={12}>
                     <NavBar />
@@ -56,8 +66,7 @@ const Home = (props) => {
                         className={classes.button}
                         color='primary'
                         size='large'
-                        component={Link}
-                        to='/sell' >
+                        onClick={() => props.sellDialogToggled()} >
                         SELL
                     </Button>}
                 </Grid>
@@ -98,4 +107,4 @@ Home.propTypes = {
     classes: PropTypes.object.isRequired,
 };
 
-export default connect(mapStateToProps)(withStyles(styles)(Home));
+export default connect(mapStateToProps, mapDispatchToProps)(withStyles(styles)(Home));

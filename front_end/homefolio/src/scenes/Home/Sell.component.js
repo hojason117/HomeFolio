@@ -4,18 +4,13 @@ import PropTypes from 'prop-types';
 import { withStyles } from 'material-ui/styles';
 import TextField from 'material-ui/TextField';
 import Select from 'material-ui/Select';
-import Grid from 'material-ui/Grid';
 import { MenuItem } from 'material-ui/Menu';
 import Button from 'material-ui/Button';
-import Input, { InputLabel, InputAdornment } from 'material-ui/Input';
+import { InputLabel, InputAdornment } from 'material-ui/Input';
 import { FormControl } from 'material-ui/Form';
-import Chip from 'material-ui/Chip';
 import Dialog, { DialogActions, DialogContent, DialogTitle } from 'material-ui/Dialog';
 import HouseService from '../../services/house.service';
-import NavBar from '../../components/NavBar/NavBar.component';
-import Map from '../../scenes/Search/Map.component';
-import SearchList from '../../scenes/Search/SearchList.component';
-import { searchHousesResultChanged, searchConditionChanged } from '../../redux/actions/main';
+import { sellDialogToggled } from '../../redux/actions/main';
 
 const styles = theme => ({
     container: {
@@ -60,57 +55,71 @@ const styles = theme => ({
     }
 });
 
+const mapStateToProps = state => {
+    return { sellDialogOpen: state.sellDialogOpen };
+}
+
+const mapDispatchToProps = dispatch => {
+    return { sellDialogToggled: newBound => dispatch(sellDialogToggled()) };
+};
+
 class Sell extends React.Component {
     constructor(props) {
         super(props);
         this.service = new HouseService();
         this.state = {
             addr: '',
-            u_id: '',
             zip: '',
-            price: '0',
-            tax: '0',
-            bedroomCnt: '0',
-            bathroomCnt: '0',
-            buildingQuality: '5',
-            story: '1',
-            livingArea: '0',
-            lotSize: '0',
-            yearBuilt: '1900',
-            cityid: '12447',
-            county: 'Los Angeles',
-            lng: '0',
-            lat: '0',
-            dialogOpen: true,
+            price: '',
+            tax: '',
+            bedroomCnt: '',
+            bathroomCnt: '',
+            buildingQuality: '',
+            story: '',
+            livingArea: '',
+            lotSize: '',
+            yearBuilt: '',
+            dialogOpen: props.sellDialogOpen,
         }
     }
-    
-    handleDialogCancel = () => {
-        this.setState({ dialogOpen: false });
-    }
 
-    handleInsert = async () => {
-        this.setState({ dialogOpen: false });
-        await this.service.getHouseLatLng(this.state.addr).then((result) => {this.setState({ lat: result.lat, lng: result.lng})});
-        this.service.searchHouse(this.state.zip, this.state.minPrice, this.state.maxPrice, this.state.bedroomCnt, this.state.bathroomCnt,
-            this.state.buildingQuality, this.state.story, this.state.livingArea, this.state.lotSize, this.state.yearBuilt, 30)
-            .then();
-        // should be an insert function
+    componentWillReceiveProps(nextProps) {
+        this.setState({ dialogOpen: nextProps.sellDialogOpen });
+    }
+    
+    handleSubmit = async () => {
+        if (this.state.addr !== '' && this.state.zip !== '' && this.state.price !== '' && this.state.tax !== '' && this.state.bedroomCnt !== '' && 
+            this.state.bathroomCnt !== '' && this.state.buildingQuality !== '' && this.state.story !== '' && this.state.livingArea !== '' && 
+            this.state.lotSize !== '' && this.state.yearBuilt !== '') {
+            this.props.sellDialogToggled();
+
+            var lat, lng;
+            await this.service.getHouseLatLng(this.state.addr).then((result) => { lat = result.lat; lng = result.lng });
+            
+            this.service.sellHouse(localStorage.getItem('u_id'), parseInt(this.state.bathroomCnt, 10), parseInt(this.state.bedroomCnt, 10), this.state.buildingQuality, 
+            parseInt(this.state.livingArea, 10), lat, lng, parseInt(this.state.lotSize, 10), parseInt(this.state.zip, 10), parseInt(this.state.story, 10), 
+            parseInt(this.state.price, 10), parseInt(this.state.yearBuilt, 10), parseInt(this.state.tax, 10))
+                .then(() => alert('Your house is ready for sell!!'));
+
+            this.handleReset();
+        }
+        else
+            alert('All fields are required!');
     }
 
     handleReset = () => {
         this.setState({
             addr: '',
             zip: '',
-            price: '0',
-            tax: '0',
-            bedroomCnt: '0',
-            bathroomCnt: '0',
-            buildingQuality: '5',
-            story: '1',
-            livingArea: '0',
-            lotSize: '0',
-            yearBuilt: '1900',
+            price: '',
+            tax: '',
+            bedroomCnt: '',
+            bathroomCnt: '',
+            buildingQuality: '',
+            story: '',
+            livingArea: '',
+            lotSize: '',
+            yearBuilt: '',
         });
     }
 
@@ -255,7 +264,7 @@ class Sell extends React.Component {
                                     <MenuItem value={5}>5</MenuItem>
                                     <MenuItem value={6}>6</MenuItem>
                                     <MenuItem value={7}>7</MenuItem>
-                                    <MenuItem value={9}>8</MenuItem>
+                                    <MenuItem value={8}>8</MenuItem>
                                     <MenuItem value={9}>9</MenuItem>
                                     <MenuItem value={10}>10</MenuItem>
                                 </Select>
@@ -274,7 +283,7 @@ class Sell extends React.Component {
                         </form>
                     </DialogContent>
                     <DialogActions>
-                        <Button onClick={this.handleDialogCancel} color="primary">
+                        <Button onClick={() => this.props.sellDialogToggled()} color="primary">
                             Cancel
                         </Button>
                         <Button
@@ -290,13 +299,11 @@ class Sell extends React.Component {
                             primary='true'
                             className={classes.button}
                             color='primary'
-                            onClick={this.handleInsert} >
-                            Insert
+                            onClick={this.handleSubmit} >
+                            Submit
                         </Button>
                     </DialogActions>
                 </Dialog>
-
-                <NavBar />
             </div>
         )
     }
@@ -306,4 +313,4 @@ Sell.propTypes = {
     classes: PropTypes.object.isRequired,
 };
 
-export default (withStyles(styles)(Sell));
+export default connect(mapStateToProps, mapDispatchToProps)((withStyles(styles)(Sell)));

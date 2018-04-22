@@ -6,7 +6,9 @@ import {
     HOME_MAP_FOCUSED_MARKER_CHANGED,
     SEARCH_HOUSES_RESULT_CHANGED,
     SEARCH_MAP_FOCUSED_MARKER_CHANGED,
-    SEARCH_CONDITION_CHANGED
+    SEARCH_CONDITION_CHANGED,
+    SELL_DIALOG_TOGGLED,
+    UPDATE_DIALOG_TOGGLED
 } from "../constants/action-types";
 
 export const addCompareHouses = house => ({ type: ADD_COMPARE_HOUSE, payload: house });
@@ -17,3 +19,5 @@ export const homeMapFocusedMarkerChanged = newFocused => ({ type: HOME_MAP_FOCUS
 export const searchHousesResultChanged = results => ({ type: SEARCH_HOUSES_RESULT_CHANGED, payload: results });
 export const searchMapFocusedMarkerChanged = newFocused => ({ type: SEARCH_MAP_FOCUSED_MARKER_CHANGED, payload: newFocused });
 export const searchConditionChanged = newConditions => ({ type: SEARCH_CONDITION_CHANGED, payload: newConditions });
+export const sellDialogToggled = () => ({ type: SELL_DIALOG_TOGGLED });
+export const updateDialogToggled = () => ({ type: UPDATE_DIALOG_TOGGLED });

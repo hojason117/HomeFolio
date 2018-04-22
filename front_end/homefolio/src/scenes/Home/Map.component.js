@@ -3,7 +3,7 @@ import { connect } from "react-redux";
 import PropTypes from 'prop-types';
 import { homeMapBoundChanged, homeDisplayHousesChanged, homeMapFocusedMarkerChanged } from '../../redux/actions/main';
 import { withScriptjs, withGoogleMap, GoogleMap } from "react-google-maps";
-import MapMarker from '../../scenes/Home/MapMarker.component';
+import MapMarker from './MapMarker.component';
 import HouseService from '../../services/house.service';
 import { compose, withProps } from "recompose";
 
