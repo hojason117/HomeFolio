@@ -1,6 +1,9 @@
 import React from 'react';
+import { connect } from "react-redux";
+import { updateDialogToggled } from '../../redux/actions/main';
 import PropTypes from 'prop-types';
 import { withStyles } from 'material-ui/styles';
+import Update from './Update.component';
 import NavBar from '../../components/NavBar/NavBar.component';
 import HouseService from '../../services/house.service';
 import UserService from '../../services/user.service';
@@ -14,14 +17,15 @@ import IconButton from 'material-ui/IconButton';
 import Typography from 'material-ui/Typography';
 import red from 'material-ui/colors/red';
 import FavoriteIcon from '@material-ui/icons/Favorite';
+import FavoriteBorderIcon from '@material-ui/icons/FavoriteBorder';
 import VisibilityIcon from '@material-ui/icons/Visibility';
 import ExpandMoreIcon from '@material-ui/icons/ExpandMore';
 import Button from 'material-ui/Button';
-import AddIcon from '@material-ui/icons/Add';
 import EditIcon from '@material-ui/icons/Edit'
 import DeleteIcon from '@material-ui/icons/Delete';
 import Tooltip from 'material-ui/Tooltip';
 import Grid from 'material-ui/Grid';
+import Dialog, { DialogActions, DialogContent, DialogContentText, DialogTitle } from 'material-ui/Dialog';
 
 const styles = theme => ({
     button: {
@@ -66,10 +70,18 @@ const styles = theme => ({
     },
 });
 
+const mapStateToProps = state => {
+    return { updateDialogOpen: state.updateDialogOpen };
+}
+
+const mapDispatchToProps = dispatch => {
+    return { updateDialogToggled: newBound => dispatch(updateDialogToggled()) };
+};
+
 class HouseInfo extends React.Component {
     constructor(props) {
         super(props);
-        this.service = new HouseService();
+        this.houseService = new HouseService();
         this.userService = new UserService();
         this.state = {
             info: {
@@ -101,7 +113,9 @@ class HouseInfo extends React.Component {
                 seller: '',
                 buyer: ''
             },
-            addr: ''
+            addr: '',
+            deleteDialogOpen: false,
+            liked: false
         }
     }
 
@@ -125,9 +139,20 @@ class HouseInfo extends React.Component {
         this.setState({ expanded: !this.state.expanded });
     };
 
+    handleDelete = () => {
+        this.houseService.deleteHouse(this.state.info.h_id).then(this.props.history.replace('/home'));
+    }
+
+    componentWillReceiveProps = async (nextProps) => {
+        if (nextProps.updateDialogOpen !== this.props.updateDialogOpen) {
+            await this.houseService.fetchHouseInfo(this.props.match.params['h_id']).then((result) => { this.setState({ info: result }) });
+            this.houseService.getHouseAddress(this.state.info.latitude, this.state.info.longitude).then((result) => { this.setState({ addr: result }) });
+        }
+    }
+
     componentDidMount = async () => {
-        await this.service.fetchHouseInfo(this.props.match.params['h_id']).then((result) => {this.setState({ info: result })});
-        this.service.getHouseAddress(this.state.info.latitude, this.state.info.longitude).then((result) => {this.setState({ addr: result })});
+        await this.houseService.fetchHouseInfo(this.props.match.params['h_id']).then((result) => {this.setState({ info: result })});
+        this.houseService.getHouseAddress(this.state.info.latitude, this.state.info.longitude).then((result) => {this.setState({ addr: result })});
         this.userService.fetchUserInfo(this.state.info.u_id).then((result) => {this.setState({ userinfo: result })});
     }
 
@@ -137,21 +162,42 @@ class HouseInfo extends React.Component {
         return (
             <div>
                 <NavBar />
-                <Tooltip id="tooltip-fab" title="Add to Compare">
-                    <Button variant="fab" mini color="secondary" aria-label="add" className={classes.button}>
-                        <AddIcon />
-                    </Button>
-                </Tooltip>
-                <Tooltip id="tooltip-fab" title="Edit House">
-                    <Button variant="fab" mini aria-label="edit" className={classes.button}>
-                        <EditIcon/>
-                    </Button>
-                </Tooltip>
-                <Tooltip id="tooltip-fab" title="Delete House">
-                    <Button variant="fab" mini aria-label="delete" className={classes.button}>
-                        <DeleteIcon />
-                    </Button>
-                </Tooltip>
+                <Update h_id={this.state.info.h_id} />
+                {this.state.info.u_id === localStorage.getItem('u_id') &&
+                    <div>
+                        <Tooltip id="tooltip-fab" title="Edit House">
+                            <Button variant="fab" mini aria-label="edit" className={classes.button} onClick={() => this.props.updateDialogToggled()} >
+                                <EditIcon/>
+                            </Button>
+                        </Tooltip>
+                        <Tooltip id="tooltip-fab" title="Delete House">
+                            <Button variant="fab" mini aria-label="delete" className={classes.button} onClick={() => this.setState({deleteDialogOpen: true })}>
+                                <DeleteIcon />
+                            </Button>
+                        </Tooltip>
+                        <Dialog
+                            open={this.state.deleteDialogOpen}
+                            onClose={() => this.setState({ deleteDialogOpen: false })}
+                            aria-labelledby="alert-dialog-title"
+                            aria-describedby="alert-dialog-description"
+                        >
+                            <DialogTitle id="alert-dialog-title">{"Please confirm"}</DialogTitle>
+                            <DialogContent>
+                                <DialogContentText id="alert-dialog-description">
+                                    Are you sure you want to delete this house?
+                            </DialogContentText>
+                            </DialogContent>
+                            <DialogActions>
+                                <Button onClick={() => this.setState({ deleteDialogOpen: false })} color="primary" autoFocus>
+                                    Cancel
+                                </Button>
+                                <Button onClick={this.handleDelete} color="primary">
+                                    Delete
+                                </Button>
+                            </DialogActions>
+                        </Dialog>
+                    </div>
+                }
 
                 <Card className={classes.card}>
                     <CardHeader
@@ -162,9 +208,8 @@ class HouseInfo extends React.Component {
                         }
                         action={
                             <CardActions>
-                                <Button size="small" onClick = {() =>this.props.history.push('/userinfo/' + this.state.userinfo.u_id)}>
-                                    CONTACT SELLER
-                                </Button>
+                                {this.state.userinfo.u_id === '' ? <Button size="small" disabled >CONTACT SELLER</Button> : 
+                                    <Button size="small" onClick={() => this.props.history.push('/userinfo/' + this.state.userinfo.u_id)}>CONTACT SELLER</Button>}
                             </CardActions>
                         }
                         title = {this.state.userinfo.username}
@@ -195,8 +240,8 @@ class HouseInfo extends React.Component {
                     </CardContent>
 
                     <CardActions className={classes.actions} disableActionSpacing>
-                        <IconButton aria-label="Add to favorites">
-                            <FavoriteIcon />
+                        <IconButton aria-label="Add to favorites" onClick={() => this.setState({ liked: !this.state.liked }) } >
+                            {this.state.liked ? <FavoriteIcon /> : <FavoriteBorderIcon />}
                         </IconButton>
                         <IconButton aria-label="Viewed">
                             <VisibilityIcon />
@@ -225,15 +270,16 @@ class HouseInfo extends React.Component {
                                 <Typography paragraph>Total Price: ${this.state.info.price}</Typography>
                                 <Typography paragraph>Tax: ${this.state.info.tax} per year</Typography>
                             </CardContent>
-                            <Button className={classes.button} variant='raised' color='secondary' size="small" onClick={() => 
-                                this.service.buyHouse(this.state.info.h_id)
-                                    .then(() => {
-                                        alert('Congratulations!! The house is yours!!');
-                                        this.props.history.replace('/home');
-                                    })
-                                    .catch((err) => alert('Something went wrong, please try again.'))}>
-                                BUY
-                            </Button>
+                            {localStorage.getItem('buyer') === 'yes' && localStorage.getItem('u_id') !== this.state.info.u_id && 
+                                <Button className={classes.button} variant='raised' color='secondary' size="small" onClick={() => 
+                                    this.houseService.buyHouse(localStorage.getItem('u_id'), this.state.info.h_id)
+                                        .then(() => {
+                                            alert('Congratulations!! The house is yours!!');
+                                            this.props.history.push('/home');
+                                        })
+                                        .catch((err) => alert('Something went wrong, please try again.'))}>
+                                    BUY
+                                </Button>}
                         </Collapse>
                 </Card>
 
@@ -246,4 +292,4 @@ HouseInfo.propTypes = {
     classes: PropTypes.object.isRequired,
 };
 
-export default withStyles(styles)(HouseInfo);
+export default connect(mapStateToProps, mapDispatchToProps)(withStyles(styles)(HouseInfo));

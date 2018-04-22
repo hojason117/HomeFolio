@@ -6,7 +6,9 @@ import {
     HOME_MAP_FOCUSED_MARKER_CHANGED,
     SEARCH_HOUSES_RESULT_CHANGED,
     SEARCH_MAP_FOCUSED_MARKER_CHANGED,
-    SEARCH_CONDITION_CHANGED
+    SEARCH_CONDITION_CHANGED,
+    SELL_DIALOG_TOGGLED,
+    UPDATE_DIALOG_TOGGLED
 } from "../constants/action-types";
 
 export const initialState = {
@@ -31,7 +33,9 @@ export const initialState = {
         livingArea: '',
         lotSize: '',
         yearBuilt: '',
-    }
+    },
+    sellDialogOpen: false,
+    updateDialogOpen: false
 };
 
 const rootReducer = (state = initialState, action) => {
@@ -62,6 +66,12 @@ const rootReducer = (state = initialState, action) => {
 
         case SEARCH_CONDITION_CHANGED:
             return { ...state, searchConditions: action.payload };
+
+        case SELL_DIALOG_TOGGLED:
+            return { ...state, sellDialogOpen: !state.sellDialogOpen };
+
+        case UPDATE_DIALOG_TOGGLED:
+            return { ...state, updateDialogOpen: !state.updateDialogOpen};
 
         default:
             return state;

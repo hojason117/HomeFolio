@@ -73,11 +73,8 @@ class AuthService {
                 {
                     baseURL: this.baseUrl
                 });
-            if (response.status === 201) {
+            if (response.status === 201)
                 console.log('Signup successful.');
-                localStorage.setItem('u_id', response.data.u_id);
-                localStorage.setItem('username', response.data.username);
-            }
             else {
                 console.log('Unexpected response code: ' + response.status);
             }

@@ -188,6 +188,13 @@ SELECT house.h_id, latitude, longitude FROM house, likes WHERE house.h_id = like
 /* FetchViewedHouse */
 SELECT house.h_id, latitude, longitude, time FROM house, viewed WHERE house.h_id = viewed.h_id and viewed.u_id = &var1
 
+/* Sell */
+INSERT INTO house VALUES (&var1, &var2, &var3, &var4, &var5, &var6, &var7, &var8, &var9, &var10, &var11, &var12, &var13, &var14, &var15, &var16)
+
+/* UpdateHouseInfo */
+UPDATE house SET bathroomCnt = &var1, bedroomCnt = &var2, buildingQualityID = &var3, livingAreaSize = &var4, latitude = &var5, longitude = &var6, 
+    lotSize = &var7, zip = &var8, yearBuilt = &var9, storyNum = &var10, price = &var11, tax = &var12 WHERE h_id = &var13
+
 
 /*************************************************************************************************************************/
 

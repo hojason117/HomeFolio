@@ -54,6 +54,16 @@ const NavBar = (props) => {
                             </Typography>
                         </Button>
                     </div>
+                    <Button
+                        variant='raised'
+                        secondary='true'
+                        className={classes.button}
+                        color='default'
+                        size='large'
+                        component={Link} 
+                        to={"/userinfo/" + localStorage.getItem('u_id')} >
+                        My Profile
+                    </Button>
                     <SignoutButton />
                 </Toolbar>
             </AppBar>

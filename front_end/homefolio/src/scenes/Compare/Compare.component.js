@@ -114,6 +114,7 @@ class Compare extends React.Component {
         for(var index in this.props.compareHouses) {
             var row;
             var info;
+            // eslint-disable-next-line
             await this.service.fetchHouseInfo(this.props.compareHouses[index]).then((data) => {
                 info = data;
                 row = {
@@ -129,7 +130,8 @@ class Compare extends React.Component {
                     price: data.price,
                     tax: data.tax
                 };
-            }); 
+            });
+            // eslint-disable-next-line
             await this.service.getHouseAddress(info.latitude, info.longitude).then((result) => row.address = result);
             rows.push(row);
         }

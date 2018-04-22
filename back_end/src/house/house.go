@@ -6,6 +6,8 @@ import (
 	"net/http"
 	"strconv"
 
+	"github.com/satori/go.uuid"
+
 	"github.com/labstack/echo"
 )
 
@@ -388,6 +390,83 @@ func (h *Handler) SearchHouse(c echo.Context) (err error) {
 	}
 
 	return c.JSON(http.StatusOK, houses)
+}
+
+// Sell : Create a house entry.
+//			URL: "/api/v1/sell"
+//			Method: POST
+//			Return 201 Created on success.
+func (h *Handler) Sell(c echo.Context) (err error) {
+	type HouseC struct {
+		UID               string  `json:"u_id"`
+		BathroomCnt       int     `json:"bathroomCnt"`
+		BedroomCnt        int     `json:"bedroomCnt"`
+		BuildingQualityID int     `json:"buildingQualityID"`
+		LivingAreaSize    int     `json:"livingAreaSize"`
+		Latitude          float32 `json:"latitude"`
+		Longitude         float32 `json:"longitude"`
+		LotSize           int     `json:"lotSize"`
+		Zip               int     `json:"zip"`
+		StoryNum          int     `json:"storyNum"`
+		Price             int     `json:"price"`
+		YearBuilt         int     `json:"yearBuilt"`
+		Tax               float32 `json:"tax"`
+	}
+
+	houseC := &HouseC{}
+	if err = c.Bind(houseC); err != nil {
+		return err
+	}
+
+	newID, err := uuid.NewV1()
+	hid := newID.String()
+
+	stmt, err := h.db.Prepare(`INSERT INTO house VALUES (&var1, &var2, &var3, &var4, &var5, &var6, &var7, &var8, 
+		&var9, &var10, &var11, &var12, &var13, &var14, &var15, &var16)`)
+	_, err = stmt.Exec(hid, houseC.UID, houseC.BathroomCnt, houseC.BedroomCnt, houseC.BuildingQualityID, houseC.LivingAreaSize, houseC.Latitude,
+		houseC.Longitude, houseC.LotSize, "12345", "Los Angeles", houseC.Zip, houseC.YearBuilt, houseC.StoryNum, houseC.Price, houseC.Tax)
+	if err != nil {
+		return err
+	}
+
+	return c.NoContent(http.StatusCreated)
+}
+
+// UpdateHouseInfo : Create an user account.
+//			URL: "/api/v1/updateHouseInfo/:hid"
+//			Method: POST
+//			Return 200 OK on success.
+func (h *Handler) UpdateHouseInfo(c echo.Context) (err error) {
+	type HouseC struct {
+		BathroomCnt       int     `json:"bathroomCnt"`
+		BedroomCnt        int     `json:"bedroomCnt"`
+		BuildingQualityID int     `json:"buildingQualityID"`
+		LivingAreaSize    int     `json:"livingAreaSize"`
+		Latitude          float32 `json:"latitude"`
+		Longitude         float32 `json:"longitude"`
+		LotSize           int     `json:"lotSize"`
+		Zip               int     `json:"zip"`
+		StoryNum          int     `json:"storyNum"`
+		Price             int     `json:"price"`
+		YearBuilt         int     `json:"yearBuilt"`
+		Tax               float32 `json:"tax"`
+	}
+
+	houseC := &HouseC{}
+	if err = c.Bind(houseC); err != nil {
+		return err
+	}
+
+	stmt, err := h.db.Prepare(`UPDATE house SET bathroomCnt = &var1, bedroomCnt = &var2, buildingQualityID = &var3, livingAreaSize = &var4, 
+		latitude = &var5, longitude = &var6, lotSize = &var7, zip = &var8, yearBuilt = &var9, storyNum = &var10, price = &var11, tax = &var12 
+		WHERE h_id = &var13`)
+	_, err = stmt.Exec(houseC.BathroomCnt, houseC.BedroomCnt, houseC.BuildingQualityID, houseC.LivingAreaSize, houseC.Latitude,
+		houseC.Longitude, houseC.LotSize, houseC.Zip, houseC.YearBuilt, houseC.StoryNum, houseC.Price, houseC.Tax, c.Param("hid"))
+	if err != nil {
+		return err
+	}
+
+	return c.NoContent(http.StatusOK)
 }
 
 // Shutdown : Gracefully shutdown user handler.

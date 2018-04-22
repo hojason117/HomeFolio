@@ -103,16 +103,15 @@ class HouseService {
     }
 
     fetchTopLikedHouses = async (LatLng, count) => {
-        var houses;
+        var houses = [];
         try {
             const response = await Axios.get('/topliked?ne_lat=' + LatLng.f.f + '&ne_lng=' + LatLng.b.f + '&sw_lat=' + LatLng.f.b + '&sw_lng=' + LatLng.b.b + '&count=' + count,
                 {
                     baseURL: this.baseUrl,
                     headers: { 'Authorization': 'Bearer ' + localStorage.getItem('auth_token') }
                 })
-            if (response.status === 200) {
-                houses = response.data;
-            }
+            if (response.status === 200)
+                houses = response.data ? response.data : [];
             else
                 console.log('Unexpected response code: ' + response.status);
         }
@@ -129,16 +128,15 @@ class HouseService {
     }
 
     fetchTopViewedHouses = async (LatLng, count) => {
-        var houses;
+        var houses = [];
         try {
             const response = await Axios.get('/topviewed?ne_lat=' + LatLng.f.f + '&ne_lng=' + LatLng.b.f + '&sw_lat=' + LatLng.f.b + '&sw_lng=' + LatLng.b.b + '&count=' + count,
                 {
                     baseURL: this.baseUrl,
                     headers: { 'Authorization': 'Bearer ' + localStorage.getItem('auth_token') }
                 })
-            if (response.status === 200) {
-                houses = response.data;
-            }
+            if (response.status === 200)
+                houses = response.data ? response.data : [];
             else
                 console.log('Unexpected response code: ' + response.status);
         }
@@ -199,6 +197,27 @@ class HouseService {
                 console.log(error.message);
             throw error;
         }
+    }
+
+    buyHouse = async (uid, hid) => {
+        /*try {
+            const response = await Axios.delete('/deletehouse/' + id,
+                {
+                    baseURL: this.baseUrl,
+                    headers: { 'Authorization': 'Bearer ' + localStorage.getItem('auth_token') }
+                })
+            if (response.status !== 204)
+                console.log('Unexpected response code: ' + response.status);
+        }
+        catch (error) {
+            if (error.request) {
+                console.log('No response from server.');
+                console.log(error.request);
+            }
+            else
+                console.log(error.message);
+            throw error;
+        }*/
     }
 
     searchHouse = async (zip, minPrice, maxPrice, bedroomCnt, bathroomCnt, buildingQuality, story, livingArea, lotSize, yearBuilt, max) => {
@@ -265,6 +284,77 @@ class HouseService {
         }
 
         return results;
+    }
+
+    sellHouse = async (u_id, bathroomCnt, bedroomCnt, buildingQualityID, livingAreaSize, latitude, longitude, lotSize, zip, storyNum, price, yearBuilt, tax) => {
+        try {
+            const response = await Axios.post('/sell',
+                {
+                    u_id: u_id,
+                    bathroomCnt: bathroomCnt,
+                    bedroomCnt: bedroomCnt,
+                    buildingQualityID: buildingQualityID,
+                    livingAreaSize: livingAreaSize,
+                    latitude: latitude,
+                    longitude: longitude,
+                    lotSize: lotSize,
+                    zip: zip,
+                    storyNum: storyNum,
+                    price: price,
+                    yearBuilt: yearBuilt,
+                    tax: tax
+                },
+                {
+                    baseURL: this.baseUrl,
+                    headers: { 'Authorization': 'Bearer ' + localStorage.getItem('auth_token') }
+                })
+            if (response.status !== 201)
+                console.log('Unexpected response code: ' + response.status);
+        }
+        catch (error) {
+            if (error.request) {
+                console.log('No response from server.');
+                console.log(error.request);
+            }
+            else
+                console.log(error.message);
+            throw error;
+        }
+    }
+
+    updateHouseInfo = async (h_id, bathroomCnt, bedroomCnt, buildingQualityID, livingAreaSize, latitude, longitude, lotSize, zip, storyNum, price, yearBuilt, tax) => {
+        try {
+            const response = await Axios.post('/updateHouseInfo/' + h_id,
+                {
+                    bathroomCnt: bathroomCnt,
+                    bedroomCnt: bedroomCnt,
+                    buildingQualityID: buildingQualityID,
+                    livingAreaSize: livingAreaSize,
+                    latitude: latitude,
+                    longitude: longitude,
+                    lotSize: lotSize,
+                    zip: zip,
+                    storyNum: storyNum,
+                    price: price,
+                    yearBuilt: yearBuilt,
+                    tax: tax
+                },
+                {
+                    baseURL: this.baseUrl,
+                    headers: { 'Authorization': 'Bearer ' + localStorage.getItem('auth_token') }
+                })
+            if (response.status !== 200)
+                console.log('Unexpected response code: ' + response.status);
+        }
+        catch (error) {
+            if (error.request) {
+                console.log('No response from server.');
+                console.log(error.request);
+            }
+            else
+                console.log(error.message);
+            throw error;
+        }
     }
 }
 
