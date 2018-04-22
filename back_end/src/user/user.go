@@ -253,6 +253,112 @@ func (h *Handler) UpdateUserInfo(c echo.Context) (err error) {
 	return c.JSON(http.StatusOK, userC)
 }
 
+// FetchOwnHouse : Return houses owned by a specific user.
+//				   URL: "/api/v1/userInfo/ownHouses"
+//				   Method: GET
+//				   Return 200 OK on success.
+func (h *Handler) FetchOwnHouse(c echo.Context) (err error) {
+	rows, err := h.db.Query("SELECT h_id, latitude, longitude FROM house WHERE u_id = &var1", c.Param("uid"))
+	if err != nil {
+		return err
+	}
+	defer rows.Close()
+
+	type HouseC struct {
+		HID       string  `json:"h_id"`
+		Latitude  float32 `json:"latitude"`
+		Longitude float32 `json:"longitude"`
+	}
+
+	var houses []*HouseC
+
+	for rows.Next() {
+		house := new(HouseC)
+		err = rows.Scan(&house.HID, &house.Latitude, &house.Longitude)
+		if err != nil {
+			return err
+		}
+
+		houses = append(houses, house)
+	}
+	if err = rows.Err(); err != nil {
+		return err
+	}
+
+	return c.JSON(http.StatusOK, houses)
+}
+
+// FetchLikedHouse : Return houses liked by a specific user.
+//				   URL: "/api/v1/userInfo/likedHouses"
+//				   Method: GET
+//				   Return 200 OK on success.
+func (h *Handler) FetchLikedHouse(c echo.Context) (err error) {
+	rows, err := h.db.Query("SELECT house.h_id, latitude, longitude FROM house, likes WHERE house.h_id = likes.h_id and likes.u_id = &var1", c.Param("uid"))
+	if err != nil {
+		return err
+	}
+	defer rows.Close()
+
+	type HouseC struct {
+		HID       string  `json:"h_id"`
+		Latitude  float32 `json:"latitude"`
+		Longitude float32 `json:"longitude"`
+	}
+
+	var houses []*HouseC
+
+	for rows.Next() {
+		house := new(HouseC)
+		err = rows.Scan(&house.HID, &house.Latitude, &house.Longitude)
+		if err != nil {
+			return err
+		}
+
+		houses = append(houses, house)
+	}
+	if err = rows.Err(); err != nil {
+		return err
+	}
+
+	return c.JSON(http.StatusOK, houses)
+}
+
+// FetchViewedHouse : Return houses viewed by a specific user.
+//				   URL: "/api/v1/userInfo/viewedHouses"
+//				   Method: GET
+//				   Return 200 OK on success.
+func (h *Handler) FetchViewedHouse(c echo.Context) (err error) {
+	rows, err := h.db.Query("SELECT house.h_id, latitude, longitude, time FROM house, viewed WHERE house.h_id = viewed.h_id and viewed.u_id = &var1", c.Param("uid"))
+	if err != nil {
+		return err
+	}
+	defer rows.Close()
+
+	type HouseC struct {
+		HID       string  `json:"h_id"`
+		Latitude  float32 `json:"latitude"`
+		Longitude float32 `json:"longitude"`
+		Time      string  `json:"time"`
+	}
+
+	var houses []*HouseC
+
+	for rows.Next() {
+		house := new(HouseC)
+		err = rows.Scan(&house.HID, &house.Latitude, &house.Longitude, &house.Time)
+		if err != nil {
+			return err
+		}
+
+		houses = append(houses, house)
+	}
+	if err = rows.Err(); err != nil {
+		return err
+	}
+
+	return c.JSON(http.StatusOK, houses)
+}
+
 func uidFromToken(c echo.Context) string {
 	user := c.Get("user").(*jwt.Token)
 	claims := user.Claims.(jwt.MapClaims)
