@@ -179,6 +179,15 @@ FROM (
 		and livingAreaSize >= &var7 and story >= &var8 and lotSize >= &var9 and yearBuilt >= &var10)
 WHERE ROWNUM <= &var11
 
+/* FetchOwnHouse */
+SELECT h_id, latitude, longitude FROM house WHERE u_id = &var1
+
+/* FetchLikedHouse */
+SELECT house.h_id, latitude, longitude FROM house, likes WHERE house.h_id = likes.h_id and likes.u_id = &var1
+
+/* FetchViewedHouse */
+SELECT house.h_id, latitude, longitude, time FROM house, viewed WHERE house.h_id = viewed.h_id and viewed.u_id = &var1
+
 
 /*************************************************************************************************************************/
 

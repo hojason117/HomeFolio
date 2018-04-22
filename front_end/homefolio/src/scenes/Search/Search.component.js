@@ -65,19 +65,42 @@ class Search extends React.Component {
     constructor(props) {
         super(props);
         this.service = new HouseService();
+
+        var chips = [];
+        if (this.props.searchConditions.zip !== '')
+            chips.push({ type: 'zip', label: 'Zip: ' + this.props.searchConditions.zip });
+        if (this.props.searchConditions.minPrice !== '')
+            chips.push({ type: 'minPrice', label: 'Min Price: ' + this.props.searchConditions.minPrice });
+        if (this.props.searchConditions.maxPrice !== '')
+            chips.push({ type: 'maxPrice', label: 'Max Price: ' + this.props.searchConditions.maxPrice });
+        if (this.props.searchConditions.bedroomCnt !== '')
+            chips.push({ type: 'bedroomCnt', label: 'Bedrooms: ' + this.props.searchConditions.bedroomCnt });
+        if (this.props.searchConditions.bathroomCnt !== '')
+            chips.push({ type: 'bathroomCnt', label: 'Bathrooms: ' + this.props.searchConditions.bathroomCnt });
+        if (this.props.searchConditions.story !== '')
+            chips.push({ type: 'story', label: 'Story: ' + this.props.searchConditions.story });
+        if (this.props.searchConditions.buildingQuality !== '')
+            chips.push({ type: 'quality', label: 'Quality: ' + this.props.searchConditions.buildingQuality });
+        if (this.props.searchConditions.livingArea !== '')
+            chips.push({ type: 'area', label: 'Living area: ' + this.props.searchConditions.livingArea });
+        if (this.props.searchConditions.lotSize !== '')
+            chips.push({ type: 'lot', label: 'Lot size: ' + this.props.searchConditions.lotSize });
+        if (this.props.searchConditions.yearBuilt !== '')
+            chips.push({ type: 'year', label: 'Year built: ' + this.props.searchConditions.yearBuilt });
+
         this.state = {
-            zip: '',
-            minPrice: '',
-            maxPrice: '',
-            bedroomCnt: '',
-            bathroomCnt: '',
-            buildingQuality: '',
-            story: '',
-            livingArea: '',
-            lotSize: '',
-            yearBuilt: '',
+            zip: this.props.searchConditions.zip,
+            minPrice: this.props.searchConditions.minPrice,
+            maxPrice: this.props.searchConditions.maxPrice,
+            bedroomCnt: this.props.searchConditions.bedroomCnt,
+            bathroomCnt: this.props.searchConditions.bathroomCnt,
+            buildingQuality: this.props.searchConditions.buildingQuality,
+            story: this.props.searchConditions.story,
+            livingArea: this.props.searchConditions.livingArea,
+            lotSize: this.props.searchConditions.lotSize,
+            yearBuilt: this.props.searchConditions.yearBuilt,
             dialogOpen: true,
-            chipData: []
+            chipData: chips
         }
     }
     

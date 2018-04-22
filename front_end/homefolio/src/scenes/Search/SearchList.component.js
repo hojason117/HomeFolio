@@ -35,7 +35,7 @@ class HouseAddrListItem extends React.Component {
 
     render() {
         return (
-            <ListItemText primary={this.state.addr} />
+            <ListItemText primary={this.props.id + '. ' + this.state.addr} />
         )
     }
 }
@@ -60,7 +60,7 @@ const SearchList = (props) => {
                 <List component='nav'>
                     {props.houses.map((house, index) =>
                         <ListItem button key={index} component={Link} to={'/houseinfo/' + house.h_id} >
-                            <HouseAddrListItem latlng={{ lat: house.lat, lng: house.lng }} />
+                            <HouseAddrListItem id={index + 1} latlng={{ lat: house.lat, lng: house.lng }} />
                         </ListItem>)}
                 </List>
             </Paper>

@@ -44,10 +44,12 @@ class MapMarker extends React.Component {
     }
 
     componentDidMount() {
-        this.service.getHouseAddress(this.props.info.lat, this.props.info.lng).then((result) => this.setState({ addr: result }));
+        //this.service.getHouseAddress(this.props.info.lat, this.props.info.lng).then((result) => this.setState({ addr: result }));
     }
 
     onClick = () => {
+        if(this.state.addr === '')
+            this.service.getHouseAddress(this.props.info.lat, this.props.info.lng).then((result) => this.setState({ addr: result }));
         this.props.searchMapFocusedMarkerChanged(this.state.isOpen ? -1 : this.props.listId);
     }
 
