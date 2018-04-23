@@ -265,9 +265,14 @@ class HouseInfo extends React.Component {
                     </CardContent>
 
                     <CardActions className={classes.actions} disableActionSpacing>
-                        <IconButton aria-label="Add to favorites" onClick={() => this.handleLikeUnlike(!this.state.liked) } >
-                            {this.state.liked ? <FavoriteIcon /> : <FavoriteBorderIcon />}
-                        </IconButton>
+                        {localStorage.getItem('buyer') === 'yes' ?
+                            <IconButton aria-label="Add to favorites" onClick={() => this.handleLikeUnlike(!this.state.liked) } >
+                                {this.state.liked ? <FavoriteIcon /> : <FavoriteBorderIcon />}
+                            </IconButton> : 
+                            <IconButton aria-label="Add to favorites" disabled >
+                                <FavoriteBorderIcon />
+                            </IconButton>
+                        }
                         <Typography variant="caption">{this.state.likesCount}</Typography>
                         <IconButton aria-label="Viewed" disabled >
                             <VisibilityIcon />
@@ -299,7 +304,7 @@ class HouseInfo extends React.Component {
                             </CardContent>
                             {localStorage.getItem('buyer') === 'yes' && localStorage.getItem('u_id') !== this.state.info.u_id && 
                                 <Button className={classes.button} variant='raised' color='secondary' size="small" onClick={() => 
-                                    this.houseService.buyHouse(localStorage.getItem('u_id'), this.state.info.h_id)
+                                    this.houseService.buyHouse(this.state.info.h_id)
                                         .then(() => {
                                             alert('Congratulations!! The house is yours!!');
                                             this.props.history.push('/home');

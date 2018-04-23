@@ -11,6 +11,7 @@ import { FormControl } from 'material-ui/Form';
 import Dialog, { DialogActions, DialogContent, DialogTitle } from 'material-ui/Dialog';
 import HouseService from '../../services/house.service';
 import { sellDialogToggled } from '../../redux/actions/main';
+import Snackbar from 'material-ui/Snackbar';
 
 const styles = theme => ({
     container: {
@@ -80,6 +81,7 @@ class Sell extends React.Component {
             lotSize: '',
             yearBuilt: '',
             dialogOpen: props.sellDialogOpen,
+            snackbarOpen: false
         }
     }
 
@@ -99,7 +101,7 @@ class Sell extends React.Component {
             this.service.sellHouse(localStorage.getItem('u_id'), parseInt(this.state.bathroomCnt, 10), parseInt(this.state.bedroomCnt, 10), this.state.buildingQuality, 
             parseInt(this.state.livingArea, 10), lat, lng, parseInt(this.state.lotSize, 10), parseInt(this.state.zip, 10), parseInt(this.state.story, 10), 
             parseInt(this.state.price, 10), parseInt(this.state.yearBuilt, 10), parseInt(this.state.tax, 10))
-                .then(() => alert('Your house is ready for sell!!'));
+                .then(() => this.setState({ snackbarOpen: true }));
 
             this.handleReset();
         }
@@ -128,6 +130,16 @@ class Sell extends React.Component {
 
         return (
             <div className={classes.root}>
+                <Snackbar
+                    anchorOrigin={{ vertical: 'top', horizontal: 'right' }}
+                    open={this.state.snackbarOpen}
+                    onClose={() => this.setState({ snackbarOpen: false })}
+                    autoHideDuration={5000}
+                    SnackbarContentProps={{
+                        'aria-describedby': 'message-id',
+                    }}
+                    message={<span id="message-id">Your house is for sell!!</span>}
+                />
                 <Dialog
                     disableBackdropClick
                     disableEscapeKeyDown

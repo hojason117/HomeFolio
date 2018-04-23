@@ -51,7 +51,7 @@ func NewServer(h *handler.Handler) (e *echo.Echo) {
 	e.GET("/api/v1/tuplecount", h.HouseHandler.GetTupleCount)
 	e.DELETE("/api/v1/deletehouse/:hid", h.HouseHandler.DeleteHouse)
 	e.GET("/api/v1/searchhouse", h.HouseHandler.SearchHouse)
-	e.GET("/api/v1/userInfo/ownHouses/:uid", h.UserHandler.FetchOwnHouse)
+	e.GET("/api/v1/userInfo/sellHouses/:uid", h.UserHandler.FetchSellHouse)
 	e.GET("/api/v1/userInfo/likedHouses/:uid", h.UserHandler.FetchLikedHouse)
 	e.GET("/api/v1/userInfo/viewedHouses/:uid", h.UserHandler.FetchViewedHouse)
 	e.POST("/api/v1/sell", h.HouseHandler.Sell)
@@ -61,6 +61,8 @@ func NewServer(h *handler.Handler) (e *echo.Echo) {
 	e.GET("/api/v1/houseInfo/likedUsers/:hid", h.HouseHandler.FetchLikedUser)
 	e.GET("/api/v1/houseInfo/viewedUsers/:hid", h.HouseHandler.FetchViewedUser)
 	e.POST("/api/v1/viewed", h.HouseHandler.AddViewed)
+	e.POST("/api/v1/buyhouse/:hid", h.HouseHandler.BuyHouse)
+	e.GET("/api/v1/userInfo/boughtHouses/:uid", h.UserHandler.FetchBoughtHouse)
 
 	return e
 }

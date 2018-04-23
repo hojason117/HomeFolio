@@ -162,7 +162,7 @@ class HouseService {
                     baseURL: this.baseUrl
                 })
             if (response.status === 200) {
-                count = response.data.count;
+                count = response.data;
             }
             else
                 console.log('Unexpected response code: ' + response.status);
@@ -201,14 +201,15 @@ class HouseService {
         }
     }
 
-    buyHouse = async (uid, hid) => {
-        /*try {
-            const response = await Axios.delete('/deletehouse/' + id,
+    buyHouse = async (hid) => {
+        try {
+            const response = await Axios.post('/buyhouse/' + hid,
+                {},
                 {
                     baseURL: this.baseUrl,
                     headers: { 'Authorization': 'Bearer ' + localStorage.getItem('auth_token') }
                 })
-            if (response.status !== 204)
+            if (response.status !== 200)
                 console.log('Unexpected response code: ' + response.status);
         }
         catch (error) {
@@ -219,7 +220,7 @@ class HouseService {
             else
                 console.log(error.message);
             throw error;
-        }*/
+        }
     }
 
     searchHouse = async (zip, minPrice, maxPrice, bedroomCnt, bathroomCnt, buildingQuality, story, livingArea, lotSize, yearBuilt, max) => {
