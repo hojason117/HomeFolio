@@ -253,11 +253,11 @@ func (h *Handler) UpdateUserInfo(c echo.Context) (err error) {
 	return c.JSON(http.StatusOK, userC)
 }
 
-// FetchOwnHouse : Return houses owned by a specific user.
-//				   URL: "/api/v1/userInfo/ownHouses"
+// FetchSellHouse : Return houses owned by a specific user.
+//				   URL: "/api/v1/userInfo/sellHouses"
 //				   Method: GET
 //				   Return 200 OK on success.
-func (h *Handler) FetchOwnHouse(c echo.Context) (err error) {
+func (h *Handler) FetchSellHouse(c echo.Context) (err error) {
 	rows, err := h.db.Query("SELECT h_id, latitude, longitude FROM house WHERE u_id = &var1", c.Param("uid"))
 	if err != nil {
 		return err
@@ -328,7 +328,14 @@ func (h *Handler) FetchLikedHouse(c echo.Context) (err error) {
 //				   Method: GET
 //				   Return 200 OK on success.
 func (h *Handler) FetchViewedHouse(c echo.Context) (err error) {
-	rows, err := h.db.Query("SELECT house.h_id, latitude, longitude, time FROM house, viewed WHERE house.h_id = viewed.h_id and viewed.u_id = &var1", c.Param("uid"))
+	query :=
+		`SELECT house.h_id, latitude, longitude, time
+		FROM (SELECT * FROM viewed 
+			 union 
+			 SELECT * FROM FANG.viewed) v,
+			 house 
+		WHERE house.h_id = v.h_id and v.u_id = &var1`
+	rows, err := h.db.Query(query, c.Param("uid"))
 	if err != nil {
 		return err
 	}
@@ -346,6 +353,43 @@ func (h *Handler) FetchViewedHouse(c echo.Context) (err error) {
 	for rows.Next() {
 		house := new(HouseC)
 		err = rows.Scan(&house.HID, &house.Latitude, &house.Longitude, &house.Time)
+		if err != nil {
+			return err
+		}
+
+		houses = append(houses, house)
+	}
+	if err = rows.Err(); err != nil {
+		return err
+	}
+
+	return c.JSON(http.StatusOK, houses)
+}
+
+// FetchBoughtHouse : Return houses bought by a specific user.
+//				   URL: "/api/v1/userInfo/boughtHouses/:uid"
+//				   Method: GET
+//				   Return 200 OK on success.
+func (h *Handler) FetchBoughtHouse(c echo.Context) (err error) {
+	query :=
+		`SELECT h_id, latitude, longitude FROM FANG.bought_house WHERE u_id = &var1`
+	rows, err := h.db.Query(query, c.Param("uid"))
+	if err != nil {
+		return err
+	}
+	defer rows.Close()
+
+	type HouseC struct {
+		HID       string  `json:"h_id"`
+		Latitude  float32 `json:"latitude"`
+		Longitude float32 `json:"longitude"`
+	}
+
+	var houses []*HouseC
+
+	for rows.Next() {
+		house := new(HouseC)
+		err = rows.Scan(&house.HID, &house.Latitude, &house.Longitude)
 		if err != nil {
 			return err
 		}

@@ -16,6 +16,7 @@ import ExpansionPanel, { ExpansionPanelDetails, ExpansionPanelSummary } from 'ma
 import Icon from 'material-ui/Icon';
 import bluegrey from 'material-ui/colors/blueGrey';
 import HomeIcon from '@material-ui/icons/Home';
+import PersonPinCircle from '@material-ui/icons/PersonPinCircle';
 import List, { ListItem, ListItemText } from 'material-ui/List';
 import { Link } from 'react-router-dom';
 import { userUpdateDialogToggled } from '../../redux/actions/main';
@@ -100,7 +101,8 @@ class UserInfo extends React.Component {
                 seller: false,
                 buyer: false
             },
-            ownList: [],
+            sellList: [],
+            boughtList: [],
             likedList: [],
             viewedList: []
         }
@@ -112,7 +114,8 @@ class UserInfo extends React.Component {
 
     componentDidMount = async () => {
         await this.userService.fetchUserInfo(this.props.match.params['u_id']).then(result => this.setState({ userinfo: result }));
-        this.userService.fetchOwnHouse(this.state.userinfo.u_id).then(result => this.setState({ ownList: result }));
+        this.userService.fetchSellHouse(this.state.userinfo.u_id).then(result => this.setState({ sellList: result }));
+        this.userService.fetchBoughtHouse(this.state.userinfo.u_id).then(result => this.setState({ boughtList: result }));
         this.userService.fetchLikedHouse(this.state.userinfo.u_id).then(result => this.setState({ likedList: result }));
         this.userService.fetchViewedHouse(this.state.userinfo.u_id).then(result => this.setState({ viewedList: result }));
     }
@@ -160,23 +163,39 @@ class UserInfo extends React.Component {
 
                 <CardActions className={classes.actions} disableActionSpacing>
                     <div className={classes.root}>
-                        <ExpansionPanel expanded={expanded === 'panel1'} onChange={this.handleChange('panel1')}>
+                        {localStorage.getItem('seller') === 'yes' && <ExpansionPanel expanded={expanded === 'panel1'} onChange={this.handleChange('panel1')}>
                         <ExpansionPanelSummary expandIcon={<ExpandMoreIcon />}>
-                            <Typography className={classes.heading}>Houses OWN</Typography>
+                            <Typography className={classes.heading}>Houses For Sell</Typography>
                             <Icon className={classes.icon}>
                                 <HomeIcon />
                             </Icon>
                         </ExpansionPanelSummary>
                         <ExpansionPanelDetails>
                             <List component='nav'>
-                                {this.state.ownList.map((house, index) =>
+                                {this.state.sellList.map((house, index) =>
                                     <ListItem button key={index} component={Link} to={'/houseinfo/' + house.h_id} >
                                         <HouseListItem latlng={{ lat: house.latitude, lng: house.longitude }} />
                                     </ListItem>)}
                             </List>
                         </ExpansionPanelDetails>
-                        </ExpansionPanel>
-                        <ExpansionPanel expanded={expanded === 'panel2'} onChange={this.handleChange('panel2')}>
+                        </ExpansionPanel>}
+                        {localStorage.getItem('buyer') === 'yes' && <ExpansionPanel expanded={expanded === 'panel2'} onChange={this.handleChange('panel2')}>
+                            <ExpansionPanelSummary expandIcon={<ExpandMoreIcon />}>
+                                <Typography className={classes.heading}>Houses Bought</Typography>
+                                <Icon className={classes.icon}>
+                                        <PersonPinCircle />
+                                </Icon>
+                            </ExpansionPanelSummary>
+                            <ExpansionPanelDetails>
+                                <List component='nav'>
+                                    {this.state.boughtList.map((house, index) =>
+                                        <ListItem key={index} >
+                                            <HouseListItem latlng={{ lat: house.latitude, lng: house.longitude }} />
+                                        </ListItem>)}
+                                </List>
+                            </ExpansionPanelDetails>
+                        </ExpansionPanel>}
+                        <ExpansionPanel expanded={expanded === 'panel3'} onChange={this.handleChange('panel3')}>
                         <ExpansionPanelSummary expandIcon={<ExpandMoreIcon />}>
                             <Typography className={classes.heading}>Houses LIKED</Typography>
                             <Icon className={classes.icon}>
@@ -192,7 +211,7 @@ class UserInfo extends React.Component {
                             </List>
                         </ExpansionPanelDetails>
                         </ExpansionPanel>
-                        <ExpansionPanel expanded={expanded === 'panel3'} onChange={this.handleChange('panel3')}>
+                        <ExpansionPanel expanded={expanded === 'panel4'} onChange={this.handleChange('panel4')}>
                         <ExpansionPanelSummary expandIcon={<ExpandMoreIcon />}>
                             <Typography className={classes.heading}>Houses VIEWED</Typography>
                             <Icon className={classes.icon}>

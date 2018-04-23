@@ -45,10 +45,10 @@ class UserService {
         return info;
     }
 
-    fetchOwnHouse = async (u_id) => {
+    fetchSellHouse = async (u_id) => {
         var houses = [];
         try {
-            const response = await Axios.get('/userInfo/ownHouses/' + u_id,
+            const response = await Axios.get('/userInfo/sellHouses/' + u_id,
                 {
                     baseURL: this.baseUrl,
                     headers: { 'Authorization': 'Bearer ' + localStorage.getItem('auth_token') }
@@ -155,6 +155,34 @@ class UserService {
                 console.log(error.message);
             throw error;
         }
+    }
+
+    fetchBoughtHouse = async (u_id) => {
+        var houses = [];
+        try {
+            const response = await Axios.get('/userInfo/boughtHouses/' + u_id,
+                {
+                    baseURL: this.baseUrl,
+                    headers: { 'Authorization': 'Bearer ' + localStorage.getItem('auth_token') }
+                })
+            if (response.status === 200) {
+                for (var index in response.data)
+                    houses.push(response.data[index]);
+            }
+            else
+                console.log('Unexpected response code: ' + response.status);
+        }
+        catch (error) {
+            if (error.request) {
+                console.log('No response from server.');
+                console.log(error.request);
+            }
+            else {
+                console.log(error.message);
+            }
+        }
+
+        return houses;
     }
 }
 

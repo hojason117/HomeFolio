@@ -14,7 +14,16 @@ const Public = (props) => {
     const service = new HouseService();
     const showTupleCount = () => {
         service.getTotalTupleCount()
-            .then(result => alert('Total tuples: ' + result))
+            .then(result => alert(
+                'acc_user: ' + result.acc_user + '\n' + 
+                'buyer: ' + result.buyer + '\n' + 
+                'seller: ' + result.seller + '\n' + 
+                'house: ' + result.house + '\n' + 
+                'likes: ' + result.likes + '\n' + 
+                'viewed: ' + result.viewed + '\n' + 
+                'bought_house: ' + result.bought_house + '\n' + 
+                'Total tuples: ' + result.total)    
+            )
             .catch(err => alert('Something went wrong, please try again.'));
     }
 

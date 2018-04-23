@@ -7,6 +7,7 @@ import (
 	"strconv"
 	"strings"
 
+	jwt "github.com/dgrijalva/jwt-go"
 	"github.com/satori/go.uuid"
 
 	"github.com/labstack/echo"
@@ -176,7 +177,9 @@ func (h *Handler) FetchTopViewedHouses(c echo.Context) (err error) {
 				FROM house 
 				WHERE latitude < &var1 and latitude > &var2 and longitude < &var3 and longitude > &var4)
 				NATURAL JOIN
-				viewed
+				(SELECT * FROM viewed
+				UNION
+				SELECT * FROM FANG.viewed)
 			GROUP BY h_id, latitude, longitude
 			ORDER BY num DESC)
 		WHERE ROWNUM <= &var5`
@@ -238,8 +241,13 @@ func (h *Handler) GetTupleCount(c echo.Context) (err error) {
 	if err != nil {
 		return err
 	}
-	viewed := 0
-	err = h.db.QueryRow("SELECT COUNT(*) FROM viewed").Scan(&viewed)
+	viewed1 := 0
+	err = h.db.QueryRow("SELECT COUNT(*) FROM viewed").Scan(&viewed1)
+	if err != nil {
+		return err
+	}
+	viewed2 := 0
+	err = h.db.QueryRow("SELECT COUNT(*) FROM FANG.viewed").Scan(&viewed2)
 	if err != nil {
 		return err
 	}
@@ -248,13 +256,32 @@ func (h *Handler) GetTupleCount(c echo.Context) (err error) {
 	if err != nil {
 		return err
 	}
+	bought := 0
+	err = h.db.QueryRow("SELECT COUNT(*) FROM FANG.bought_house").Scan(&bought)
+	if err != nil {
+		return err
+	}
 
 	type Count struct {
-		Count int `json:"count"`
+		AccUser int `json:"acc_user"`
+		Buyer   int `json:"buyer"`
+		Seller  int `json:"seller"`
+		House   int `json:"house"`
+		Likes   int `json:"likes"`
+		Viewed  int `json:"viewed"`
+		Bought  int `json:"bought_house"`
+		Total   int `json:"total"`
 	}
 
 	result := new(Count)
-	result.Count = accUser + buyer + seller + house + viewed + likes
+	result.AccUser = accUser
+	result.Buyer = buyer
+	result.Seller = seller
+	result.House = house
+	result.Likes = likes
+	result.Viewed = viewed1 + viewed2
+	result.Bought = bought
+	result.Total = accUser + buyer + seller + house + viewed1 + viewed2 + bought + likes
 
 	return c.JSON(http.StatusOK, result)
 }
@@ -265,6 +292,11 @@ func (h *Handler) GetTupleCount(c echo.Context) (err error) {
 //				   Return 204 No Content on success.
 func (h *Handler) DeleteHouse(c echo.Context) (err error) {
 	stmt, err := h.db.Prepare("DELETE FROM viewed WHERE h_id = &var1")
+	_, err = stmt.Exec(c.Param("hid"))
+	if err != nil {
+		return err
+	}
+	stmt, err = h.db.Prepare("DELETE FROM FANG.viewed WHERE h_id = &var1")
 	_, err = stmt.Exec(c.Param("hid"))
 	if err != nil {
 		return err
@@ -283,6 +315,54 @@ func (h *Handler) DeleteHouse(c echo.Context) (err error) {
 	}
 
 	return c.NoContent(http.StatusNoContent)
+}
+
+// BuyHouse : Buy a house.
+//				   URL: "/api/v1/buyhouse/:hid"
+//				   Method: POST
+//				   Return 200 OK on success.
+func (h *Handler) BuyHouse(c echo.Context) (err error) {
+	stmt, err := h.db.Prepare("DELETE FROM viewed WHERE h_id = &var1")
+	_, err = stmt.Exec(c.Param("hid"))
+	if err != nil {
+		return err
+	}
+	stmt, err = h.db.Prepare("DELETE FROM FANG.viewed WHERE h_id = &var1")
+	_, err = stmt.Exec(c.Param("hid"))
+	if err != nil {
+		return err
+	}
+
+	stmt, err = h.db.Prepare("DELETE FROM likes WHERE h_id = &var1")
+	_, err = stmt.Exec(c.Param("hid"))
+	if err != nil {
+		return err
+	}
+
+	houseD := new(model.House)
+	err = h.db.QueryRow("SELECT * FROM house WHERE h_id = &var1", c.Param("hid")).Scan(&houseD.HID, &houseD.UID,
+		&houseD.BathroomCnt, &houseD.BedroomCnt, &houseD.BuildingQualityID, &houseD.LivingAreaSize, &houseD.Latitude,
+		&houseD.Longitude, &houseD.LotSize, &houseD.CityID, &houseD.County, &houseD.Zip, &houseD.YearBuilt,
+		&houseD.StoryNum, &houseD.Price, &houseD.Tax)
+	if err != nil {
+		return err
+	}
+
+	stmt, err = h.db.Prepare(`INSERT INTO FANG.bought_house VALUES (&var1, &var2, &var3, &var4, &var5, &var6, &var7, &var8, 
+		&var9, &var10, &var11, &var12, &var13, &var14, &var15, &var16)`)
+	_, err = stmt.Exec(c.Param("hid"), uidFromToken(c), houseD.BathroomCnt, houseD.BedroomCnt, houseD.BuildingQualityID, houseD.LivingAreaSize, houseD.Latitude,
+		houseD.Longitude, houseD.LotSize, houseD.CityID, houseD.County, houseD.Zip, houseD.YearBuilt, houseD.StoryNum, houseD.Price, houseD.Tax)
+	if err != nil {
+		return err
+	}
+
+	stmt, err = h.db.Prepare("DELETE FROM house WHERE h_id = &var1")
+	_, err = stmt.Exec(c.Param("hid"))
+	if err != nil {
+		return err
+	}
+
+	return c.NoContent(http.StatusOK)
 }
 
 // SearchHouse : Search houses based on the provided conditions.
@@ -536,7 +616,13 @@ func (h *Handler) FetchLikedUser(c echo.Context) (err error) {
 //				   Method: GET
 //				   Return 200 OK on success.
 func (h *Handler) FetchViewedUser(c echo.Context) (err error) {
-	rows, err := h.db.Query("SELECT u_id FROM viewed WHERE h_id = &var1", c.Param("hid"))
+	query :=
+		`SELECT u_id
+		FROM (SELECT * FROM viewed
+			 UNION
+			 SELECT * FROM FANG.viewed)
+		WHERE h_id = &var1`
+	rows, err := h.db.Query(query, c.Param("hid"))
 	if err != nil {
 		return err
 	}
@@ -579,6 +665,13 @@ func (h *Handler) AddViewed(c echo.Context) (err error) {
 	}
 
 	return c.NoContent(http.StatusCreated)
+}
+
+func uidFromToken(c echo.Context) string {
+	user := c.Get("user").(*jwt.Token)
+	claims := user.Claims.(jwt.MapClaims)
+
+	return claims["uid"].(string)
 }
 
 // Shutdown : Gracefully shutdown house handler.

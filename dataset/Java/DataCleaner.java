@@ -47,23 +47,24 @@ public class DataCleaner {
 	static int likesTotal = 0;
 	
 	public static void main(String arg[]) throws FileNotFoundException, IOException {
-		/*
-		cleanUser();
-		cleanHouse();
-		cleanSeller();
-		cleanBuyer();
-		cleanLikes();
-		cleanViewed();
 		
-		System.out.println("Total user: " + userTotal);
-		System.out.println("Total seller: " + sellerTotal);
-		System.out.println("Total buyer: " + buyerTotal);
-		System.out.println("Total house: " + houseTotal);
-		System.out.println("Total viewed: " + viewedTotal);
-		System.out.println("Total likes: " + likesTotal);
-		*/
+		//cleanUser();
+		//cleanHouse();
+		//cleanSeller();
+		//cleanBuyer();
+		//cleanLikes();
+		//cleanViewed();
 		
-		geocodeAddr();
+		//System.out.println("Total user: " + userTotal);
+		//System.out.println("Total seller: " + sellerTotal);
+		//System.out.println("Total buyer: " + buyerTotal);
+		//System.out.println("Total house: " + houseTotal);
+		//System.out.println("Total viewed: " + viewedTotal);
+		//System.out.println("Total likes: " + likesTotal);
+		
+		//geocodeAddr();
+		addLikes();
+		addViewed();
 	}
 	
 	static void cleanHouse() throws FileNotFoundException, IOException {
@@ -368,7 +369,7 @@ public class DataCleaner {
 		currentFinished = 0;
 		currentTotal = (int)(131000);
 		progressBar = Executors.newSingleThreadScheduledExecutor();
-		progressBar.scheduleAtFixedRate(new ProgressBar("House"), 0, 300, TimeUnit.MILLISECONDS);
+		progressBar.scheduleAtFixedRate(new ProgressBar("Geocoding"), 0, 300, TimeUnit.MILLISECONDS);
 		
 		boolean reachLimit = false;
 		
@@ -422,6 +423,159 @@ public class DataCleaner {
 		
 		progressBar.shutdown();
 		System.out.println();
+	}
+	
+	static void addLikes() throws IOException {
+		Reader likes_in = new FileReader("likes_1.csv");
+		CSVParser csvParser_likes = new CSVParser(likes_in, CSVFormat.DEFAULT);
+		Reader buyer_in = new FileReader("buyer.csv");
+		CSVParser csvParser_buyer = new CSVParser(buyer_in, CSVFormat.DEFAULT);
+		Reader house_in = new FileReader("house.csv");
+		CSVParser csvParser_house = new CSVParser(house_in, CSVFormat.DEFAULT);
+		BufferedWriter writer = Files.newBufferedWriter(Paths.get("likes_2.csv"));
+		CSVPrinter csvPrinter = new CSVPrinter(writer, CSVFormat.DEFAULT.withHeader("u_id", "h_id"));
+		
+		Random random = new Random();
+		
+		int total = 0;
+		int target = 400000;
+		
+		currentFinished = 0;
+		currentTotal = target;
+		progressBar = Executors.newSingleThreadScheduledExecutor();
+		progressBar.scheduleAtFixedRate(new ProgressBar("Add Likes"), 0, 300, TimeUnit.MILLISECONDS);
+		
+		ArrayList<Pair<String, String>> likes = new ArrayList<Pair<String, String>>();
+		ArrayList<String> buyers = new ArrayList<String>();
+		ArrayList<String> houses = new ArrayList<String>();
+		
+		for (CSVRecord record : csvParser_buyer) {
+			if(record.getRecordNumber() == 1)
+				continue;
+			buyers.add(record.get(0));
+		}
+		
+		for (CSVRecord record : csvParser_house) {
+			if(record.getRecordNumber() == 1)
+				continue;
+			houses.add(record.get(0));
+		}
+		
+		for (CSVRecord record : csvParser_likes) {
+			if(record.getRecordNumber() == 1)
+				continue;
+			likes.add(new Pair<String, String>(record.get(0), record.get(1)));
+			//csvPrinter.printRecord(record.get(0), record.get(1));
+			//total++;
+		}
+		
+		for(int i = 0; i < target; i++) {
+			String uid = buyers.get(random.nextInt(buyers.size()));
+			String hid = houses.get(random.nextInt(houses.size()));
+			Pair<String, String> like = new Pair<String, String>(uid, hid);
+			if(!likes.contains(like)) {
+				likes.add(like);
+				csvPrinter.printRecord(uid, hid);
+				total++;
+			}
+			currentFinished++;
+		}
+		
+		csvPrinter.flush();
+		csvParser_likes.close();
+		csvParser_buyer.close();
+		csvParser_house.close();
+		csvPrinter.close();
+		
+		progressBar.shutdown();
+		System.out.println("\nTotal likes: " + total);
+	}
+	
+	static void addViewed() throws IOException {
+		Reader viewed_in = new FileReader("viewed_1.csv");
+		CSVParser csvParser_viewed = new CSVParser(viewed_in, CSVFormat.DEFAULT);
+		Reader user_in = new FileReader("user.csv");
+		CSVParser csvParser_user = new CSVParser(user_in, CSVFormat.DEFAULT);
+		Reader house_in = new FileReader("house.csv");
+		CSVParser csvParser_house = new CSVParser(house_in, CSVFormat.DEFAULT);
+		BufferedWriter writer = Files.newBufferedWriter(Paths.get("viewed_2.csv"));
+		CSVPrinter csvPrinter = new CSVPrinter(writer, CSVFormat.DEFAULT.withHeader("u_id", "h_id", "time"));
+		
+		Random random = new Random();
+		
+		int total = 0;
+		int target = 500000;
+		
+		currentFinished = 0;
+		currentTotal = target;
+		progressBar = Executors.newSingleThreadScheduledExecutor();
+		progressBar.scheduleAtFixedRate(new ProgressBar("Add Viewed"), 0, 300, TimeUnit.MILLISECONDS);
+		
+		ArrayList<ArrayList<String>> viewed = new ArrayList<ArrayList<String>>();
+		ArrayList<String> users = new ArrayList<String>();
+		ArrayList<String> houses = new ArrayList<String>();
+		
+		for (CSVRecord record : csvParser_user) {
+			if(record.getRecordNumber() == 1)
+				continue;
+			users.add(record.get(0));
+		}
+		
+		for (CSVRecord record : csvParser_house) {
+			if(record.getRecordNumber() == 1)
+				continue;
+			houses.add(record.get(0));
+		}
+		
+		for (CSVRecord record : csvParser_viewed) {
+			if(record.getRecordNumber() == 1)
+				continue;
+			ArrayList<String> data = new ArrayList<String>();
+			data.add(record.get(0));
+			data.add(record.get(1));
+			data.add(record.get(2));
+			viewed.add(data);
+			//csvPrinter.printRecord(record.get(0), record.get(1), record.get(2));
+			//total++;
+		}
+		
+		for(int i = 0; i < target; i++) {
+			String uid = users.get(random.nextInt(users.size()));
+			String hid = houses.get(random.nextInt(houses.size()));
+			
+			LocalDateTime date = null;
+			boolean valid = true;
+			do {
+				try {
+					date = LocalDateTime.of(2018, 12, 31, 23, 59, 59).minusYears(random.nextInt(5)).minusMonths(random.nextInt(12)).minusDays(random.nextInt(31));
+				}
+				catch(DateTimeException | IllegalArgumentException e) {
+					valid = false;
+				}
+			} while(!valid);
+			
+			String time = date.toString().substring(0, 10);
+			
+			ArrayList<String> view = new ArrayList<String>();
+			view.add(uid);
+			view.add(hid);
+			view.add(time);
+			if(!viewed.contains(view)) {
+				viewed.add(view);
+				csvPrinter.printRecord(uid, hid, time);
+				total++;
+			}
+			currentFinished++;
+		}
+		
+		csvPrinter.flush();
+		csvParser_viewed.close();
+		csvParser_user.close();
+		csvParser_house.close();
+		csvPrinter.close();
+		
+		progressBar.shutdown();
+		System.out.println("\nTotal viewed: " + total);
 	}
 	
 	private static class ProgressBar implements Runnable {

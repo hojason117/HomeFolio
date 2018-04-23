@@ -28,7 +28,26 @@ create table seller (
 create table house(
     h_id                varchar2(50)    primary key,
     u_id                varchar2(50)    references seller(u_id),
-    address             varchar2(100)   not null,
+    /*address             varchar2(100)   not null,*/
+    bathroomCnt         number(3)       not null,
+    bedroomCnt          number(3)       not null,
+    buildingQualityID   number(2)       not null,
+    livingAreaSize      number(10)      not null,
+    latitude            number(10, 6)   not null,
+    longitude           number(10, 6)   not null,
+    lotSize             number(10)      not null,
+    cityID              number(10)      not null,
+    county              varchar(30)     not null,
+    zip                 number(5)       not null,
+    yearBuilt           number(4)       not null,
+    storyNum            number(3)       not null,
+    price               number(10)      not null,
+    tax                 number(10, 2)   not null);
+
+create table bought_house(
+    h_id                varchar2(50)    primary key,
+    u_id                varchar2(50)    references CHHO.buyer(u_id),
+    /*address             varchar2(100)   not null,*/
     bathroomCnt         number(3)       not null,
     bedroomCnt          number(3)       not null,
     buildingQualityID   number(2)       not null,
@@ -65,6 +84,13 @@ create table viewed(
     
     constraint viewed_id primary key (u_id, h_id));
 
+create table viewed(
+    u_id    varchar2(50)    references CHHO.acc_user(u_id),
+    h_id    varchar2(50)    references CHHO.house(h_id),
+    time    date            not null,
+    
+    constraint viewed_id primary key (u_id, h_id));
+
 /*-------------------------------------------------------------*/
 
 grant ALL PRIVILEGES on acc_user to FANG, TIANYU, CWEI;
@@ -74,6 +100,8 @@ grant ALL PRIVILEGES on house to FANG, TIANYU, CWEI;
 grant ALL PRIVILEGES on likes to FANG, TIANYU, CWEI;
 grant ALL PRIVILEGES on seller to FANG, TIANYU, CWEI;
 grant ALL PRIVILEGES on viewed to FANG, TIANYU, CWEI;
+grant ALL PRIVILEGES on bought_house to CHHO, TIANYU, CWEI;
+grant ALL PRIVILEGES on viewed to CHHO, TIANYU, CWEI;
 
 /*-------------------------------------------------------------*/   
 
@@ -138,36 +166,51 @@ FROM
 		FROM house 
 		WHERE latitude < &var1 and latitude > &var2 and longitude < &var3 and longitude > &var4)
 		NATURAL JOIN
-		viewed
+		(SELECT * FROM viewed
+		UNION
+		SELECT * FROM FANG.viewed)
 	GROUP BY h_id, latitude, longitude
 	ORDER BY num DESC)
 WHERE ROWNUM <= &var5
 
 /* GetTupleCount */
 SELECT COUNT(*)
-FROM acc_user;
+FROM acc_user
 
 SELECT COUNT(*)
-FROM buyer;
+FROM buyer
 
 SELECT COUNT(*)
-FROM seller;
+FROM seller
 
 SELECT COUNT(*)
-FROM comments;
+FROM house
 
 SELECT COUNT(*)
-FROM house;
+FROM viewed
+
+SELECT COUNT(*) 
+FROM FANG.viewed
 
 SELECT COUNT(*)
-FROM viewed;
+FROM likes
 
-SELECT COUNT(*)
-FROM likes;
+SELECT COUNT(*) 
+FROM FANG.bought_house
+
+/* DeleteHouse */
+DELETE FROM viewed WHERE h_id = &var1
+DELETE FROM FANG.viewed WHERE h_id = &var1
+DELETE FROM likes WHERE h_id = &var1
+DELETE FROM house WHERE h_id = &var1
 
 /* BuyHouse */
 DELETE FROM viewed WHERE h_id = &var1
+DELETE FROM FANG.viewed WHERE h_id = &var1
 DELETE FROM likes WHERE h_id = &var1
+SELECT * FROM house WHERE h_id = &var1
+INSERT INTO FANG.bought_house VALUES (&var1, &var2, &var3, &var4, &var5, &var6, &var7, &var8, 
+	&var9, &var10, &var11, &var12, &var13, &var14, &var15, &var16)
 DELETE FROM house WHERE h_id = &var1
 
 /* SearchHouse */
@@ -186,7 +229,12 @@ SELECT h_id, latitude, longitude FROM house WHERE u_id = &var1
 SELECT house.h_id, latitude, longitude FROM house, likes WHERE house.h_id = likes.h_id and likes.u_id = &var1
 
 /* FetchViewedHouse */
-SELECT house.h_id, latitude, longitude, time FROM house, viewed WHERE house.h_id = viewed.h_id and viewed.u_id = &var1
+SELECT house.h_id, latitude, longitude, time
+FROM (SELECT * FROM viewed 
+	 union 
+	 SELECT * FROM FANG.viewed) v,
+	 house 
+WHERE house.h_id = v.h_id and v.u_id = &var1
 
 /* Sell */
 INSERT INTO house VALUES (&var1, &var2, &var3, &var4, &var5, &var6, &var7, &var8, &var9, &var10, &var11, &var12, &var13, &var14, &var15, &var16)
@@ -205,10 +253,17 @@ DELETE FROM likes WHERE u_id = &var1 and h_id = &var2
 SELECT u_id FROM likes WHERE h_id = &var1
 
 /* FetchViewedUser */
-SELECT u_id FROM viewed WHERE h_id = &var1
+SELECT u_id
+FROM (SELECT * FROM viewed
+	 UNION
+	 SELECT * FROM FANG.viewed)
+WHERE h_id = &var1
 
 /* AddViewed */
 INSERT INTO viewed VALUES(&var1, &var2, to_date(&var3,'YYYY-MM-DD'))
+
+/* FetchBoughtHouse */
+SELECT h_id, latitude, longitude FROM FANG.bought_house WHERE u_id = &var1
 
 
 /*************************************************************************************************************************/
