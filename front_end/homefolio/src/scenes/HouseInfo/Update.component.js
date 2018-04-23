@@ -10,8 +10,8 @@ import { InputLabel, InputAdornment } from 'material-ui/Input';
 import { FormControl } from 'material-ui/Form';
 import Dialog, { DialogActions, DialogContent, DialogTitle } from 'material-ui/Dialog';
 import HouseService from '../../services/house.service';
-import { updateDialogToggled } from '../../redux/actions/main';
-import { withRouter } from 'react-router'
+import { houseUpdateDialogToggled } from '../../redux/actions/main';
+import Snackbar from 'material-ui/Snackbar';
 
 const styles = theme => ({
     container: {
@@ -50,18 +50,15 @@ const styles = theme => ({
     },
     flex: {
         flex: 1,
-    },
-    chip: {
-        margin: theme.spacing.unit / 2,
     }
 });
 
 const mapStateToProps = state => {
-    return { updateDialogOpen: state.updateDialogOpen };
+    return { houseUpdateDialogOpen: state.houseUpdateDialogOpen };
 }
 
 const mapDispatchToProps = dispatch => {
-    return { updateDialogToggled: newBound => dispatch(updateDialogToggled()) };
+    return { houseUpdateDialogToggled: newBound => dispatch(houseUpdateDialogToggled()) };
 };
 
 class Update extends React.Component {
@@ -80,19 +77,20 @@ class Update extends React.Component {
             livingArea: '',
             lotSize: '',
             yearBuilt: '',
-            dialogOpen: props.updateDialogOpen,
+            dialogOpen: props.houseUpdateDialogOpen,
+            snackbarOpen: false
         }
     }
 
     componentWillReceiveProps(nextProps) {
-        this.setState({ dialogOpen: nextProps.updateDialogOpen });
+        this.setState({ dialogOpen: nextProps.houseUpdateDialogOpen });
     }
     
     handleSubmit = async () => {
         if (this.state.addr !== '' && this.state.zip !== '' && this.state.price !== '' && this.state.tax !== '' && this.state.bedroomCnt !== '' && 
             this.state.bathroomCnt !== '' && this.state.buildingQuality !== '' && this.state.story !== '' && this.state.livingArea !== '' && 
             this.state.lotSize !== '' && this.state.yearBuilt !== '') {
-            this.props.updateDialogToggled();
+            this.props.houseUpdateDialogToggled();
 
             var lat, lng;
             await this.service.getHouseLatLng(this.state.addr).then((result) => { lat = result.lat; lng = result.lng });
@@ -100,7 +98,7 @@ class Update extends React.Component {
             this.service.updateHouseInfo(this.props.h_id, parseInt(this.state.bathroomCnt, 10), parseInt(this.state.bedroomCnt, 10), this.state.buildingQuality, 
             parseInt(this.state.livingArea, 10), lat, lng, parseInt(this.state.lotSize, 10), parseInt(this.state.zip, 10), parseInt(this.state.story, 10), 
             parseInt(this.state.price, 10), parseInt(this.state.yearBuilt, 10), parseInt(this.state.tax, 10))
-                .then(() => alert('Your house is updated!!'));
+                .then(() => this.setState({ snackbarOpen: true }));
 
             this.handleReset();
         }
@@ -129,6 +127,16 @@ class Update extends React.Component {
 
         return (
             <div className={classes.root}>
+                <Snackbar
+                    anchorOrigin={{ vertical: 'top', horizontal: 'right' }}
+                    open={this.state.snackbarOpen}
+                    onClose={() => this.setState({ snackbarOpen: false })}
+                    autoHideDuration={5000}
+                    SnackbarContentProps={{
+                        'aria-describedby': 'message-id',
+                    }}
+                    message={<span id="message-id">Your house is updated!!</span>}
+                />
                 <Dialog
                     disableBackdropClick
                     disableEscapeKeyDown
@@ -284,7 +292,7 @@ class Update extends React.Component {
                         </form>
                     </DialogContent>
                     <DialogActions>
-                        <Button onClick={() => this.props.updateDialogToggled()} color="primary">
+                        <Button onClick={() => this.props.houseUpdateDialogToggled()} color="primary">
                             Cancel
                         </Button>
                         <Button
@@ -314,4 +322,4 @@ Update.propTypes = {
     classes: PropTypes.object.isRequired,
 };
 
-export default connect(mapStateToProps, mapDispatchToProps)(withRouter((withStyles(styles)(Update))));
+export default connect(mapStateToProps, mapDispatchToProps)((withStyles(styles)(Update)));

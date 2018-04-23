@@ -128,6 +128,34 @@ class UserService {
 
         return houses;
     }
+
+    updateUserInfo = async (username, password, age, area, bio) => {
+        try {
+            const response = await Axios.post('/updateUserInfo',
+                {
+                    username: username,
+                    password: password,
+                    age: age,
+                    area: area,
+                    bio: bio
+                },
+                {
+                    baseURL: this.baseUrl,
+                    headers: { 'Authorization': 'Bearer ' + localStorage.getItem('auth_token') }
+                })
+            if (response.status !== 200)
+                console.log('Unexpected response code: ' + response.status);
+        }
+        catch (error) {
+            if (error.request) {
+                console.log('No response from server.');
+                console.log(error.request);
+            }
+            else
+                console.log(error.message);
+            throw error;
+        }
+    }
 }
 
 export default UserService;

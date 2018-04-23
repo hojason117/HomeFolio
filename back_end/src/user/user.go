@@ -241,7 +241,7 @@ func (h *Handler) UpdateUserInfo(c echo.Context) (err error) {
 	userC.fillD(userD)
 
 	stmt, err := h.db.Prepare("UPDATE acc_user SET username = &var1, password = &var2, age = &var3, area = &var4, bio = &var5 WHERE u_id = &var6")
-	_, err = stmt.Exec(userD.Username, userD.Password, userD.Age, userD.Area, userD.Bio, userD.UID)
+	_, err = stmt.Exec(userD.Username, userD.Password, userD.Age, userD.Area, userD.Bio, uid)
 	if err != nil {
 		return err
 	}
