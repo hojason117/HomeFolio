@@ -233,11 +233,6 @@ func (h *Handler) GetTupleCount(c echo.Context) (err error) {
 	if err != nil {
 		return err
 	}
-	comments := 0
-	err = h.db.QueryRow("SELECT COUNT(*) FROM comments").Scan(&comments)
-	if err != nil {
-		return err
-	}
 	house := 0
 	err = h.db.QueryRow("SELECT COUNT(*) FROM house").Scan(&house)
 	if err != nil {
@@ -259,7 +254,7 @@ func (h *Handler) GetTupleCount(c echo.Context) (err error) {
 	}
 
 	result := new(Count)
-	result.Count = accUser + buyer + seller + comments + house + viewed + likes
+	result.Count = accUser + buyer + seller + house + viewed + likes
 
 	return c.JSON(http.StatusOK, result)
 }

@@ -1,6 +1,6 @@
 import React from 'react';
 import { connect } from "react-redux";
-import { updateDialogToggled } from '../../redux/actions/main';
+import { houseUpdateDialogToggled } from '../../redux/actions/main';
 import PropTypes from 'prop-types';
 import { withStyles } from 'material-ui/styles';
 import Update from './Update.component';
@@ -71,11 +71,11 @@ const styles = theme => ({
 });
 
 const mapStateToProps = state => {
-    return { updateDialogOpen: state.updateDialogOpen };
+    return { houseUpdateDialogOpen: state.houseUpdateDialogOpen };
 }
 
 const mapDispatchToProps = dispatch => {
-    return { updateDialogToggled: newBound => dispatch(updateDialogToggled()) };
+    return { houseUpdateDialogToggled: newBound => dispatch(houseUpdateDialogToggled()) };
 };
 
 class HouseInfo extends React.Component {
@@ -153,8 +153,8 @@ class HouseInfo extends React.Component {
     }
 
     componentWillReceiveProps = async (nextProps) => {
-        if (nextProps.updateDialogOpen !== this.props.updateDialogOpen) {
-            await this.houseService.fetchHouseInfo(this.props.match.params['h_id']).then((result) => { this.setState({ info: result }) });
+        if (nextProps.houseUpdateDialogOpen !== this.props.houseUpdateDialogOpen) {
+            await setTimeout(() => this.houseService.fetchHouseInfo(this.props.match.params['h_id']).then((result) => { this.setState({ info: result }) }), 1500);
             this.houseService.getHouseAddress(this.state.info.latitude, this.state.info.longitude).then((result) => { this.setState({ addr: result }) });
         }
     }
@@ -191,7 +191,7 @@ class HouseInfo extends React.Component {
                 {this.state.info.u_id === localStorage.getItem('u_id') &&
                     <div>
                         <Tooltip id="tooltip-fab" title="Edit House">
-                            <Button variant="fab" mini aria-label="edit" className={classes.button} onClick={() => this.props.updateDialogToggled()} >
+                            <Button variant="fab" mini aria-label="edit" className={classes.button} onClick={() => this.props.houseUpdateDialogToggled()} >
                                 <EditIcon/>
                             </Button>
                         </Tooltip>

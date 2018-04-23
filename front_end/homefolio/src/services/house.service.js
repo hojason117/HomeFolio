@@ -72,6 +72,8 @@ class HouseService {
             const response = await Axios.get('https://maps.googleapis.com/maps/api/geocode/json?latlng=' + lat + ',' + lng + '&key=AIzaSyAHbTvrtAr7iIMx0ZHhwwB3RqgWpRy4fvs')
             if (response.status === 200) {
                 addr = response.data.results[0].formatted_address;
+                if(response.data.status !== 'OK')
+                    addr = '2800 Southwest 35th Place, Gainesville, FL';
             }
             else
                 console.log('Unexpected response code: ' + response.status);

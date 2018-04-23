@@ -1,4 +1,5 @@
 import React from 'react';
+import { connect } from "react-redux";
 import PropTypes from 'prop-types';
 import { withStyles } from 'material-ui/styles';
 import NavBar from '../../components/NavBar/NavBar.component';
@@ -17,15 +18,16 @@ import bluegrey from 'material-ui/colors/blueGrey';
 import HomeIcon from '@material-ui/icons/Home';
 import List, { ListItem, ListItemText } from 'material-ui/List';
 import { Link } from 'react-router-dom';
-
-/*select h.* from CHHO.ACC_USER a, CHHO.HOUSE h
-where a.U_ID = h.U_ID and a.U_ID = '93cd56c2-d02c-4d3d-9a7a-abdbc510bb2c';
-
-select h.* from CHHO.ACC_USER a, CHHO.HOUSE h, CHHO.LIKES l
-where a.U_ID = l.U_ID and l.H_ID = h.H_ID
-and a.U_ID = 'b7771ed7-1484-4a1e-a867-8cbc34201a83'; */
+import { userUpdateDialogToggled } from '../../redux/actions/main';
+import Update from './Update.component';
+import Button from 'material-ui/Button';
+import EditIcon from '@material-ui/icons/Edit';
+import Tooltip from 'material-ui/Tooltip';
 
 const styles = theme => ({
+    button: {
+        margin: theme.spacing.unit,
+    },
     card: {
         width: '50%',
         margin: '0 auto',
@@ -48,6 +50,14 @@ const styles = theme => ({
         color: bluegrey[300],
     },
 });
+
+const mapStateToProps = state => {
+    return { userUpdateDialogOpen: state.userUpdateDialogOpen };
+}
+
+const mapDispatchToProps = dispatch => {
+    return { userUpdateDialogToggled: newBound => dispatch(userUpdateDialogToggled()) };
+};
 
 class HouseListItem extends React.Component {
     constructor(props) {
@@ -107,6 +117,11 @@ class UserInfo extends React.Component {
         this.userService.fetchViewedHouse(this.state.userinfo.u_id).then(result => this.setState({ viewedList: result }));
     }
 
+    componentWillReceiveProps = (nextProps) => {
+        if (nextProps.userUpdateDialogOpen !== this.props.userUpdateDialogOpen)
+            setTimeout(() => this.userService.fetchUserInfo(this.props.match.params['u_id']).then(result => this.setState({ userinfo: result })), 1500);
+    }
+
     render() {
         const { classes } = this.props;
         const { expanded } = this.state;
@@ -114,6 +129,15 @@ class UserInfo extends React.Component {
         return (
             <div>
                 <NavBar />
+                <Update />
+                {this.state.userinfo.u_id === localStorage.getItem('u_id') &&
+                    <Tooltip id="tooltip-fab" title="Edit Profile">
+                        <Button variant="fab" mini aria-label="edit" className={classes.button} onClick={() => this.props.userUpdateDialogToggled()} >
+                            <EditIcon />
+                        </Button>
+                    </Tooltip>
+                }
+
                 <Card className={classes.card}>
                     <CardHeader
                         avatar={
@@ -128,7 +152,7 @@ class UserInfo extends React.Component {
                         <Typography paragraph>Contact Email: {this.state.userinfo.email}</Typography>
                         <Typography paragraph>Age: {this.state.userinfo.age}</Typography>
                         <Typography paragraph>Area: {this.state.userinfo.area}</Typography>
-                        <Typography paragraph>Introduction: </Typography>
+                        <Typography paragraph>Biography: </Typography>
                         {this.state.userinfo.bio !== '' ?  
                             <Typography>{this.state.userinfo.bio}</Typography> : 
                             <Typography variant="caption">(This user hasn't written anything yet.)</Typography>}
@@ -196,4 +220,4 @@ UserInfo.propTypes = {
     classes: PropTypes.object.isRequired,
 };
 
-export default withStyles(styles)(UserInfo);
+export default connect(mapStateToProps, mapDispatchToProps)(withStyles(styles)(UserInfo));
