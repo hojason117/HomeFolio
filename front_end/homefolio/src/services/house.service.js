@@ -356,6 +356,129 @@ class HouseService {
             throw error;
         }
     }
+
+    addLike = async (u_id, h_id) => {
+        try {
+            const response = await Axios.post('/like',
+                {
+                    u_id: u_id,
+                    h_id: h_id
+                },
+                {
+                    baseURL: this.baseUrl,
+                    headers: { 'Authorization': 'Bearer ' + localStorage.getItem('auth_token') }
+                })
+            if (response.status !== 201)
+                console.log('Unexpected response code: ' + response.status);
+        }
+        catch (error) {
+            if (error.request) {
+                console.log('No response from server.');
+                console.log(error.request);
+            }
+            else
+                console.log(error.message);
+        }
+    }
+
+    removeLike = async (u_id, h_id) => {
+        try {
+            const response = await Axios.delete('/unlike/' + u_id + ',' + h_id,
+                {
+                    baseURL: this.baseUrl,
+                    headers: { 'Authorization': 'Bearer ' + localStorage.getItem('auth_token') }
+                })
+            if (response.status !== 204)
+                console.log('Unexpected response code: ' + response.status);
+        }
+        catch (error) {
+            if (error.request) {
+                console.log('No response from server.');
+                console.log(error.request);
+            }
+            else
+                console.log(error.message);
+        }
+    }
+
+    fetchLikedUser = async (h_id) => {
+        var users = [];
+        try {
+            const response = await Axios.get('houseInfo/likedUsers/' + h_id,
+                {
+                    baseURL: this.baseUrl,
+                    headers: { 'Authorization': 'Bearer ' + localStorage.getItem('auth_token') }
+                })
+            if (response.status === 200) {
+                if(response.data)
+                    users = response.data;
+            }
+            else
+                console.log('Unexpected response code: ' + response.status);
+        }
+        catch (error) {
+            if (error.request) {
+                console.log('No response from server.');
+                console.log(error.request);
+            }
+            else
+                console.log(error.message);
+        }
+
+        return users;
+    }
+
+    fetchViewededUser = async (h_id) => {
+        var users = [];
+        try {
+            const response = await Axios.get('houseInfo/viewedUsers/' + h_id,
+                {
+                    baseURL: this.baseUrl,
+                    headers: { 'Authorization': 'Bearer ' + localStorage.getItem('auth_token') }
+                })
+            if (response.status === 200) {
+                if (response.data)
+                    users = response.data;
+            }
+            else
+                console.log('Unexpected response code: ' + response.status);
+        }
+        catch (error) {
+            if (error.request) {
+                console.log('No response from server.');
+                console.log(error.request);
+            }
+            else
+                console.log(error.message);
+        }
+
+        return users;
+    }
+
+    addViewed = async (u_id, h_id, time) => {
+        try {
+            const response = await Axios.post('/viewed',
+                {
+                    u_id: u_id,
+                    h_id: h_id,
+                    time: time
+                },
+                {
+                    baseURL: this.baseUrl,
+                    headers: { 'Authorization': 'Bearer ' + localStorage.getItem('auth_token') }
+                })
+            if (response.status !== 201)
+                console.log('Unexpected response code: ' + response.status);
+        }
+        catch (error) {
+            if (error.request) {
+                console.log('No response from server.');
+                console.log(error.request);
+            }
+            else
+                console.log(error.message);
+        }
+    }
 }
 
 export default HouseService;

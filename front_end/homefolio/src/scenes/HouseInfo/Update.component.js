@@ -11,6 +11,7 @@ import { FormControl } from 'material-ui/Form';
 import Dialog, { DialogActions, DialogContent, DialogTitle } from 'material-ui/Dialog';
 import HouseService from '../../services/house.service';
 import { updateDialogToggled } from '../../redux/actions/main';
+import { withRouter } from 'react-router'
 
 const styles = theme => ({
     container: {
@@ -313,4 +314,4 @@ Update.propTypes = {
     classes: PropTypes.object.isRequired,
 };
 
-export default connect(mapStateToProps, mapDispatchToProps)((withStyles(styles)(Update)));
+export default connect(mapStateToProps, mapDispatchToProps)(withRouter((withStyles(styles)(Update))));
