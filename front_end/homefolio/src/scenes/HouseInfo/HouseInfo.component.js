@@ -115,7 +115,9 @@ class HouseInfo extends React.Component {
             },
             addr: '',
             deleteDialogOpen: false,
-            liked: false
+            liked: false,
+            likesCount: 0,
+            viewedCount: 0
         }
     }
 
@@ -143,6 +145,13 @@ class HouseInfo extends React.Component {
         this.houseService.deleteHouse(this.state.info.h_id).then(this.props.history.replace('/home'));
     }
 
+    handleLikeUnlike = (like) => {
+        if(like)
+            this.houseService.addLike(localStorage.getItem("u_id"), this.state.info.h_id).then(this.setState({ liked: true, likesCount: this.state.likesCount + 1 }));
+        else
+            this.houseService.removeLike(localStorage.getItem("u_id"), this.state.info.h_id).then(this.setState({ liked: false, likesCount: this.state.likesCount - 1 }));
+    }
+
     componentWillReceiveProps = async (nextProps) => {
         if (nextProps.updateDialogOpen !== this.props.updateDialogOpen) {
             await this.houseService.fetchHouseInfo(this.props.match.params['h_id']).then((result) => { this.setState({ info: result }) });
@@ -154,6 +163,22 @@ class HouseInfo extends React.Component {
         await this.houseService.fetchHouseInfo(this.props.match.params['h_id']).then((result) => {this.setState({ info: result })});
         this.houseService.getHouseAddress(this.state.info.latitude, this.state.info.longitude).then((result) => {this.setState({ addr: result })});
         this.userService.fetchUserInfo(this.state.info.u_id).then((result) => {this.setState({ userinfo: result })});
+
+        var likedHouses = [];
+        await this.userService.fetchLikedHouse(localStorage.getItem("u_id")).then(houses => likedHouses = houses);
+        var liked = false;
+        for(var index in likedHouses) {
+            if(likedHouses[index].h_id === this.state.info.h_id)
+                liked = true;
+        }
+        this.setState({ liked: liked });
+
+        this.houseService.fetchLikedUser(this.state.info.h_id).then(users => this.setState({ likesCount: users.length }));
+        this.houseService.fetchViewededUser(this.state.info.h_id).then(users => this.setState({ viewedCount: users.length }));
+
+        var timestamp = new Date();
+        var time = (timestamp.getFullYear() + '-' + (timestamp.getMonth()+1) + '-' + timestamp.getDate());
+        this.houseService.addViewed(localStorage.getItem("u_id"), this.state.info.h_id, time);
     }
 
     render() {
@@ -240,12 +265,14 @@ class HouseInfo extends React.Component {
                     </CardContent>
 
                     <CardActions className={classes.actions} disableActionSpacing>
-                        <IconButton aria-label="Add to favorites" onClick={() => this.setState({ liked: !this.state.liked }) } >
+                        <IconButton aria-label="Add to favorites" onClick={() => this.handleLikeUnlike(!this.state.liked) } >
                             {this.state.liked ? <FavoriteIcon /> : <FavoriteBorderIcon />}
                         </IconButton>
-                        <IconButton aria-label="Viewed">
+                        <Typography variant="caption">{this.state.likesCount}</Typography>
+                        <IconButton aria-label="Viewed" disabled >
                             <VisibilityIcon />
                         </IconButton>
+                        <Typography variant="caption">{this.state.viewedCount}</Typography>
                         <IconButton
                             className={classnames(classes.expand, {
                                 [classes.expandOpen]: this.state.expanded,

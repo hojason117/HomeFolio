@@ -56,6 +56,11 @@ func NewServer(h *handler.Handler) (e *echo.Echo) {
 	e.GET("/api/v1/userInfo/viewedHouses/:uid", h.UserHandler.FetchViewedHouse)
 	e.POST("/api/v1/sell", h.HouseHandler.Sell)
 	e.POST("/api/v1/updateHouseInfo/:hid", h.HouseHandler.UpdateHouseInfo)
+	e.POST("/api/v1/like", h.HouseHandler.AddLike)
+	e.DELETE("/api/v1/unlike/:uidhid", h.HouseHandler.RemoveLike)
+	e.GET("/api/v1/houseInfo/likedUsers/:hid", h.HouseHandler.FetchLikedUser)
+	e.GET("/api/v1/houseInfo/viewedUsers/:hid", h.HouseHandler.FetchViewedUser)
+	e.POST("/api/v1/viewed", h.HouseHandler.AddViewed)
 
 	return e
 }

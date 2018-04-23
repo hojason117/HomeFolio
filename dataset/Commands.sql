@@ -195,6 +195,21 @@ INSERT INTO house VALUES (&var1, &var2, &var3, &var4, &var5, &var6, &var7, &var8
 UPDATE house SET bathroomCnt = &var1, bedroomCnt = &var2, buildingQualityID = &var3, livingAreaSize = &var4, latitude = &var5, longitude = &var6, 
     lotSize = &var7, zip = &var8, yearBuilt = &var9, storyNum = &var10, price = &var11, tax = &var12 WHERE h_id = &var13
 
+/* AddLike */
+INSERT INTO likes VALUES(&var1, &var2)
+
+/* RemoveLike */
+DELETE FROM likes WHERE u_id = &var1 and h_id = &var2
+
+/* FetchLikedUser */
+SELECT u_id FROM likes WHERE h_id = &var1
+
+/* FetchViewedUser */
+SELECT u_id FROM viewed WHERE h_id = &var1
+
+/* AddViewed */
+INSERT INTO viewed VALUES(&var1, &var2, to_date(&var3,'YYYY-MM-DD'))
+
 
 /*************************************************************************************************************************/
 

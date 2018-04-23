@@ -5,6 +5,7 @@ import (
 	"model"
 	"net/http"
 	"strconv"
+	"strings"
 
 	"github.com/satori/go.uuid"
 
@@ -469,7 +470,123 @@ func (h *Handler) UpdateHouseInfo(c echo.Context) (err error) {
 	return c.NoContent(http.StatusOK)
 }
 
-// Shutdown : Gracefully shutdown user handler.
+// AddLike : Add an entry to the likes table.
+//			URL: "/api/v1/like"
+//			Method: POST
+//			Return 201 Created on success.
+func (h *Handler) AddLike(c echo.Context) (err error) {
+	likes := &model.Likes{}
+	if err = c.Bind(likes); err != nil {
+		return err
+	}
+
+	stmt, err := h.db.Prepare(`INSERT INTO likes VALUES(&var1, &var2)`)
+	_, err = stmt.Exec(likes.UID, likes.HID)
+	if err != nil {
+		return err
+	}
+
+	return c.NoContent(http.StatusCreated)
+}
+
+// RemoveLike : Delete an entry from the likes table.
+//			URL: "/api/v1/unlike/:uidhid"
+//			Method: DELETE
+//			Return 204 No Content on success.
+func (h *Handler) RemoveLike(c echo.Context) (err error) {
+	sep := strings.Index(c.Param("uidhid"), ",")
+	uid := c.Param("uidhid")[:sep]
+	hid := c.Param("uidhid")[sep+1:]
+
+	stmt, err := h.db.Prepare(`DELETE FROM likes WHERE u_id = &var1 and h_id = &var2`)
+	_, err = stmt.Exec(uid, hid)
+	if err != nil {
+		return err
+	}
+
+	return c.NoContent(http.StatusNoContent)
+}
+
+// FetchLikedUser : Return users that liked a specific house.
+//				   URL: "/api/v1/houseInfo/likedUsers/:hid"
+//				   Method: GET
+//				   Return 200 OK on success.
+func (h *Handler) FetchLikedUser(c echo.Context) (err error) {
+	rows, err := h.db.Query("SELECT u_id FROM likes WHERE h_id = &var1", c.Param("hid"))
+	if err != nil {
+		return err
+	}
+	defer rows.Close()
+
+	var users []*string
+
+	for rows.Next() {
+		user := new(string)
+		err = rows.Scan(&user)
+		if err != nil {
+			return err
+		}
+
+		users = append(users, user)
+	}
+	if err = rows.Err(); err != nil {
+		return err
+	}
+
+	return c.JSON(http.StatusOK, users)
+}
+
+// FetchViewedUser : Return users that viewed a specific house.
+//				   URL: "/api/v1/houseInfo/viewedUsers/:hid"
+//				   Method: GET
+//				   Return 200 OK on success.
+func (h *Handler) FetchViewedUser(c echo.Context) (err error) {
+	rows, err := h.db.Query("SELECT u_id FROM viewed WHERE h_id = &var1", c.Param("hid"))
+	if err != nil {
+		return err
+	}
+	defer rows.Close()
+
+	var users []*string
+
+	for rows.Next() {
+		user := new(string)
+		err = rows.Scan(&user)
+		if err != nil {
+			return err
+		}
+
+		users = append(users, user)
+	}
+	if err = rows.Err(); err != nil {
+		return err
+	}
+
+	return c.JSON(http.StatusOK, users)
+}
+
+// AddViewed : Add an entry to the viewed table.
+//			URL: "/api/v1/viewed"
+//			Method: POST
+//			Return 201 Created on success.
+func (h *Handler) AddViewed(c echo.Context) (err error) {
+	viewed := &model.Viewed{}
+	if err = c.Bind(viewed); err != nil {
+		return err
+	}
+
+	stmt, err := h.db.Prepare(`INSERT INTO viewed VALUES(&var1, &var2, to_date(&var3,'YYYY-MM-DD'))`)
+	_, err = stmt.Exec(viewed.UID, viewed.HID, viewed.Time)
+	if err != nil {
+		if err.Error() != "ORA-00001: unique constraint (CHHO.VIEWED_ID) violated\n" {
+			return err
+		}
+	}
+
+	return c.NoContent(http.StatusCreated)
+}
+
+// Shutdown : Gracefully shutdown house handler.
 func (h *Handler) Shutdown() {
 	h.db.Close()
 }
