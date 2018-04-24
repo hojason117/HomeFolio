@@ -24,6 +24,8 @@ import Update from './Update.component';
 import Button from 'material-ui/Button';
 import EditIcon from '@material-ui/icons/Edit';
 import Tooltip from 'material-ui/Tooltip';
+import lightBlue from 'material-ui/colors/lightBlue';
+import deepOrange from 'material-ui/colors/deepOrange';
 
 const styles = theme => ({
     button: {
@@ -50,6 +52,12 @@ const styles = theme => ({
     icon: {
         color: bluegrey[300],
     },
+    popular: {
+        color: lightBlue['A700']
+    },
+    active: {
+        color: deepOrange[500]
+    }
 });
 
 const mapStateToProps = state => {
@@ -104,7 +112,9 @@ class UserInfo extends React.Component {
             sellList: [],
             boughtList: [],
             likedList: [],
-            viewedList: []
+            viewedList: [],
+            popular: false,
+            active: false
         }
     }
 
@@ -118,11 +128,22 @@ class UserInfo extends React.Component {
         this.userService.fetchBoughtHouse(this.state.userinfo.u_id).then(result => this.setState({ boughtList: result }));
         this.userService.fetchLikedHouse(this.state.userinfo.u_id).then(result => this.setState({ likedList: result }));
         this.userService.fetchViewedHouse(this.state.userinfo.u_id).then(result => this.setState({ viewedList: result }));
+        this.userService.isPopular(this.state.userinfo.u_id).then(result => this.setState({ popular: result }));
+        this.userService.isActive(this.state.userinfo.u_id).then(result => this.setState({ active: result }));
     }
 
-    componentWillReceiveProps = (nextProps) => {
+    componentWillReceiveProps = async (nextProps) => {
         if (nextProps.userUpdateDialogOpen !== this.props.userUpdateDialogOpen)
             setTimeout(() => this.userService.fetchUserInfo(this.props.match.params['u_id']).then(result => this.setState({ userinfo: result })), 1500);
+        else if (nextProps.location.pathname !== this.props.location.pathname) {
+            await this.userService.fetchUserInfo(nextProps.match.params['u_id']).then(result => this.setState({ userinfo: result }));
+            this.userService.fetchSellHouse(this.state.userinfo.u_id).then(result => this.setState({ sellList: result }));
+            this.userService.fetchBoughtHouse(this.state.userinfo.u_id).then(result => this.setState({ boughtList: result }));
+            this.userService.fetchLikedHouse(this.state.userinfo.u_id).then(result => this.setState({ likedList: result }));
+            this.userService.fetchViewedHouse(this.state.userinfo.u_id).then(result => this.setState({ viewedList: result }));
+            this.userService.isPopular(this.state.userinfo.u_id).then(result => this.setState({ popular: result }));
+            this.userService.isActive(this.state.userinfo.u_id).then(result => this.setState({ active: result }));
+        }
     }
 
     render() {
@@ -130,16 +151,9 @@ class UserInfo extends React.Component {
         const { expanded } = this.state;
 
         return (
-            <div>
+            <div className={classes.root} >
                 <NavBar />
                 <Update />
-                {this.state.userinfo.u_id === localStorage.getItem('u_id') &&
-                    <Tooltip id="tooltip-fab" title="Edit Profile">
-                        <Button variant="fab" mini aria-label="edit" className={classes.button} onClick={() => this.props.userUpdateDialogToggled()} >
-                            <EditIcon />
-                        </Button>
-                    </Tooltip>
-                }
 
                 <Card className={classes.card}>
                     <CardHeader
@@ -148,8 +162,22 @@ class UserInfo extends React.Component {
                                 {this.state.userinfo.username.charAt(0)}
                             </Avatar>
                         }
-                        title = {this.state.userinfo.username}
-                        subheader = "Basic Information:"
+                        title={<Typography variant='title' >{this.state.userinfo.username}</Typography>}
+                        //subheader = "Basic Information:"
+                        subheader={
+                            <div>
+                                {this.state.popular && <Typography className={classes.popular} >Popular User</Typography>}
+                                {this.state.active && <Typography className={classes.active} >Active User</Typography>}
+                            </div>
+                        }
+                        action={
+                            this.state.userinfo.u_id === localStorage.getItem('u_id') &&
+                                <Tooltip id="tooltip-fab" title="Edit Profile">
+                                    <Button variant="fab" mini aria-label="edit" className={classes.button} onClick={() => this.props.userUpdateDialogToggled()} >
+                                        <EditIcon />
+                                    </Button>
+                                </Tooltip>
+                        }
                     />
                     <CardContent>
                         <Typography paragraph>Contact Email: {this.state.userinfo.email}</Typography>
@@ -195,7 +223,7 @@ class UserInfo extends React.Component {
                                 </List>
                             </ExpansionPanelDetails>
                         </ExpansionPanel>}
-                        <ExpansionPanel expanded={expanded === 'panel3'} onChange={this.handleChange('panel3')}>
+                        {localStorage.getItem('buyer') === 'yes' && <ExpansionPanel expanded={expanded === 'panel3'} onChange={this.handleChange('panel3')}>
                         <ExpansionPanelSummary expandIcon={<ExpandMoreIcon />}>
                             <Typography className={classes.heading}>Houses LIKED</Typography>
                             <Icon className={classes.icon}>
@@ -210,7 +238,7 @@ class UserInfo extends React.Component {
                                     </ListItem>)}
                             </List>
                         </ExpansionPanelDetails>
-                        </ExpansionPanel>
+                        </ExpansionPanel>}
                         <ExpansionPanel expanded={expanded === 'panel4'} onChange={this.handleChange('panel4')}>
                         <ExpansionPanelSummary expandIcon={<ExpandMoreIcon />}>
                             <Typography className={classes.heading}>Houses VIEWED</Typography>

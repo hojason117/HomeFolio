@@ -188,42 +188,6 @@ class HouseInfo extends React.Component {
             <div>
                 <NavBar />
                 <Update h_id={this.state.info.h_id} />
-                {this.state.info.u_id === localStorage.getItem('u_id') &&
-                    <div>
-                        <Tooltip id="tooltip-fab" title="Edit House">
-                            <Button variant="fab" mini aria-label="edit" className={classes.button} onClick={() => this.props.houseUpdateDialogToggled()} >
-                                <EditIcon/>
-                            </Button>
-                        </Tooltip>
-                        <Tooltip id="tooltip-fab" title="Delete House">
-                            <Button variant="fab" mini aria-label="delete" className={classes.button} onClick={() => this.setState({deleteDialogOpen: true })}>
-                                <DeleteIcon />
-                            </Button>
-                        </Tooltip>
-                        <Dialog
-                            open={this.state.deleteDialogOpen}
-                            onClose={() => this.setState({ deleteDialogOpen: false })}
-                            aria-labelledby="alert-dialog-title"
-                            aria-describedby="alert-dialog-description"
-                        >
-                            <DialogTitle id="alert-dialog-title">{"Please confirm"}</DialogTitle>
-                            <DialogContent>
-                                <DialogContentText id="alert-dialog-description">
-                                    Are you sure you want to delete this house?
-                            </DialogContentText>
-                            </DialogContent>
-                            <DialogActions>
-                                <Button onClick={() => this.setState({ deleteDialogOpen: false })} color="primary" autoFocus>
-                                    Cancel
-                                </Button>
-                                <Button onClick={this.handleDelete} color="primary">
-                                    Delete
-                                </Button>
-                            </DialogActions>
-                        </Dialog>
-                    </div>
-                }
-
                 <Card className={classes.card}>
                     <CardHeader
                         avatar={
@@ -232,12 +196,49 @@ class HouseInfo extends React.Component {
                             </Avatar>
                         }
                         action={
-                            <CardActions>
-                                {this.state.userinfo.u_id === '' ? <Button size="small" disabled >CONTACT SELLER</Button> : 
-                                    <Button size="small" onClick={() => this.props.history.push('/userinfo/' + this.state.userinfo.u_id)}>CONTACT SELLER</Button>}
-                            </CardActions>
+                            <div>
+                                <CardActions>
+                                    {this.state.userinfo.u_id === '' ? <Button size="small" disabled >CONTACT SELLER</Button> : 
+                                        <Button size="small" onClick={() => this.props.history.push('/userinfo/' + this.state.userinfo.u_id)}>CONTACT SELLER</Button>}
+                                </CardActions>
+                                {this.state.info.u_id === localStorage.getItem('u_id') &&
+                                    <div>
+                                        <Tooltip id="tooltip-fab" title="Edit House">
+                                            <Button variant="fab" mini aria-label="edit" className={classes.button} onClick={() => this.props.houseUpdateDialogToggled()} >
+                                                <EditIcon />
+                                            </Button>
+                                        </Tooltip>
+                                        <Tooltip id="tooltip-fab" title="Delete House">
+                                            <Button variant="fab" mini aria-label="delete" className={classes.button} onClick={() => this.setState({ deleteDialogOpen: true })}>
+                                                <DeleteIcon />
+                                            </Button>
+                                        </Tooltip>
+                                        <Dialog
+                                            open={this.state.deleteDialogOpen}
+                                            onClose={() => this.setState({ deleteDialogOpen: false })}
+                                            aria-labelledby="alert-dialog-title"
+                                            aria-describedby="alert-dialog-description"
+                                        >
+                                            <DialogTitle id="alert-dialog-title">{"Please confirm"}</DialogTitle>
+                                            <DialogContent>
+                                                <DialogContentText id="alert-dialog-description">
+                                                    Are you sure you want to delete this house?
+                                                </DialogContentText>
+                                            </DialogContent>
+                                            <DialogActions>
+                                                <Button onClick={() => this.setState({ deleteDialogOpen: false })} color="primary" autoFocus>
+                                                    Cancel
+                                                </Button>
+                                                <Button onClick={this.handleDelete} color="secondary">
+                                                    Delete
+                                                </Button>
+                                            </DialogActions>
+                                        </Dialog>
+                                    </div>
+                                }
+                            </div>
                         }
-                        title = {this.state.userinfo.username}
+                        title={<Typography variant='title' >{this.state.userinfo.username}</Typography>}
                         subheader = {this.state.userinfo.email}
                     />
 

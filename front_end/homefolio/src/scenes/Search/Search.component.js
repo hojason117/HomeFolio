@@ -16,6 +16,7 @@ import NavBar from '../../components/NavBar/NavBar.component';
 import Map from '../../scenes/Search/Map.component';
 import SearchList from '../../scenes/Search/SearchList.component';
 import { searchHousesResultChanged, searchConditionChanged } from '../../redux/actions/main';
+import indigo from 'material-ui/colors/indigo';
 
 const styles = theme => ({
     container: {
@@ -41,6 +42,7 @@ const styles = theme => ({
     },
     root: {
         flexGrow: 10,
+        backgroundColor: indigo[50],
     },
     flex: {
         flex: 1,
@@ -65,6 +67,7 @@ class Search extends React.Component {
     constructor(props) {
         super(props);
         this.service = new HouseService();
+        this.searchCount = 15;
 
         var chips = [];
         if (this.props.searchConditions.zip !== '')
@@ -147,7 +150,7 @@ class Search extends React.Component {
         });
 
         this.service.searchHouse(this.state.zip, this.state.minPrice, this.state.maxPrice, this.state.bedroomCnt, this.state.bathroomCnt,
-            this.state.buildingQuality, this.state.story, this.state.livingArea, this.state.lotSize, this.state.yearBuilt, 30)
+            this.state.buildingQuality, this.state.story, this.state.livingArea, this.state.lotSize, this.state.yearBuilt, this.searchCount)
             .then((result) => this.props.searchHousesResultChanged(result));
     }
 
@@ -234,7 +237,7 @@ class Search extends React.Component {
         this.setState({ chipData });
 
         this.service.searchHouse(this.state.zip, this.state.minPrice, this.state.maxPrice, this.state.bedroomCnt, this.state.bathroomCnt,
-            this.state.buildingQuality, this.state.story, this.state.livingArea, this.state.lotSize, this.state.yearBuilt, 30)
+            this.state.buildingQuality, this.state.story, this.state.livingArea, this.state.lotSize, this.state.yearBuilt, this.searchCount)
             .then((result) => this.props.searchHousesResultChanged(result));
     };
 
@@ -517,7 +520,7 @@ class Search extends React.Component {
                         </div>
                     </Grid>
                     <Grid item xs={4}>
-                        <div style={{ height: '75vh' }}>
+                        <div style={{ height: '80vh' }}>
                             <SearchList />
                         </div>
                     </Grid>

@@ -6,6 +6,7 @@ import Button from 'material-ui/Button';
 import AppBar from 'material-ui/AppBar';
 import { withRouter, Link } from 'react-router-dom';
 import PropTypes from 'prop-types';
+import AccountCircle from '@material-ui/icons/AccountCircle';
 
 const styles = theme => ({
     root: {
@@ -60,8 +61,9 @@ const NavBar = (props) => {
                         className={classes.button}
                         color='default'
                         size='large'
-                        component={Link} 
-                        to={"/userinfo/" + localStorage.getItem('u_id')} >
+                        component={Link}
+                        to={'/userinfo/' + localStorage.getItem('u_id')} >
+                        <AccountCircle />
                         My Profile
                     </Button>
                     <SignoutButton />

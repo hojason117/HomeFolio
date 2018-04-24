@@ -9,7 +9,8 @@ import {
     SEARCH_CONDITION_CHANGED,
     SELL_DIALOG_TOGGLED,
     HOUSE_UPDATE_DIALOG_TOGGLED,
-    USER_UPDATE_DIALOG_TOGGLED
+    USER_UPDATE_DIALOG_TOGGLED,
+    SEARCH_MAP_HOVERED_MARKER_CHANGED
 } from "../constants/action-types";
 
 export const addCompareHouses = house => ({ type: ADD_COMPARE_HOUSE, payload: house });
@@ -23,3 +24,4 @@ export const searchConditionChanged = newConditions => ({ type: SEARCH_CONDITION
 export const sellDialogToggled = () => ({ type: SELL_DIALOG_TOGGLED });
 export const houseUpdateDialogToggled = () => ({ type: HOUSE_UPDATE_DIALOG_TOGGLED });
 export const userUpdateDialogToggled = () => ({ type: USER_UPDATE_DIALOG_TOGGLED });
+export const searchMapHoveredMarkerChanged = newHovered => ({ type: SEARCH_MAP_HOVERED_MARKER_CHANGED, payload: newHovered });

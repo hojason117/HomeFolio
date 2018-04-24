@@ -184,6 +184,58 @@ class UserService {
 
         return houses;
     }
+
+    isPopular = async (u_id) => {
+        var popular;
+        try {
+            const response = await Axios.get('/userInfo/isPopular/' + u_id,
+                {
+                    baseURL: this.baseUrl,
+                    headers: { 'Authorization': 'Bearer ' + localStorage.getItem('auth_token') }
+                })
+            if (response.status === 200)
+                popular = response.data.popular;
+            else
+                console.log('Unexpected response code: ' + response.status);
+        }
+        catch (error) {
+            if (error.request) {
+                console.log('No response from server.');
+                console.log(error.request);
+            }
+            else {
+                console.log(error.message);
+            }
+        }
+
+        return popular;
+    }
+
+    isActive = async (u_id) => {
+        var active;
+        try {
+            const response = await Axios.get('/userInfo/isActive/' + u_id,
+                {
+                    baseURL: this.baseUrl,
+                    headers: { 'Authorization': 'Bearer ' + localStorage.getItem('auth_token') }
+                })
+            if (response.status === 200)
+                active = response.data.active;
+            else
+                console.log('Unexpected response code: ' + response.status);
+        }
+        catch (error) {
+            if (error.request) {
+                console.log('No response from server.');
+                console.log(error.request);
+            }
+            else {
+                console.log(error.message);
+            }
+        }
+
+        return active;
+    }
 }
 
 export default UserService;
