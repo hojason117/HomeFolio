@@ -151,7 +151,7 @@ class UserInfo extends React.Component {
         const { expanded } = this.state;
 
         return (
-            <div>
+            <div className={classes.root} >
                 <NavBar />
                 <Update />
 
