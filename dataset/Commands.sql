@@ -265,21 +265,36 @@ INSERT INTO viewed VALUES(&var1, &var2, to_date(&var3,'YYYY-MM-DD'))
 /* FetchBoughtHouse */
 SELECT h_id, latitude, longitude FROM FANG.bought_house WHERE u_id = &var1
 
+/* IsPopularUser */
+SELECT *
+FROM
+	(SELECT count(*) as likecount
+	FROM
+		((SELECT h_id
+		FROM house
+		WHERE u_id = &var1)
+		NATURAL JOIN
+		likes)),
+	(SELECT count(*) as viewcount
+	FROM
+		((SELECT h_id
+		FROM house
+		WHERE u_id = &var1)
+		NATURAL JOIN
+		(SELECT * FROM viewed
+		UNION
+		SELECT * FROM FANG.viewed)))
+
+/* IsActiveUser */
+SELECT count(*)
+FROM (SELECT * FROM viewed
+	 UNION
+	 SELECT * FROM FANG.viewed)
+WHERE u_id = &var1 and time > to_date(&var2,'YYYY-MM-DD')
+
+
 
 /*************************************************************************************************************************/
-
-/* INSERT */
-/* 1. New user sign up */
-/* INSERT INTO CHHO.ACC_USER VALUES ('u_id','email','username','password','age','area','bio');*/
-/* INSERT INTO acc_user VALUES (:var1, :var2, :var3, :var4, :var5, :var6, :var7, :var8) */
-
-
-/* DELETE */
-
-
-/* UPDATE */
-
-
 
 /* SELECT */
 /* 1. Enter house info page, show selected house all the info */
@@ -314,7 +329,7 @@ where t.H_ID = h.H_ID;
 
 /*estimate the price*/
 select AVG(price) from CHHO.HOUSE h, 
-(SElECT livingAreaSize, yearBuilt, zip from CHHO.HOUSE
+(SELECT livingAreaSize, yearBuilt, zip from CHHO.HOUSE
 where 
 CHHO.HOUSE.u_id = '30d41ea8-135a-436b-bff4-794e8d5ebdc3' and 
 livingAreaSize = 2033 and
@@ -331,7 +346,3 @@ Between e.yearBuilt + 5 and e.yearBuilt - 5
 )
 and 
 h.zip = e.zip;
-
-
-
-

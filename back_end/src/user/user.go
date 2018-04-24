@@ -371,8 +371,7 @@ func (h *Handler) FetchViewedHouse(c echo.Context) (err error) {
 //				   Method: GET
 //				   Return 200 OK on success.
 func (h *Handler) FetchBoughtHouse(c echo.Context) (err error) {
-	query :=
-		`SELECT h_id, latitude, longitude FROM FANG.bought_house WHERE u_id = &var1`
+	query := "SELECT h_id, latitude, longitude FROM FANG.bought_house WHERE u_id = &var1"
 	rows, err := h.db.Query(query, c.Param("uid"))
 	if err != nil {
 		return err
@@ -401,6 +400,82 @@ func (h *Handler) FetchBoughtHouse(c echo.Context) (err error) {
 	}
 
 	return c.JSON(http.StatusOK, houses)
+}
+
+// IsPopularUser : Return whether a user is popular.
+//				   URL: "/api/v1/userInfo/isPopular/:uid"
+//				   Method: GET
+//				   Return 200 OK on success.
+func (h *Handler) IsPopularUser(c echo.Context) (err error) {
+	type response struct {
+		Popular bool `json:"popular"`
+	}
+
+	likeCount := 0
+	viewCount := 0
+	query :=
+		`SELECT *
+		FROM
+			(SELECT count(*) as likecount
+			FROM
+				((SELECT h_id
+				FROM house
+				WHERE u_id = &var1)
+				NATURAL JOIN
+				likes)),
+			(SELECT count(*) as viewcount
+			FROM
+				((SELECT h_id
+				FROM house
+				WHERE u_id = &var1)
+				NATURAL JOIN
+				(SELECT * FROM viewed
+				UNION
+				SELECT * FROM FANG.viewed)))`
+	err = h.db.QueryRow(query, c.Param("uid"), c.Param("uid")).Scan(&likeCount, &viewCount)
+	if err != nil {
+		return err
+	}
+
+	res := new(response)
+	if likeCount > 5 || viewCount > 20 {
+		res.Popular = true
+	} else {
+		res.Popular = false
+	}
+
+	return c.JSON(http.StatusOK, res)
+}
+
+// IsActiveUser : Return whether a user is active.
+//				   URL: "/api/v1/userInfo/isActive/:uid"
+//				   Method: GET
+//				   Return 200 OK on success.
+func (h *Handler) IsActiveUser(c echo.Context) (err error) {
+	type response struct {
+		Active bool `json:"active"`
+	}
+
+	viewCount := 0
+	query :=
+		`SELECT count(*)
+		FROM (SELECT * FROM viewed
+			 UNION
+			 SELECT * FROM FANG.viewed)
+		WHERE u_id = &var1 and time > to_date(&var2,'YYYY-MM-DD')`
+	err = h.db.QueryRow(query, c.Param("uid"), time.Now().AddDate(-1, 0, 0).String()[:10]).Scan(&viewCount)
+	if err != nil {
+		return err
+	}
+
+	res := new(response)
+	if viewCount > 5 {
+		res.Active = true
+	} else {
+		res.Active = false
+	}
+
+	return c.JSON(http.StatusOK, res)
 }
 
 func uidFromToken(c echo.Context) string {

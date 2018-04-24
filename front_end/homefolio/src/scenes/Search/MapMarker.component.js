@@ -1,7 +1,7 @@
 import React from 'react';
 import PropTypes from 'prop-types';
 import { connect } from "react-redux";
-import { searchMapFocusedMarkerChanged } from '../../redux/actions/main';
+import { searchMapFocusedMarkerChanged, searchMapHoveredMarkerChanged } from '../../redux/actions/main';
 import { withStyles } from 'material-ui/styles';
 import Typography from 'material-ui/Typography';
 import Button from 'material-ui/Button';
@@ -19,11 +19,17 @@ const styles = theme => ({
 });
 
 const mapStateToProps = state => {
-    return { focus: state.searchMapFocusedMarker };
+    return { 
+        focus: state.searchMapFocusedMarker,
+        hover: state.searchMapHoveredMarker
+    };
 };
 
 const mapDispatchToProps = dispatch => {
-    return { searchMapFocusedMarkerChanged: newFocused => dispatch(searchMapFocusedMarkerChanged(newFocused)) };
+    return { 
+        searchMapFocusedMarkerChanged: newFocused => dispatch(searchMapFocusedMarkerChanged(newFocused)),
+        searchMapHoveredMarkerChanged: newFocused => dispatch(searchMapHoveredMarkerChanged(newFocused))
+    };
 };
 
 class MapMarker extends React.Component {
@@ -57,12 +63,20 @@ class MapMarker extends React.Component {
         this.props.searchMapFocusedMarkerChanged(-1);
     }
 
+    handleMouseOver = () => {
+        this.props.searchMapHoveredMarkerChanged(this.props.listId);
+    }
+
+    handleMouseOut = () => {
+        this.props.searchMapHoveredMarkerChanged(-1);
+    }
+
     render() {
         const { classes } = this.props;
 
         return (
-            <Marker position={this.props.info} onClick={() => this.onClick()} >
-                {this.state.isOpen && <InfoWindow onCloseClick={() => this.onCloseClick()}>
+            <Marker position={this.props.info} onClick={this.onClick} onMouseOver={this.handleMouseOver} onMouseOut={this.handleMouseOut} >
+                {this.state.isOpen && <InfoWindow onCloseClick={this.onCloseClick}>
                     <div>
                         <Typography variant='title' color='inherit' className={classes.flex} >
                             {this.state.addr}

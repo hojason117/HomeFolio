@@ -656,10 +656,10 @@ func (h *Handler) AddViewed(c echo.Context) (err error) {
 		return err
 	}
 
-	stmt, err := h.db.Prepare(`INSERT INTO viewed VALUES(&var1, &var2, to_date(&var3,'YYYY-MM-DD'))`)
+	stmt, err := h.db.Prepare(`INSERT INTO FANG.viewed VALUES(&var1, &var2, to_date(&var3,'YYYY-MM-DD'))`)
 	_, err = stmt.Exec(viewed.UID, viewed.HID, viewed.Time)
 	if err != nil {
-		if err.Error() != "ORA-00001: unique constraint (CHHO.VIEWED_ID) violated\n" {
+		if err.Error() != "ORA-00001: unique constraint (CHHO.VIEWED_ID) violated\n" && err.Error() != "ORA-00001: unique constraint (FANG.VIEWED_ID) violated\n" {
 			return err
 		}
 	}
