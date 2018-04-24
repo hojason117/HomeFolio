@@ -9,7 +9,8 @@ import {
     SEARCH_CONDITION_CHANGED,
     SELL_DIALOG_TOGGLED,
     HOUSE_UPDATE_DIALOG_TOGGLED,
-    USER_UPDATE_DIALOG_TOGGLED
+    USER_UPDATE_DIALOG_TOGGLED,
+    SEARCH_MAP_HOVERED_MARKER_CHANGED
 } from "../constants/action-types";
 
 export const initialState = {
@@ -37,7 +38,8 @@ export const initialState = {
     },
     sellDialogOpen: false,
     houseUpdateDialogOpen: false,
-    userUpdateDialogOpen: false
+    userUpdateDialogOpen: false,
+    searchMapHoveredMarker: -1
 };
 
 const rootReducer = (state = initialState, action) => {
@@ -77,6 +79,9 @@ const rootReducer = (state = initialState, action) => {
 
         case USER_UPDATE_DIALOG_TOGGLED:
             return { ...state, userUpdateDialogOpen: !state.userUpdateDialogOpen };
+
+        case SEARCH_MAP_HOVERED_MARKER_CHANGED:
+            return { ...state, searchMapHoveredMarker: action.payload };
 
         default:
             return state;

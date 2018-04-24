@@ -6,7 +6,8 @@ import { withStyles } from 'material-ui/styles';
 import AppBar from 'material-ui/AppBar';
 import Toolbar from 'material-ui/Toolbar';
 import Paper from 'material-ui/Paper';
-import List, { ListItem, ListItemText } from 'material-ui/List';
+import List, { ListItem, ListItemIcon, ListItemText } from 'material-ui/List';
+import PinDrop from '@material-ui/icons/PinDrop';
 import HouseService from '../../services/house.service';
 import { Link } from 'react-router-dom';
 
@@ -35,13 +36,16 @@ class HouseAddrListItem extends React.Component {
 
     render() {
         return (
-            <ListItemText primary={this.props.id + '. ' + this.state.addr} />
+            <ListItemText inset primary={this.props.id + '. ' + this.state.addr} />
         )
     }
 }
 
 const mapStateToProps = state => {
-    return { houses: state.searchHousesResults };
+    return { 
+        houses: state.searchHousesResults,
+        hover: state.searchMapHoveredMarker
+    };
 };
 
 const SearchList = (props) => {
@@ -60,6 +64,9 @@ const SearchList = (props) => {
                 <List component='nav'>
                     {props.houses.map((house, index) =>
                         <ListItem button key={index} component={Link} to={'/houseinfo/' + house.h_id} >
+                            {props.hover === index && <ListItemIcon>
+                                <PinDrop />
+                            </ListItemIcon>}
                             <HouseAddrListItem id={index + 1} latlng={{ lat: house.lat, lng: house.lng }} />
                         </ListItem>)}
                 </List>
