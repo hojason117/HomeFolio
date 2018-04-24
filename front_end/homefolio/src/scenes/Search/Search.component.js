@@ -16,6 +16,7 @@ import NavBar from '../../components/NavBar/NavBar.component';
 import Map from '../../scenes/Search/Map.component';
 import SearchList from '../../scenes/Search/SearchList.component';
 import { searchHousesResultChanged, searchConditionChanged } from '../../redux/actions/main';
+import indigo from 'material-ui/colors/indigo';
 
 const styles = theme => ({
     container: {
@@ -41,6 +42,7 @@ const styles = theme => ({
     },
     root: {
         flexGrow: 10,
+        backgroundColor: indigo[50],
     },
     flex: {
         flex: 1,

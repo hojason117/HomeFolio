@@ -11,14 +11,16 @@ import NavBar from '../../components/NavBar/NavBar.component';
 import Sell from './Sell.component';
 import { Link } from 'react-router-dom';
 import { Typography } from 'material-ui';
+import indigo from 'material-ui/colors/indigo';
 
 const styles = theme => ({
     root: {
         flexGrow: 1,
+        backgroundColor: indigo[50],
     },
     button: {
         margin: theme.spacing.unit,
-    }
+    },
 });
 
 const mapStateToProps = state => {

@@ -229,7 +229,7 @@ class HouseInfo extends React.Component {
                                                 <Button onClick={() => this.setState({ deleteDialogOpen: false })} color="primary" autoFocus>
                                                     Cancel
                                                 </Button>
-                                                <Button onClick={this.handleDelete} color="primary">
+                                                <Button onClick={this.handleDelete} color="secondary">
                                                     Delete
                                                 </Button>
                                             </DialogActions>
