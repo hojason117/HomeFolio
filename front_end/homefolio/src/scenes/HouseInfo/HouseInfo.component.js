@@ -23,7 +23,7 @@ import ExpandMoreIcon from '@material-ui/icons/ExpandMore';
 import Button from 'material-ui/Button';
 import EditIcon from '@material-ui/icons/Edit'
 import DeleteIcon from '@material-ui/icons/Delete';
-import Tooltip from 'material-ui/Tooltip';
+import MuiTooltip from 'material-ui/Tooltip';
 import Grid from 'material-ui/Grid';
 import Dialog, { DialogActions, DialogContent, DialogContentText, DialogTitle } from 'material-ui/Dialog';
 
@@ -117,7 +117,8 @@ class HouseInfo extends React.Component {
             deleteDialogOpen: false,
             liked: false,
             likesCount: 0,
-            viewedCount: 0
+            viewedCount: 0,
+            expanded: false
         }
     }
 
@@ -203,16 +204,16 @@ class HouseInfo extends React.Component {
                                 </CardActions>
                                 {this.state.info.u_id === localStorage.getItem('u_id') &&
                                     <div>
-                                        <Tooltip id="tooltip-fab" title="Edit House">
+                                        <MuiTooltip id="tooltip-fab" title="Edit House">
                                             <Button variant="fab" mini aria-label="edit" className={classes.button} onClick={() => this.props.houseUpdateDialogToggled()} >
                                                 <EditIcon />
                                             </Button>
-                                        </Tooltip>
-                                        <Tooltip id="tooltip-fab" title="Delete House">
+                                        </MuiTooltip>
+                                        <MuiTooltip id="tooltip-fab" title="Delete House">
                                             <Button variant="fab" mini aria-label="delete" className={classes.button} onClick={() => this.setState({ deleteDialogOpen: true })}>
                                                 <DeleteIcon />
                                             </Button>
-                                        </Tooltip>
+                                        </MuiTooltip>
                                         <Dialog
                                             open={this.state.deleteDialogOpen}
                                             onClose={() => this.setState({ deleteDialogOpen: false })}
