@@ -67,7 +67,7 @@ class HouseService {
     }
 
     getHouseAddress = async (lat, lng) => {
-        /*var addr = '';
+        var addr = '';
         try {
             const response = await Axios.get('https://maps.googleapis.com/maps/api/geocode/json?latlng=' + lat + ',' + lng + '&key=AIzaSyAHbTvrtAr7iIMx0ZHhwwB3RqgWpRy4fvs')
             if (response.status === 200) {
@@ -82,9 +82,9 @@ class HouseService {
             console.log(error);
         }
 
-        return addr;*/
+        return addr;
 
-        return '2800 Southwest 35th Place, Gainesville, FL';
+        //return '2800 Southwest 35th Place, Gainesville, FL';
     }
 
     getHouseLatLng = async (addr) => {

@@ -18,6 +18,9 @@ const styles = theme => ({
     },
     root: {
         margin: 'auto',
+        backgroundSize: 'cover',
+        backgroundRepeat: 'no-repeat',
+        height: '70vh',
         padding: '320px 480px',
         backgroundImage: "url('https://cdn.freshome.com/wp-content/uploads/2016/10/white-houses-freshome18.png')",
         textAlign: "center",
@@ -77,7 +80,7 @@ const Public = (props) => {
             )
             .catch(err => alert('Something went wrong, please try again.'));
     }
-//<Image src='' style={{width:'100%', height:'auto'}}/>
+
     return ( 
         <div>
             <AppBar position="static" color="primary">
@@ -125,6 +128,7 @@ const Public = (props) => {
                     SIGNUP
                 </Button>
             </Paper>
+
             <Grid container>
                 <Grid item xs={4}>
                     <Paper className={classes.paper1} elevation={0}>   
