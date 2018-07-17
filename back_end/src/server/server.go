@@ -4,7 +4,6 @@ import (
 	"context"
 	"fmt"
 	"handler"
-	"net/http"
 	"time"
 
 	"github.com/labstack/echo"
@@ -40,14 +39,6 @@ func NewServer(h *handler.Handler) (e *echo.Echo) {
 	}))
 
 	// Routes
-
-	e.GET("/", func(c echo.Context) error {
-		return c.HTML(http.StatusOK, `
-			<h1>Welcome to Echo!</h1>
-			<h3>TLS certificates automatically installed from Let's Encrypt :)</h3>
-		`)
-	})
-
 	e.GET("/api/v1/ws/:username", h.NotifHandler.GetConnection)
 	e.POST("/api/v1/signup", h.UserHandler.Signup)
 	e.POST("/api/v1/login", h.UserHandler.Login)
