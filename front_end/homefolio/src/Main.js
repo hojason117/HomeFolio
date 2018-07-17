@@ -13,7 +13,8 @@ import UserInfo from './scenes/UserInfo/UserInfo.component';
 import NotFound from './scenes/NotFound/NotFound.component';
 import AuthService from './services/auth.service';
 
-export const servAddr = 'http://localhost:1323';
+export const servAddr = 'http://ec2-13-58-245-163.us-east-2.compute.amazonaws.com:1323';
+//export const servAddr = 'https://localhost:443';
 export const urlPrefix = '/api/v1';
 
 class Main extends React.Component {
@@ -32,11 +33,11 @@ class Main extends React.Component {
     render() {
         return (
             <Provider store={store}>
-                <BrowserRouter>
+                <BrowserRouter basename={process.env.PUBLIC_URL}>
                     <Switch>
                         <Route exact path='/' component={Public} />
-                        <Route path='/login' component={Login} />
-                        <Route path='/signup' component={Signup} />
+                        <Route exact path='/login' component={Login} />
+                        <Route exact path='/signup' component={Signup} />
                         <this.PrivateRoute path='/home' component={Home} />
                         <this.PrivateRoute path='/houseinfo/:h_id' component={HouseInfo} />
                         <this.PrivateRoute path='/userinfo/:u_id' component={UserInfo} location={this.props.location} />
