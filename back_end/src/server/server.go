@@ -4,6 +4,7 @@ import (
 	"context"
 	"fmt"
 	"handler"
+	"net/http"
 	"time"
 
 	"github.com/labstack/echo"
@@ -32,13 +33,21 @@ func NewServer(h *handler.Handler) (e *echo.Echo) {
 
 	// CORS config
 	e.Use(middleware.CORSWithConfig(middleware.CORSConfig{
-		AllowOrigins:     []string{"http://localhost:3000"},
+		AllowOrigins:     []string{"http://the-homefolio.s3-website-us-east-1.amazonaws.com", "https://hojason117.github.io", "http://localhost:3000"},
 		AllowMethods:     []string{echo.GET, echo.PUT, echo.POST, echo.DELETE},
 		AllowCredentials: true,
 		AllowHeaders:     []string{echo.HeaderAuthorization, echo.HeaderContentType},
 	}))
 
 	// Routes
+
+	e.GET("/", func(c echo.Context) error {
+		return c.HTML(http.StatusOK, `
+			<h1>Welcome to Echo!</h1>
+			<h3>TLS certificates automatically installed from Let's Encrypt :)</h3>
+		`)
+	})
+
 	e.GET("/api/v1/ws/:username", h.NotifHandler.GetConnection)
 	e.POST("/api/v1/signup", h.UserHandler.Signup)
 	e.POST("/api/v1/login", h.UserHandler.Login)
