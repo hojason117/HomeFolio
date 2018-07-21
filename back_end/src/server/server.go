@@ -32,7 +32,8 @@ func NewServer(h *handler.Handler) (e *echo.Echo) {
 
 	// CORS config
 	e.Use(middleware.CORSWithConfig(middleware.CORSConfig{
-		AllowOrigins:     []string{"http://the-homefolio.s3-website-us-east-1.amazonaws.com", "https://hojason117.github.io", "http://localhost:3000"},
+		AllowOrigins: []string{"http://the-homefolio.s3-website-us-east-1.amazonaws.com", "https://hojason117.github.io", "http://hojason117.github.io",
+			"http://homefolio.hojason117.com", "http://localhost:3000"},
 		AllowMethods:     []string{echo.GET, echo.PUT, echo.POST, echo.DELETE},
 		AllowCredentials: true,
 		AllowHeaders:     []string{echo.HeaderAuthorization, echo.HeaderContentType},
