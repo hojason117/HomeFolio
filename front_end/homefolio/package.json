@@ -2,7 +2,7 @@
   "name": "homefolio",
   "version": "0.1.0",
   "private": true,
-  "homepage": "http://the-homefolio.s3-website-us-east-1.amazonaws.com/",
+  "homepage": "http://homefolio.hojason117.com/",
   "dependencies": {
     "@devexpress/dx-react-core": "^1.1.2",
     "@devexpress/dx-react-grid": "^1.1.2",
