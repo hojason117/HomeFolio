@@ -13,7 +13,7 @@ import UserInfo from './scenes/UserInfo/UserInfo.component';
 import NotFound from './scenes/NotFound/NotFound.component';
 import AuthService from './services/auth.service';
 
-export const servAddr = 'http://ec2-13-58-245-163.us-east-2.compute.amazonaws.com:1323';
+export const servAddr = 'http://ec2-18-219-112-104.us-east-2.compute.amazonaws.com:1323';
 //export const servAddr = 'https://localhost:443';
 export const urlPrefix = '/api/v1';
 
