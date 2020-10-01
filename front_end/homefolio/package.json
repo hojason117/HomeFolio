@@ -5,7 +5,7 @@
   "homepage": "http://homefolio.hojason117.com/",
   "dependencies": {
     "@devexpress/dx-react-core": "^1.1.2",
-    "@devexpress/dx-react-grid": "^1.1.2",
+    "@devexpress/dx-react-grid": "^2.7.2",
     "@devexpress/dx-react-grid-material-ui": "^1.1.2",
     "@material-ui/icons": "^1.0.0-beta.42",
     "axios": "^0.18.0",
